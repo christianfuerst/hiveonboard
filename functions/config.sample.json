@@ -1,0 +1,5 @@
+{
+  "account": "INSERT-HIVE-ACCOUNT",
+  "password": "INSERT-HIVE-ACTIVE-KEY",
+  "rcThreshold": 30
+}

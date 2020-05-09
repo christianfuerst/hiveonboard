@@ -1,0 +1,18 @@
+{
+  "indexes": [
+    {
+      "collectionId": "accounts",
+      "fields": [
+        {
+          "fieldPath": "ipAddress",
+          "mode": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "mode": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
