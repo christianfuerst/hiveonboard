@@ -33,7 +33,7 @@ export const dApps = [
     icon: "3speak.svg",
     name: "3Speak",
     subtitle: "Decentralized video site",
-    url: "https://3speak.online",
+    url: "https://3speak.online?utm_source=hiveonboard",
   },
   {
     icon: "esteem.svg",
