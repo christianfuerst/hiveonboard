@@ -1,15 +1,16 @@
 {
   "indexes": [
     {
-      "collectionId": "accounts",
+      "collectionGroup": "accounts",
+      "queryScope": "COLLECTION",
       "fields": [
         {
           "fieldPath": "ipAddress",
-          "mode": "ASCENDING"
+          "order": "ASCENDING"
         },
         {
           "fieldPath": "timestamp",
-          "mode": "ASCENDING"
+          "order": "ASCENDING"
         }
       ]
     }
