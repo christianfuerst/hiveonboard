@@ -12,6 +12,7 @@ import Icon from "@material-ui/core/Icon";
 import Tooltip from "@material-ui/core/Tooltip";
 import Alert from "@material-ui/lab/Alert";
 import AlertTitle from "@material-ui/lab/AlertTitle";
+import Link from "@material-ui/core/Link";
 
 import CreateAccount from "../../components/CreateAccount";
 import BackupAccount from "../../components/BackupAccount";
@@ -115,11 +116,15 @@ const CreateAccountPage = () => {
               </Stepper>
             </Grid>
             <Grid item xs={12}>
-              {publicData.accountTickets === 0 && 1 === 0 ? (
+              {publicData.accountTickets === 0 ? (
                 <Alert className={classes.alert} severity="info">
                   <AlertTitle>Service Unvailable</AlertTitle>
                   We are currently out of account creation tickets. Check back
-                  later.
+                  later or use{" "}
+                  <Link href="https://signup.hive.io" target="_blank">
+                    signup.hive.io
+                  </Link>{" "}
+                  for other account creation options.
                 </Alert>
               ) : (
                 getStepContent(activeStep)
