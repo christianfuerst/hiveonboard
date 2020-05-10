@@ -16,6 +16,7 @@ let client = new dhive.Client([
 
 let key = dhive.PrivateKey.fromLogin(config.account, config.password, "active");
 
+// Use this function for production
 exports.createAccount = functions.https.onCall(async (data, context) => {
   let accountName = data.username;
   let oneWeekAgo = admin.firestore.Timestamp.fromDate(
@@ -102,6 +103,35 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     publicKeys: publicKeys,
   };
 });
+
+// Use this function for development
+exports.createFakeAccount = functions.https.onCall(async (data, context) => {
+  let accountName = data.username;
+
+  const password = hive.formatter.createSuggestedPassword();
+
+  const publicKeys = hive.auth.generateKeys(accountName, password, [
+    "owner",
+    "active",
+    "posting",
+    "memo",
+  ]);
+
+  const privateKeys = hive.auth.getPrivateKeys(accountName, password, [
+    "owner",
+    "active",
+    "posting",
+    "memo",
+  ]);
+
+  return {
+    username: accountName,
+    password: password,
+    privateKeys: privateKeys,
+    publicKeys: publicKeys,
+  };
+});
+
 
 exports.claimAccounts = functions.pubsub
   .schedule("every 10 minutes")

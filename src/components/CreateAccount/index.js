@@ -38,6 +38,7 @@ const CreateAccount = ({ setActiveStep, setAccount }) => {
   const classes = useStyles();
   const functions = useFunctions();
   const analytics = useAnalytics();
+  //const createAccount = functions.httpsCallable("createFakeAccount");
   const createAccount = functions.httpsCallable("createAccount");
   const [confirmed, setConfirmed] = React.useState(false);
   const [error, setError] = React.useState(null);
