@@ -1,4 +1,5 @@
 import React from "react";
+import { useAnalytics } from "reactfire";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
@@ -38,6 +39,7 @@ const useStyles = makeStyles((theme) => ({
 
 const BackupKeys = ({ setActiveStep, account }) => {
   const classes = useStyles();
+  const analytics = useAnalytics();
   const [confirmed, setConfirmed] = React.useState(false);
 
   const accountString =
@@ -70,7 +72,8 @@ const BackupKeys = ({ setActiveStep, account }) => {
         <Typography variant="h6">Welcome to HIVE!</Typography>
         <Typography>
           Congratulations, your account was created successfully.
-          <br /><br />
+          <br />
+          <br />
           Your HIVE username and password:
         </Typography>
       </Grid>
@@ -100,6 +103,9 @@ const BackupKeys = ({ setActiveStep, account }) => {
         <Grid container alignItems="center" justify="center" direction="row">
           <Grid item>
             <Button
+              onClick={analytics.logEvent("open_browser_extension", {
+                extension: "keychain",
+              })}
               target="_blank"
               href="https://chrome.google.com/webstore/detail/hive-keychain/jcacnejopjdphbnjgfaaobbfafkihpep"
               variant="contained"
@@ -121,6 +127,9 @@ const BackupKeys = ({ setActiveStep, account }) => {
           </Grid>
           <Grid item>
             <Button
+              onClick={analytics.logEvent("open_browser_extension", {
+                extension: "hivesigner",
+              })}
               target="_blank"
               href="https://chrome.google.com/webstore/detail/hivesigner/ophihnhnfgcmhpbcennhppicomdeabip"
               variant="contained"
@@ -157,6 +166,7 @@ const BackupKeys = ({ setActiveStep, account }) => {
             color="primary"
             disabled={confirmed ? true : false}
             onClick={() => {
+              analytics.logEvent("download_backup_file");
               downloadBackupFile();
               setConfirmed(true);
             }}
@@ -168,7 +178,10 @@ const BackupKeys = ({ setActiveStep, account }) => {
             disabled={!confirmed ? true : false}
             variant="contained"
             color="primary"
-            onClick={() => setActiveStep(2)}
+            onClick={() => {
+              analytics.logEvent("continue_to_dapps");
+              setActiveStep(2);
+            }}
             className={classes.button}
           >
             Continue

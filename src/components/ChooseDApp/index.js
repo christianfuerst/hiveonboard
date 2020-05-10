@@ -1,4 +1,5 @@
 import React from "react";
+import { useAnalytics } from "reactfire";
 import { makeStyles } from "@material-ui/core/styles";
 import Icon from "@material-ui/core/Icon";
 import List from "@material-ui/core/List";
@@ -31,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
 
 const CreateAccount = () => {
   const classes = useStyles();
+  const analytics = useAnalytics();
 
   return (
     <Grid container alignItems="center" justify="center" direction="column">
@@ -54,6 +56,9 @@ const CreateAccount = () => {
             return (
               <ListItem
                 button
+                onClick={analytics.logEvent("open_dapp", {
+                  dapp: element.name,
+                })}
                 component="a"
                 key={index}
                 target="_blank"

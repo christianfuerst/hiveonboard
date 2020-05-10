@@ -1,5 +1,5 @@
 import React from "react";
-import { useFunctions } from "reactfire";
+import { useFunctions, useAnalytics } from "reactfire";
 import _ from "lodash";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -37,6 +37,7 @@ const useStyles = makeStyles((theme) => ({
 const CreateAccount = ({ setActiveStep, setAccount }) => {
   const classes = useStyles();
   const functions = useFunctions();
+  const analytics = useAnalytics();
   const createAccount = functions.httpsCallable("createAccount");
   const [confirmed, setConfirmed] = React.useState(false);
   const [error, setError] = React.useState(null);
@@ -83,10 +84,14 @@ const CreateAccount = ({ setActiveStep, setAccount }) => {
       if (confirmed) {
         createAccount({ username: values.username }).then(function (result) {
           if (result.data.hasOwnProperty("error")) {
+            analytics.logEvent("create_account_error", {
+              error: result.data.error,
+            });
             setError(result.data.error);
             setConfirmed(false);
             formik.setSubmitting(false);
           } else {
+            analytics.logEvent("create_account_success");
             setAccount(result.data);
             setActiveStep(1);
           }
@@ -151,7 +156,10 @@ const CreateAccount = ({ setActiveStep, setAccount }) => {
             }
             variant="contained"
             color="primary"
-            onClick={() => setConfirmed(true)}
+            onClick={() => {
+              analytics.logEvent("confirm_account_name");
+              setConfirmed(true);
+            }}
             className={classes.submit}
           >
             Confirm Username
