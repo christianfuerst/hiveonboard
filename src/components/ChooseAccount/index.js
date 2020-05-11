@@ -21,13 +21,6 @@ const useStyles = makeStyles((theme) => ({
   textField: {
     width: 300,
   },
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: "#ffffff",
-  },
-  alert: {
-    margin: theme.spacing(2),
-  },
 }));
 
 const ChooseAccount = ({ setActiveStep, setAccount }) => {
@@ -94,7 +87,7 @@ const ChooseAccount = ({ setActiveStep, setAccount }) => {
             "memo",
           ]),
         });
-        
+
         setActiveStep(1);
       }
     },

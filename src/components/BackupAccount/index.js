@@ -37,6 +37,10 @@ const useStyles = makeStyles((theme) => ({
   iconRoot: {
     textAlign: "center",
   },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: "#ffffff",
+  },
 }));
 
 const BackupKeys = ({ setActiveStep, account }) => {
