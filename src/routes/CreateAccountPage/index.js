@@ -64,7 +64,7 @@ const CreateAccountPage = () => {
           />
         );
       case 2:
-        return <ChooseDApp />;
+        return <ChooseDApp account={account} />;
       default:
         return "Unknown step";
     }

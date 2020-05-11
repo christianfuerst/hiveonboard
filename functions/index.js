@@ -33,10 +33,13 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     };
   }
 
-  return {
-    error:
-      "The service is in maintenance. We gotta implement some anti abuse mechanics right now.",
-  };
+  let queryUser = await accountsRef.where("uid", "==", context.auth.uid).get();
+
+  if (!queryUser.empty) {
+    return {
+      error: "Your phone number was already used for account creation.",
+    };
+  }
 
   const ownerAuth = {
     weight_threshold: 1,
@@ -79,6 +82,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   await db.collection("accounts").doc(data.username).set({
     accountName: data.username,
     ipAddress: context.rawRequest.ip,
+    uid: context.auth.uid,
     timestamp: new Date(),
     voted: false,
     posted: false,

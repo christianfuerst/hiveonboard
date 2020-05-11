@@ -1,5 +1,7 @@
 import React from "react";
-import { useFunctions, useAnalytics } from "reactfire";
+import * as firebase from "firebase/app";
+import "firebase/auth";
+import { useAuth, useFunctions, useAnalytics } from "reactfire";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
@@ -10,6 +12,16 @@ import Button from "@material-ui/core/Button";
 import Icon from "@material-ui/core/Icon";
 import Backdrop from "@material-ui/core/Backdrop";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Box from "@material-ui/core/Box";
+import TextField from "@material-ui/core/TextField";
+
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 import hivesigner from "../../assets/hivesigner.png";
 import keychain from "../../assets/keychain.png";
@@ -41,18 +53,50 @@ const useStyles = makeStyles((theme) => ({
     zIndex: theme.zIndex.drawer + 1,
     color: "#ffffff",
   },
+  helperText: {
+    marginTop: theme.spacing(2),
+  },
+  textField: {
+    width: 300,
+    marginTop: theme.spacing(2),
+  },
 }));
 
 const BackupKeys = ({ setActiveStep, account }) => {
   const classes = useStyles();
-  const analytics = useAnalytics();
+  const auth = useAuth();
   const functions = useFunctions();
+  const analytics = useAnalytics();
   const [confirmed, setConfirmed] = React.useState(false);
   const [error, setError] = React.useState(null);
   const [submitting, setSubmitting] = React.useState(false);
+  const [showDialog, setShowDialog] = React.useState(false);
 
-  //const createAccount = functions.httpsCallable("createFakeAccount"); // Use this for development
-  const createAccount = functions.httpsCallable("createAccount");
+  const [phoneNumber, setPhoneNumber] = React.useState("");
+  const [codeRequested, setCodeRequested] = React.useState(false);
+  const [confirmationResult, setConfirmationResult] = React.useState(null);
+  const [confirmationCode, setConfirmationCode] = React.useState("");
+
+  const createAccount = functions.httpsCallable("createFakeAccount"); // Use this for development
+  //const createAccount = functions.httpsCallable("createAccount");
+
+  React.useEffect(() => {
+    initializeRecaptcha();
+  }, []);
+
+  const initializeRecaptcha = () => {
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+      "create-account",
+      {
+        size: "invisible",
+        callback: function (response) {},
+      }
+    );
+
+    window.recaptchaVerifier.render().then(function (widgetId) {
+      window.recaptchaWidgetId = widgetId;
+    });
+  };
 
   const accountString =
     `--------------- YOUR ACCOUNT -------------\n` +
@@ -76,6 +120,15 @@ const BackupKeys = ({ setActiveStep, account }) => {
     element.download = "HIVE-ACOUNT-" + account.username + "-BACKUP.txt";
     document.body.appendChild(element);
     element.click();
+  };
+
+  const closeDialog = () => {
+    setShowDialog(false);
+    setPhoneNumber("");
+    setCodeRequested(false);
+    setConfirmationResult(null);
+    setConfirmationCode("");
+    setSubmitting(false);
   };
 
   return (
@@ -190,27 +243,141 @@ const BackupKeys = ({ setActiveStep, account }) => {
             disabled={!confirmed ? true : false}
             variant="contained"
             color="primary"
+            id="create-account"
             onClick={() => {
               if (confirmed) {
-                setSubmitting(true);
-                createAccount(account).then(function (result) {
-                  if (result.data.hasOwnProperty("error")) {
-                    analytics.logEvent("create_account_error", {
-                      error: result.data.error,
-                    });
-                    setError(result.data.error);
-                    setSubmitting(false);
-                  } else {
-                    analytics.logEvent("create_account_success");
-                    setActiveStep(2);
-                  }
-                });
+                setShowDialog(true);
               }
             }}
             className={classes.button}
           >
             Create HIVE Account
           </Button>
+          <Dialog
+            maxWidth="xs"
+            open={showDialog}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            disableBackdropClick
+            disableEscapeKeyDown
+          >
+            <DialogTitle id="alert-dialog-title">
+              One-Time-Code Phone Verification
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                In order to continue a phone verification is required.
+              </DialogContentText>
+              <Box display="flex">
+                <PhoneInput
+                  disabled={codeRequested}
+                  id="phoneNumber"
+                  value={phoneNumber}
+                  onChange={(value) => {
+                    setPhoneNumber(value);
+                  }}
+                />
+              </Box>
+              <Box display="flex">
+                <TextField
+                  className={classes.textField}
+                  disabled={codeRequested ? false : true}
+                  required
+                  variant="outlined"
+                  size="small"
+                  id="confirmation-code"
+                  label="Code"
+                  type="text"
+                  inputProps={{ minLength: 6, maxLength: 6 }}
+                  value={confirmationCode}
+                  onChange={(event) => setConfirmationCode(event.target.value)}
+                />
+              </Box>
+              <DialogContentText
+                className={classes.helperText}
+                id="alert-dialog-description"
+              >
+                Please enter your phone number and request a one-time-code.
+                After a few seconds you will receive a SMS message containing
+                your one-time-code, which is required to finish account
+                creation.
+              </DialogContentText>
+              <DialogContentText id="alert-dialog-description">
+                Your phone number is only used and stored for this verification
+                and won't be given to 3rd parties or used for ads or spam.{" "}
+                <b>We respect your privacy!</b>
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => {
+                  closeDialog();
+                }}
+                color="primary"
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={codeRequested || phoneNumber === ""}
+                onClick={() => {
+                  setSubmitting(true);
+                  let appVerifier = window.recaptchaVerifier;
+
+                  auth
+                    .signInWithPhoneNumber("+" + phoneNumber, appVerifier)
+                    .then(function (result) {
+                      // SMS sent. Prompt user to type the code from the message, then sign the
+                      // user in with confirmationResult.confirm(code).
+                      setCodeRequested(true);
+                      setConfirmationResult(result);
+                      setSubmitting(false);
+                    })
+                    .catch(function (error) {
+                      setError(error.message);
+                      closeDialog();
+                    });
+                }}
+                color="primary"
+                variant="contained"
+              >
+                Request SMS
+              </Button>
+              <Button
+                disabled={
+                  !codeRequested || confirmationCode.toString().length !== 6
+                    ? true
+                    : false
+                }
+                onClick={() => {
+                  setSubmitting(true);
+                  confirmationResult
+                    .confirm(confirmationCode)
+                    .then(function () {
+                      createAccount(account).then(function (result) {
+                        if (result.data.hasOwnProperty("error")) {
+                          analytics.logEvent("create_account_error", {
+                            error: result.data.error,
+                          });
+                          setError(result.data.error);
+                          closeDialog();
+                        } else {
+                          analytics.logEvent("create_account_success");
+                          setActiveStep(2);
+                        }
+                      });
+                    })
+                    .catch(function (error) {
+                      setError(error.message);
+                      closeDialog();
+                    });
+                }}
+                color="primary"
+                variant="contained"
+              >
+                Submit Code
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Grid>
         {error && (
           <Grid container alignItems="center" justify="center" direction="row">
