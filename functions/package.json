@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@hivechain/dhive": "^0.13.4",
-    "@hiveio/hive-js": "^0.1.0",
     "firebase-admin": "^8.12.0",
     "firebase-functions": "^3.6.1",
     "lodash": "^4.17.15"

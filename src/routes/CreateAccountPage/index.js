@@ -14,7 +14,7 @@ import Alert from "@material-ui/lab/Alert";
 import AlertTitle from "@material-ui/lab/AlertTitle";
 import Link from "@material-ui/core/Link";
 
-import CreateAccount from "../../components/CreateAccount";
+import ChooseAccount from "../../components/ChooseAccount";
 import BackupAccount from "../../components/BackupAccount";
 import ChooseDApp from "../../components/ChooseDApp";
 
@@ -43,21 +43,25 @@ const CreateAccountPage = () => {
   const steps = getSteps();
 
   function getSteps() {
-    return ["Create your account", "Backup your account", "Choose your dapp"];
+    return ["Choose your account", "Backup your account", "Choose your dapp"];
   }
 
   function getStepContent(step) {
     switch (step) {
       case 0:
         return (
-          <CreateAccount
+          <ChooseAccount
             setActiveStep={setActiveStep}
             setAccount={setAccount}
           />
         );
       case 1:
         return (
-          <BackupAccount setActiveStep={setActiveStep} account={account} />
+          <BackupAccount
+            setActiveStep={setActiveStep}
+            setAccount={setAccount}
+            account={account}
+          />
         );
       case 2:
         return <ChooseDApp />;

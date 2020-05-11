@@ -1,5 +1,5 @@
 import React from "react";
-import { useAnalytics } from "reactfire";
+import { useFunctions, useAnalytics } from "reactfire";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
@@ -8,6 +8,8 @@ import Alert from "@material-ui/lab/Alert";
 import AlertTitle from "@material-ui/lab/AlertTitle";
 import Button from "@material-ui/core/Button";
 import Icon from "@material-ui/core/Icon";
+import Backdrop from "@material-ui/core/Backdrop";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 import hivesigner from "../../assets/hivesigner.png";
 import keychain from "../../assets/keychain.png";
@@ -40,7 +42,13 @@ const useStyles = makeStyles((theme) => ({
 const BackupKeys = ({ setActiveStep, account }) => {
   const classes = useStyles();
   const analytics = useAnalytics();
+  const functions = useFunctions();
   const [confirmed, setConfirmed] = React.useState(false);
+  const [error, setError] = React.useState(null);
+  const [submitting, setSubmitting] = React.useState(false);
+
+  //const createAccount = functions.httpsCallable("createFakeAccount"); // Use this for development
+  const createAccount = functions.httpsCallable("createAccount");
 
   const accountString =
     `--------------- YOUR ACCOUNT -------------\n` +
@@ -71,7 +79,7 @@ const BackupKeys = ({ setActiveStep, account }) => {
       <Grid item>
         <Typography variant="h6">Welcome to HIVE!</Typography>
         <Typography>
-          Congratulations, your account was created successfully.
+          Congratulations, your account is almost ready!
           <br />
           <br />
           Your HIVE username and password:
@@ -179,14 +187,42 @@ const BackupKeys = ({ setActiveStep, account }) => {
             variant="contained"
             color="primary"
             onClick={() => {
-              analytics.logEvent("continue_to_dapps");
-              setActiveStep(2);
+              if (confirmed) {
+                setSubmitting(true);
+                createAccount(account).then(function (result) {
+                  if (result.data.hasOwnProperty("error")) {
+                    analytics.logEvent("create_account_error", {
+                      error: result.data.error,
+                    });
+                    setError(result.data.error);
+                    setSubmitting(false);
+                  } else {
+                    analytics.logEvent("create_account_success");
+                    setActiveStep(2);
+                  }
+                });
+              }
             }}
             className={classes.button}
           >
-            Continue
+            Create HIVE Account
           </Button>
         </Grid>
+        {error && (
+          <Grid container alignItems="center" justify="center" direction="row">
+            <Alert
+              className={classes.alert}
+              severity="error"
+              onClose={() => setError(null)}
+            >
+              <AlertTitle>Account could not be created</AlertTitle>
+              {error}
+            </Alert>
+          </Grid>
+        )}
+        <Backdrop className={classes.backdrop} open={submitting}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
       </Grid>
     </Grid>
   );

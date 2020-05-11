@@ -1,6 +1,5 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const hive = require("@hiveio/hive-js");
 const dhive = require("@hivechain/dhive");
 const config = require("./config.json");
 
@@ -18,7 +17,6 @@ let key = dhive.PrivateKey.fromLogin(config.account, config.password, "active");
 
 // Use this function for production
 exports.createAccount = functions.https.onCall(async (data, context) => {
-  let accountName = data.username;
   let oneWeekAgo = admin.firestore.Timestamp.fromDate(
     new Date(Date.now() - 604800000)
   );
@@ -35,47 +33,36 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     };
   }
 
-  const password = hive.formatter.createSuggestedPassword();
-
-  const publicKeys = hive.auth.generateKeys(accountName, password, [
-    "owner",
-    "active",
-    "posting",
-    "memo",
-  ]);
-
-  const privateKeys = hive.auth.getPrivateKeys(accountName, password, [
-    "owner",
-    "active",
-    "posting",
-    "memo",
-  ]);
+  return {
+    error:
+      "The service is in maintenance. We gotta implement some anti abuse mechanics right now.",
+  };
 
   const ownerAuth = {
     weight_threshold: 1,
     account_auths: [],
-    key_auths: [[publicKeys.owner, 1]],
+    key_auths: [[data.publicKeys.owner, 1]],
   };
   const activeAuth = {
     weight_threshold: 1,
     account_auths: [],
-    key_auths: [[publicKeys.active, 1]],
+    key_auths: [[data.publicKeys.active, 1]],
   };
   const postingAuth = {
     weight_threshold: 1,
     account_auths: [],
-    key_auths: [[publicKeys.posting, 1]],
+    key_auths: [[data.publicKeys.posting, 1]],
   };
 
   const op = [
     "create_claimed_account",
     {
       creator: config.account,
-      new_account_name: accountName,
+      new_account_name: data.username,
       owner: ownerAuth,
       active: activeAuth,
       posting: postingAuth,
-      memo_key: publicKeys.memo,
+      memo_key: data.publicKeys.memo,
       json_metadata: "",
       extensions: [],
     },
@@ -89,49 +76,21 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     };
   }
 
-  await db.collection("accounts").doc(accountName).set({
-    accountName: accountName,
+  await db.collection("accounts").doc(data.username).set({
+    accountName: data.username,
     ipAddress: context.rawRequest.ip,
     timestamp: new Date(),
     voted: false,
+    posted: false,
   });
 
-  return {
-    username: accountName,
-    password: password,
-    privateKeys: privateKeys,
-    publicKeys: publicKeys,
-  };
+  return data;
 });
 
 // Use this function for development
 exports.createFakeAccount = functions.https.onCall(async (data, context) => {
-  let accountName = data.username;
-
-  const password = hive.formatter.createSuggestedPassword();
-
-  const publicKeys = hive.auth.generateKeys(accountName, password, [
-    "owner",
-    "active",
-    "posting",
-    "memo",
-  ]);
-
-  const privateKeys = hive.auth.getPrivateKeys(accountName, password, [
-    "owner",
-    "active",
-    "posting",
-    "memo",
-  ]);
-
-  return {
-    username: accountName,
-    password: password,
-    privateKeys: privateKeys,
-    publicKeys: publicKeys,
-  };
+  return data;
 });
-
 
 exports.claimAccounts = functions.pubsub
   .schedule("every 10 minutes")
@@ -165,6 +124,72 @@ exports.claimAccounts = functions.pubsub
           .doc("data")
           .set({ accountTickets: account[0].pending_claimed_accounts });
       }
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+exports.postAccountCreationReport = functions.pubsub
+  .schedule("every 24 hours")
+  .timeZone("Europe/Berlin")
+  .onRun(async (context) => {
+    let accountsRef = db.collection("accounts");
+    let query = await accountsRef
+      .where("posted", "==", false)
+      .orderBy("timestamp")
+      .get();
+
+    if (query.empty) {
+      // We haven't created any account, let's quit here
+      return;
+    }
+
+    let today = new Date();
+    let title =
+      "Account Creation Report " + today.toISOString().substring(0, 10);
+    let permlink =
+      "account-creation-report-" + today.toISOString().substring(0, 10);
+    let body =
+      ("This is an automatic generated account creation report from @" +
+        config.account +
+        ".\n") &
+      "![badge_poweredbyhive_dark_240.png](https://files.peakd.com/file/peakd-hive/hiveonboard/SkMbcWod-badge_powered-by-hive_dark_240.png)\n" &
+      "|Account|Creation Time|\n|-|-|\n";
+    let tag = "steemonboard";
+    let json_metadata = JSON.stringify({ tags: [tag] });
+
+    query.forEach((doc) => {
+      let account = doc.data();
+      let timestamp = new Date(account.timestamp.seconds * 1000);
+      body =
+        body +
+        "|@" +
+        account.accountName +
+        "|" +
+        timestamp.toISOString() +
+        "|\n";
+
+      db.collection("accounts").doc(account.accountName).set(
+        {
+          posted: true,
+        },
+        { merge: true }
+      );
+    });
+
+    try {
+      await client.broadcast.comment(
+        {
+          author: config.account,
+          body: body,
+          json_metadata: json_metadata,
+          parent_author: "",
+          parent_permlink: tag,
+          permlink: permlink,
+          title: title,
+        },
+        key
+      );
     } catch (error) {
       console.log(error);
     }

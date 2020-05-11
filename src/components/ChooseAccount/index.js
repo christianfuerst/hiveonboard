@@ -1,5 +1,5 @@
 import React from "react";
-import { useFunctions, useAnalytics } from "reactfire";
+import { useAnalytics } from "reactfire";
 import _ from "lodash";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -10,10 +10,6 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Icon from "@material-ui/core/Icon";
-import Backdrop from "@material-ui/core/Backdrop";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Alert from "@material-ui/lab/Alert";
-import AlertTitle from "@material-ui/lab/AlertTitle";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -34,14 +30,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CreateAccount = ({ setActiveStep, setAccount }) => {
+const ChooseAccount = ({ setActiveStep, setAccount }) => {
   const classes = useStyles();
-  const functions = useFunctions();
   const analytics = useAnalytics();
-  //const createAccount = functions.httpsCallable("createFakeAccount"); // Use this for development
-  const createAccount = functions.httpsCallable("createAccount");
+
   const [confirmed, setConfirmed] = React.useState(false);
-  const [error, setError] = React.useState(null);
 
   const formik = useFormik({
     initialValues: {
@@ -83,20 +76,26 @@ const CreateAccount = ({ setActiveStep, setAccount }) => {
     }),
     onSubmit: (values) => {
       if (confirmed) {
-        createAccount({ username: values.username }).then(function (result) {
-          if (result.data.hasOwnProperty("error")) {
-            analytics.logEvent("create_account_error", {
-              error: result.data.error,
-            });
-            setError(result.data.error);
-            setConfirmed(false);
-            formik.setSubmitting(false);
-          } else {
-            analytics.logEvent("create_account_success");
-            setAccount(result.data);
-            setActiveStep(1);
-          }
+        let password = hive.formatter.createSuggestedPassword();
+
+        setAccount({
+          username: values.username,
+          password: password,
+          publicKeys: hive.auth.generateKeys(values.username, password, [
+            "owner",
+            "active",
+            "posting",
+            "memo",
+          ]),
+          privateKeys: hive.auth.getPrivateKeys(values.username, password, [
+            "owner",
+            "active",
+            "posting",
+            "memo",
+          ]),
         });
+        
+        setActiveStep(1);
       }
     },
   });
@@ -172,27 +171,12 @@ const CreateAccount = ({ setActiveStep, setAccount }) => {
             color="primary"
             className={classes.submit}
           >
-            Create HIVE Account
+            Continue
           </Button>
         </Grid>
-        {error && (
-          <Grid container alignItems="center" justify="center" direction="row">
-            <Alert
-              className={classes.alert}
-              severity="error"
-              onClose={() => setError(null)}
-            >
-              <AlertTitle>Account could not be created</AlertTitle>
-              {error}
-            </Alert>
-          </Grid>
-        )}
-        <Backdrop className={classes.backdrop} open={formik.isSubmitting}>
-          <CircularProgress color="inherit" />
-        </Backdrop>
       </div>
     </form>
   );
 };
 
-export default CreateAccount;
+export default ChooseAccount;
