@@ -154,10 +154,10 @@ exports.postAccountCreationReport = functions.pubsub
     let permlink =
       "account-creation-report-" + today.toISOString().substring(0, 10);
     let body =
-      ("This is an automatic generated account creation report from @" +
-        config.account +
-        ".\n") &
-      "![badge_poweredbyhive_dark_240.png](https://files.peakd.com/file/peakd-hive/hiveonboard/SkMbcWod-badge_powered-by-hive_dark_240.png)\n" &
+      "This is an automatic generated account creation report from @" +
+      config.account +
+      ".\n" +
+      "![badge_poweredbyhive_dark_240.png](https://files.peakd.com/file/peakd-hive/hiveonboard/SkMbcWod-badge_powered-by-hive_dark_240.png)\n" +
       "|Account|Creation Time|\n|-|-|\n";
     let tag = "steemonboard";
     let json_metadata = JSON.stringify({ tags: [tag] });
