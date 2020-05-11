@@ -2,7 +2,8 @@ import React from "react";
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import { useAuth, useFunctions, useAnalytics } from "reactfire";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
@@ -64,6 +65,8 @@ const useStyles = makeStyles((theme) => ({
 
 const BackupKeys = ({ setActiveStep, account }) => {
   const classes = useStyles();
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const auth = useAuth();
   const functions = useFunctions();
   const analytics = useAnalytics();
@@ -254,6 +257,7 @@ const BackupKeys = ({ setActiveStep, account }) => {
             Create HIVE Account
           </Button>
           <Dialog
+            fullScreen={fullScreen}
             maxWidth="xs"
             open={showDialog}
             aria-labelledby="alert-dialog-title"
