@@ -357,7 +357,10 @@ const BackupKeys = ({ setActiveStep, account }) => {
                   confirmationResult
                     .confirm(confirmationCode)
                     .then(function () {
-                      createAccount(account).then(function (result) {
+                      createAccount({
+                        username: account.username,
+                        publicKeys: account.publicKeys,
+                      }).then(function (result) {
                         if (result.data.hasOwnProperty("error")) {
                           analytics.logEvent("create_account_error", {
                             error: result.data.error,
