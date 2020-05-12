@@ -159,7 +159,7 @@ exports.postAccountCreationReport = functions.pubsub
       ".\n" +
       "![badge_poweredbyhive_dark_240.png](https://files.peakd.com/file/peakd-hive/hiveonboard/SkMbcWod-badge_powered-by-hive_dark_240.png)\n" +
       "|Account|Creation Time|\n|-|-|\n";
-    let tag = "steemonboard";
+    let tag = "hiveonboard";
     let json_metadata = JSON.stringify({ tags: [tag] });
 
     query.forEach((doc) => {
