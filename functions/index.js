@@ -21,6 +21,12 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     new Date(Date.now() - 604800000)
   );
 
+  if (!context.auth.hasOwnProperty("uid")) {
+    return {
+      error: "Verficiation failed.",
+    };
+  }
+
   let accountsRef = db.collection("accounts");
   let query = await accountsRef
     .where("ipAddress", "==", context.rawRequest.ip)
