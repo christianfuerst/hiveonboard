@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
   },
   textField: {
     width: 300,
-    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   },
 }));
 
@@ -171,9 +171,11 @@ const BackupKeys = ({ setActiveStep, account }) => {
         <Grid container alignItems="center" justify="center" direction="row">
           <Grid item>
             <Button
-              onClick={analytics.logEvent("open_browser_extension", {
-                extension: "keychain",
-              })}
+              onClick={() =>
+                analytics.logEvent("open_browser_extension", {
+                  extension: "keychain",
+                })
+              }
               target="_blank"
               href="https://chrome.google.com/webstore/detail/hive-keychain/jcacnejopjdphbnjgfaaobbfafkihpep"
               variant="contained"
@@ -272,45 +274,67 @@ const BackupKeys = ({ setActiveStep, account }) => {
               <DialogContentText id="alert-dialog-description">
                 In order to continue a phone verification is required.
               </DialogContentText>
-              <Box display="flex">
-                <PhoneInput
-                  disabled={codeRequested}
-                  id="phoneNumber"
-                  value={phoneNumber}
-                  onChange={(value) => {
-                    setPhoneNumber(value);
-                  }}
-                />
-              </Box>
-              <Box display="flex">
-                <TextField
-                  className={classes.textField}
-                  disabled={codeRequested ? false : true}
-                  required
-                  variant="outlined"
-                  size="small"
-                  id="confirmation-code"
-                  label="Code"
-                  type="text"
-                  inputProps={{ minLength: 6, maxLength: 6 }}
-                  value={confirmationCode}
-                  onChange={(event) => setConfirmationCode(event.target.value)}
-                />
-              </Box>
-              <DialogContentText
-                className={classes.helperText}
-                id="alert-dialog-description"
-              >
-                Please enter your phone number and request a one-time-code.
-                After a few seconds you will receive a SMS message containing
-                your one-time-code, which is required to finish account
-                creation.
-              </DialogContentText>
-              <DialogContentText id="alert-dialog-description">
-                Your phone number is only used and stored for this verification
-                and won't be given to 3rd parties or used for ads or spam.{" "}
-                <b>We respect your privacy!</b>
-              </DialogContentText>
+              {!codeRequested ? (
+                <React.Fragment>
+                  <DialogContentText>
+                    <b>Enter your Phone Number:</b>
+                  </DialogContentText>
+                  <Box display="flex">
+                    <PhoneInput
+                      disabled={codeRequested}
+                      id="phoneNumber"
+                      value={phoneNumber}
+                      onChange={(value) => {
+                        setPhoneNumber(value);
+                      }}
+                    />
+                  </Box>
+                  <DialogContentText className={classes.helperText}>
+                    Please enter your phone number and request a one-time-code.
+                    After a few seconds you will receive a SMS message
+                    containing your one-time-code, which is required to finish
+                    account creation.
+                  </DialogContentText>
+                  <DialogContentText>
+                    Your phone number is only used for this verification and
+                    won't be given to 3rd parties or used for other purposes.
+                  </DialogContentText>
+                  <DialogContentText>
+                    <b>We respect your privacy!</b>
+                  </DialogContentText>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <DialogContentText>
+                    <b>Enter your Confirmation Code:</b>
+                  </DialogContentText>
+                  <Box display="flex">
+                    <TextField
+                      className={classes.textField}
+                      disabled={codeRequested ? false : true}
+                      required
+                      variant="outlined"
+                      size="small"
+                      id="confirmation-code"
+                      label="Code"
+                      type="text"
+                      inputProps={{ minLength: 6, maxLength: 6 }}
+                      value={confirmationCode}
+                      onChange={(event) =>
+                        setConfirmationCode(event.target.value)
+                      }
+                    />
+                  </Box>
+                  <DialogContentText>
+                    A SMS message has been sent to your phone number
+                    <b>+ {phoneNumber}</b> with a one-time-code, which is
+                    required to finish account creation.
+                  </DialogContentText>
+                </React.Fragment>
+              )}
+              <Backdrop className={classes.backdrop} open={submitting}>
+                <CircularProgress color="inherit" />
+              </Backdrop>
             </DialogContent>
             <DialogActions>
               <Button
@@ -321,68 +345,71 @@ const BackupKeys = ({ setActiveStep, account }) => {
               >
                 Cancel
               </Button>
-              <Button
-                disabled={codeRequested || phoneNumber === ""}
-                onClick={() => {
-                  setSubmitting(true);
-                  let appVerifier = window.recaptchaVerifier;
+              {!codeRequested ? (
+                <Button
+                  disabled={codeRequested || phoneNumber === ""}
+                  onClick={() => {
+                    setSubmitting(true);
+                    let appVerifier = window.recaptchaVerifier;
 
-                  auth
-                    .signInWithPhoneNumber("+" + phoneNumber, appVerifier)
-                    .then(function (result) {
-                      // SMS sent. Prompt user to type the code from the message, then sign the
-                      // user in with confirmationResult.confirm(code).
-                      setCodeRequested(true);
-                      setConfirmationResult(result);
-                      setSubmitting(false);
-                    })
-                    .catch(function (error) {
-                      setError(error.message);
-                      closeDialog();
-                    });
-                }}
-                color="primary"
-                variant="contained"
-              >
-                Request SMS
-              </Button>
-              <Button
-                disabled={
-                  !codeRequested || confirmationCode.toString().length !== 6
-                    ? true
-                    : false
-                }
-                onClick={() => {
-                  setSubmitting(true);
-                  confirmationResult
-                    .confirm(confirmationCode)
-                    .then(function () {
-                      createAccount({
-                        username: account.username,
-                        publicKeys: account.publicKeys,
-                      }).then(function (result) {
-                        if (result.data.hasOwnProperty("error")) {
-                          analytics.logEvent("create_account_error", {
-                            error: result.data.error,
-                          });
-                          setError(result.data.error);
-                          closeDialog();
-                        } else {
-                          analytics.logEvent("create_account_success");
-                          setActiveStep(2);
-                        }
+                    auth
+                      .signInWithPhoneNumber("+" + phoneNumber, appVerifier)
+                      .then(function (result) {
+                        // SMS sent. Prompt user to type the code from the message, then sign the
+                        // user in with confirmationResult.confirm(code).
+                        setCodeRequested(true);
+                        setConfirmationResult(result);
+                        setSubmitting(false);
+                      })
+                      .catch(function (error) {
+                        setError(error.message);
+                        closeDialog();
                       });
-                    })
-                    .catch(function (error) {
-                      setError(error.message);
-                      closeDialog();
-                    });
-                }}
-                color="primary"
-                variant="contained"
-              >
-                Submit Code
-              </Button>
+                  }}
+                  color="primary"
+                  variant="contained"
+                >
+                  Request SMS
+                </Button>
+              ) : (
+                <Button
+                  disabled={
+                    !codeRequested || confirmationCode.toString().length !== 6
+                      ? true
+                      : false
+                  }
+                  onClick={() => {
+                    setSubmitting(true);
+                    confirmationResult
+                      .confirm(confirmationCode)
+                      .then(function () {
+                        createAccount({
+                          username: account.username,
+                          publicKeys: account.publicKeys,
+                        }).then(function (result) {
+                          if (result.data.hasOwnProperty("error")) {
+                            analytics.logEvent("create_account_error", {
+                              error: result.data.error,
+                            });
+                            setError(result.data.error);
+                            closeDialog();
+                          } else {
+                            analytics.logEvent("create_account_success");
+                            setActiveStep(2);
+                          }
+                        });
+                      })
+                      .catch(function (error) {
+                        setError(error.message);
+                        closeDialog();
+                      });
+                  }}
+                  color="primary"
+                  variant="contained"
+                >
+                  Submit Code
+                </Button>
+              )}
             </DialogActions>
           </Dialog>
         </Grid>
