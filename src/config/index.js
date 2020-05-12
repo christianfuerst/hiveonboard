@@ -45,8 +45,8 @@ export const landingContent = [
 
 export const dApps = [
   {
-    icon: "peaked.svg",
-    name: "Peaked",
+    icon: "peakd.svg",
+    name: "PeakD",
     subtitle: "Full-featured blog",
     text: "The entry point for your decentralized world",
     url: "https://peakd.com",
