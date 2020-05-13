@@ -22,7 +22,7 @@ const WhatIsHivePage = () => {
       alignItems="center"
     >
       <Grid item xs={12}>
-        <Typography variant="h4">Content is comming soon. Need a break right now.</Typography>
+        <Typography variant="h4">Content is comming soon. Please bare with us.</Typography>
       </Grid>
     </Grid>
   );

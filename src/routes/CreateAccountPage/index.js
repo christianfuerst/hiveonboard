@@ -38,9 +38,24 @@ const CreateAccountPage = () => {
   const firestore = useFirestore();
   const publicData = useFirestoreDocData(firestore.doc("public/data"));
 
+  const [accountTickets, setAccountTickets] = React.useState(0);
   const [activeStep, setActiveStep] = React.useState(0);
   const [account, setAccount] = React.useState({});
   const steps = getSteps();
+
+  React.useEffect(() => {
+    if (typeof publicData !== "undefined") {
+      var tickets = publicData.accountTickets;
+
+      if (publicData.creators) {
+        publicData.creators.forEach((element) => {
+          tickets = tickets + element.accountTickets;
+        });
+      }
+
+      setAccountTickets(tickets);
+    }
+  }, [publicData]);
 
   function getSteps() {
     return ["Choose your account", "Backup your account", "Choose your dapp"];
@@ -82,10 +97,10 @@ const CreateAccountPage = () => {
             spacing={2}
           >
             <Grid item xs={12}>
-              {publicData.accountTickets === 0 ? (
+              {accountTickets === 0 ? (
                 <Tooltip
                   enterTouchDelay={0}
-                  title={`Current supply: ${publicData.accountTickets} accounts`}
+                  title={`Current supply: ${accountTickets} accounts`}
                 >
                   <Chip
                     className={classes.chip}
@@ -97,7 +112,7 @@ const CreateAccountPage = () => {
               ) : (
                 <Tooltip
                   enterTouchDelay={0}
-                  title={`Current supply: ${publicData.accountTickets} accounts`}
+                  title={`Current supply: ${accountTickets} accounts`}
                 >
                   <Chip
                     className={classes.chip}
@@ -120,7 +135,7 @@ const CreateAccountPage = () => {
               </Stepper>
             </Grid>
             <Grid item xs={12}>
-              {publicData.accountTickets === 0 ? (
+              {accountTickets === 0 ? (
                 <Alert className={classes.alert} severity="info">
                   <AlertTitle>Service Unvailable</AlertTitle>
                   We are currently out of account creation tickets. Check back

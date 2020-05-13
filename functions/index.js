@@ -1,6 +1,8 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const axios = require("axios").default;
 const dhive = require("@hivechain/dhive");
+const _ = require("lodash");
 const config = require("./config.json");
 
 admin.initializeApp();
@@ -47,42 +49,105 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     };
   }
 
-  const ownerAuth = {
-    weight_threshold: 1,
-    account_auths: [],
-    key_auths: [[data.publicKeys.owner, 1]],
-  };
-  const activeAuth = {
-    weight_threshold: 1,
-    account_auths: [],
-    key_auths: [[data.publicKeys.active, 1]],
-  };
-  const postingAuth = {
-    weight_threshold: 1,
-    account_auths: [],
-    key_auths: [[data.publicKeys.posting, 1]],
-  };
+  let publicRef = db.collection("public");
+  let queryCreators = await publicRef.doc("data").get();
+  let creators = queryCreators.data().creators;
+  let creatorCandidate = null;
 
-  const op = [
-    "create_claimed_account",
-    {
-      creator: config.account,
-      new_account_name: data.username,
-      owner: ownerAuth,
-      active: activeAuth,
-      posting: postingAuth,
-      memo_key: data.publicKeys.memo,
-      json_metadata: "",
-      extensions: [],
-    },
-  ];
+  // Look up a creator with the most tickets available
+  creators.forEach((element) => {
+    if (element.accountTickets > 0) {
+      if (creatorCandidate) {
+        if (element.accountTickets > creatorCandidate.accountTickets) {
+          creatorCandidate = element;
+          let creatorConfig = _.find(config.creator_instances, {
+            creator: element.account,
+          });
+          creatorCandidate = { ...creatorCandidate, ...creatorConfig };
+        }
+      } else {
+        creatorCandidate = element;
+        let creatorConfig = _.find(config.creator_instances, {
+          creator: element.account,
+        });
+        creatorCandidate = { ...creatorCandidate, ...creatorConfig };
+      }
+    }
+  });
 
+  console.log(creatorCandidate);
+
+  // Double-Check if the remote instance is up and running
+  let endpointCheck;
   try {
-    await client.broadcast.sendOperations([op], key);
+    endpointCheck = await axios.get(creatorCandidate.endpoint);
   } catch (error) {
-    return {
-      error: error,
+    return { error: "Remote creator instance is offline." };
+  }
+
+  if (
+    creatorCandidate &&
+    endpointCheck.data.owner_account === creatorCandidate.account
+  ) {
+    // Creator instance available
+    try {
+      let postRequest = await axios.post(
+        creatorCandidate.endpoint + "/createAccount",
+        {
+          name: data.username,
+          publicKeys: data.publicKeys,
+        },
+        {
+          headers: {
+            authority: creatorCandidate.apiKey,
+          },
+        }
+      );
+
+      if (postRequest.created === false) {
+        console.log("Account creation on remote creator instance failed.");
+        return { error: "Account creation on remote creator instance failed." };
+      }
+    } catch (error) {
+      return { error: "Remote creator instance is offline." };
+    }
+  } else {
+    // No creator instance available, we have to create ourself
+    const ownerAuth = {
+      weight_threshold: 1,
+      account_auths: [],
+      key_auths: [[data.publicKeys.owner, 1]],
     };
+    const activeAuth = {
+      weight_threshold: 1,
+      account_auths: [],
+      key_auths: [[data.publicKeys.active, 1]],
+    };
+    const postingAuth = {
+      weight_threshold: 1,
+      account_auths: [],
+      key_auths: [[data.publicKeys.posting, 1]],
+    };
+
+    const op = [
+      "create_claimed_account",
+      {
+        creator: config.account,
+        new_account_name: data.username,
+        owner: ownerAuth,
+        active: activeAuth,
+        posting: postingAuth,
+        memo_key: data.publicKeys.memo,
+        json_metadata: "",
+        extensions: [],
+      },
+    ];
+
+    try {
+      await client.broadcast.sendOperations([op], key);
+    } catch (error) {
+      return { error: error };
+    }
   }
 
   await db.collection("accounts").doc(data.username).set({
