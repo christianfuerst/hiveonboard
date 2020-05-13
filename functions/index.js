@@ -126,13 +126,43 @@ exports.claimAccounts = functions.pubsub
         await client.broadcast.sendOperations([op], key);
       }
 
-      let account = await client.database.getAccounts([config.account]);
+      // Update account
+      let accountResponse = await client.database.getAccounts([config.account]);
 
-      if (account[0].hasOwnProperty("pending_claimed_accounts")) {
+      if (accountResponse[0].hasOwnProperty("pending_claimed_accounts")) {
         await db
           .collection("public")
           .doc("data")
-          .set({ accountTickets: account[0].pending_claimed_accounts });
+          .set(
+            { accountTickets: accountResponse[0].pending_claimed_accounts },
+            { merge: true }
+          );
+      }
+
+      // Update creator_instances
+      if (config.creator_instances.length > 0) {
+        let accounts = [];
+
+        config.creator_instances.forEach((element) => {
+          accounts.push(element.creator);
+        });
+
+        let accountsResponse = await client.database.getAccounts(accounts);
+        let creators = [];
+
+        accountsResponse.forEach((element) => {
+          if (element.hasOwnProperty("pending_claimed_accounts")) {
+            creators.push({
+              account: element.name,
+              accountTickets: element.pending_claimed_accounts,
+            });
+          }
+        });
+
+        await db
+          .collection("public")
+          .doc("data")
+          .set({ creators: creators }, { merge: true });
       }
     } catch (error) {
       console.log(error);

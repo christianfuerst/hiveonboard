@@ -327,7 +327,7 @@ const BackupKeys = ({ setActiveStep, account }) => {
                   </Box>
                   <DialogContentText>
                     A SMS message has been sent to your phone number
-                    <b>+ {phoneNumber}</b> with a one-time-code, which is
+                    {" "}<b>+{phoneNumber}</b> with a one-time-code, which is
                     required to finish account creation.
                   </DialogContentText>
                 </React.Fragment>

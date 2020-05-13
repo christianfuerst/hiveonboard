@@ -1,5 +1,12 @@
 {
   "account": "INSERT-HIVE-ACCOUNT",
   "password": "INSERT-HIVE-ACTIVE-KEY",
-  "rcThreshold": 30
+  "rcThreshold": 30,
+  "creator_instances": [
+    {
+      "creator": "NAME-OF-WHALE-ACCOUNT",
+      "endpoint": "ENDPOINT-URI",
+      "apiKey": "YOUR-API-KEY"
+    }
+  ]
 }
