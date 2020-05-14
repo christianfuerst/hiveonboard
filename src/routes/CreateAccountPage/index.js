@@ -9,7 +9,6 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Chip from "@material-ui/core/Chip";
 import Icon from "@material-ui/core/Icon";
-import Tooltip from "@material-ui/core/Tooltip";
 import Alert from "@material-ui/lab/Alert";
 import AlertTitle from "@material-ui/lab/AlertTitle";
 import Link from "@material-ui/core/Link";
@@ -97,30 +96,13 @@ const CreateAccountPage = () => {
             spacing={2}
           >
             <Grid item xs={12}>
-              {accountTickets === 0 ? (
-                <Tooltip
-                  enterTouchDelay={0}
-                  title={`Current supply: ${accountTickets} accounts`}
-                >
-                  <Chip
-                    className={classes.chip}
-                    color="primary"
-                    label="Service Unavailable"
-                    icon={<Icon>error</Icon>}
-                  />
-                </Tooltip>
-              ) : (
-                <Tooltip
-                  enterTouchDelay={0}
-                  title={`Current supply: ${accountTickets} accounts`}
-                >
-                  <Chip
-                    className={classes.chip}
-                    color="secondary"
-                    label="Service Available"
-                    icon={<Icon>done</Icon>}
-                  />
-                </Tooltip>
+              {accountTickets === 0 && (
+                <Chip
+                  className={classes.chip}
+                  color="primary"
+                  label="Service Unavailable"
+                  icon={<Icon>error</Icon>}
+                />
               )}
             </Grid>
             <Grid item xs={12}>
