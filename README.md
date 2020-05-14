@@ -1,68 +1,125 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## About The Project
+This repository contains all frontend and backend code used for creating hiveonboard.com - a landing page for people who are interested in the HIVE blockchain project and want to get involved. One of most important use cases is a simple to use account creation flow.
 
-## Available Scripts
+The app is build on ReactJS for frontend, NodeJS for backend and makes use of several open source libs - covered at the end of this file.
 
-In the project directory, you can run:
+More about the project is covered on @hiveonboard blog on HIVE: https://peakd.com/@hiveonboard
 
-### `npm start`
+## Getting Started
+### Prerequisites
+This project uses [Firebase](https://firebase.google.com/) for easy deployable and scalable infrastructure.
+In order to deploy this project you have to create a free acount.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+It's also possible to run this app on a linux machine with self hosted webserver, db and nodejs backend.
+Feel free to make a fork and adjust it to your needs.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+### Installation
+- Fork the repository
+````
+git clone https://github.com/christianfuerst/hiveonboard
+````
 
-### `npm test`
+- Install frontend dependencies
+````
+cd hiveonboard
+npm install
+````
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Install backend dependencies
+````
+cd functions
+npm install
+````
 
-### `npm run build`
+- Change back to root directory and install Firebase CLI
+````
+cd ..
+npm install -g firebase-tools
+````
+- Sign into Firebase using your Google account
+````
+firebase login
+````
+- Go to Firebase console -> Create new project
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Go to Firebase project -> Create Web-App and follow the instructions
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+- Create a new file ``/config/firebase.json`` using the template file in the same folder
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Put in your settings from the Web-App you just created
 
-### `npm run eject`
+- Go to Firebase project -> Database and create a cloud firestore instance in your region
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- Go to Firebase project -> Authentication and enable Phone Sign-In
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Create file `.firebaserc` on root folder using this template and insert your project name
+````
+{
+  "projects": {
+    "default": "your-project-name"
+  }
+}
+````
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Configuration
+- Create a new file ``/functions/config.json`` from the template file in the same folder
+````
+{
+  "account": "INSERT-HIVE-ACCOUNT",
+  "password": "INSERT-HIVE-ACTIVE-KEY",
+  "rcThreshold": 30,
+  "creator_instances": [
+    {
+      "creator": "NAME-OF-WHALE-ACCOUNT",
+      "endpoint": "ENDPOINT-URI",
+      "apiKey": "YOUR-API-KEY"
+    }
+  ]
+}
+````
+- The file contains the HIVE account which will be used to claim account creation tickets and create accounts from this tickets
+- Optional: Add API enabled https://github.com/fbslo/creator instances to use additional account, where keys aren't under your control. If no instance is available leave an empty array `[]`.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### Build and Deploy
+- Build a production build for the React app
+````
+npm run build
+````
 
-## Learn More
+- Deploy to Firebase
+````
+firebase deploy
+````
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Run the app in development mode
+````
+npm start
+````
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Dependencies (frontend)
+- [@hiveio/hive-js](https://ghub.io/@hiveio/hive-js): Hive.js the JavaScript API for Hive blockchain
+- [@material-ui/core](https://ghub.io/@material-ui/core): React components that implement Google&#39;s Material Design.
+- [@material-ui/lab](https://ghub.io/@material-ui/lab): Material-UI Lab - Incubator for Material-UI React components.
+- [@mui-treasury/components](https://ghub.io/@mui-treasury/components): 
+- [@testing-library/jest-dom](https://ghub.io/@testing-library/jest-dom): Custom jest matchers to test the state of the DOM
+- [@testing-library/react](https://ghub.io/@testing-library/react): Simple and complete React DOM testing utilities that encourage good testing practices.
+- [@testing-library/user-event](https://ghub.io/@testing-library/user-event): Simulate user events for react-testing-library
+- [clsx](https://ghub.io/clsx): A tiny (229B) utility for constructing className strings conditionally.
+- [firebase](https://ghub.io/firebase): Firebase JavaScript library for web and Node.js
+- [formik](https://ghub.io/formik): Forms in React, without tears
+- [lodash](https://ghub.io/lodash): Lodash modular utilities.
+- [react](https://ghub.io/react): React is a JavaScript library for building user interfaces.
+- [react-dom](https://ghub.io/react-dom): React package for working with the DOM.
+- [react-phone-input-2](https://ghub.io/react-phone-input-2): A react component to format phone numbers
+- [react-router-dom](https://ghub.io/react-router-dom): DOM bindings for React Router
+- [react-scripts](https://ghub.io/react-scripts): Configuration and scripts for Create React App.
+- [reactfire](https://ghub.io/reactfire): Firebase library for React
+- [yup](https://ghub.io/yup): Dead simple Object schema validation
 
-### Code Splitting
+## Dependencies (backend)
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+- [@hivechain/dhive](https://ghub.io/@hivechain/dhive): Hive blockchain RPC client library
+- [axios](https://ghub.io/axios): Promise based HTTP client for the browser and node.js
+- [firebase-admin](https://ghub.io/firebase-admin): Firebase admin SDK for Node.js
+- [firebase-functions](https://ghub.io/firebase-functions): Firebase SDK for Cloud Functions
+- [lodash](https://ghub.io/lodash): Lodash modular utilities.
