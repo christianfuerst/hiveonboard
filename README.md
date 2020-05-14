@@ -8,7 +8,7 @@ More about the project is covered on @hiveonboard blog on HIVE: https://peakd.co
 ## Getting Started
 ### Prerequisites
 This project uses [Firebase](https://firebase.google.com/) for easy deployable and scalable infrastructure.
-In order to deploy this project you have to create a free acount.
+In order to deploy this project you have to create a free account.
 
 It's also possible to run this app on a linux machine with self hosted webserver, db and nodejs backend.
 Feel free to make a fork and adjust it to your needs.
