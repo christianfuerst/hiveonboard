@@ -19,8 +19,6 @@ import Grid from "@material-ui/core/Grid";
 import Link from "@material-ui/core/Link";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import Icon from "@material-ui/core/Icon";
 
 import { muiThemeConfig } from "./config";
 import HiveLogo from "./assets/hive_logo.png";
