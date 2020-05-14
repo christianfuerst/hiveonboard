@@ -27,8 +27,8 @@ export const landingContent = [
   },
   {
     image: "images/social_hive_lets-talk-onboarding.jpg",
-    overline: "Create Account",
-    heading: "Get Onboard",
+    overline: "Get Onboard",
+    heading: "Create Account",
     text:
       "Create a free HIVE account, start today and get engaged. The community is waiting for you!",
     to: "/create-account",

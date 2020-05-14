@@ -19,6 +19,8 @@ import Grid from "@material-ui/core/Grid";
 import Link from "@material-ui/core/Link";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import Icon from "@material-ui/core/Icon";
 
 import { muiThemeConfig } from "./config";
 import HiveLogo from "./assets/hive_logo.png";
@@ -72,11 +74,17 @@ function App() {
               alignItems="center"
             >
               <Grid item>
-                <img
-                  className={classes.imageLogo}
-                  src={HiveLogo}
-                  alt="HIVE Logo"
-                />
+                <Button
+                  component={RouterLink}
+                  to="/"
+                  disabled={location.pathname === "/" ? true : false}
+                >
+                  <img
+                    className={classes.imageLogo}
+                    src={HiveLogo}
+                    alt="HIVE Logo"
+                  />
+                </Button>
               </Grid>
               <Grid item>
                 <img
@@ -89,18 +97,6 @@ function App() {
           </Toolbar>
         </AppBar>
         <Box className={classes.box} display="flex">
-          <Box>
-            <Button
-              className={classes.button}
-              size="large"
-              color="secondary"
-              component={RouterLink}
-              to="/"
-              disabled={location.pathname === "/" ? true : false}
-            >
-              Home
-            </Button>
-          </Box>
           <Box>
             <Button
               className={classes.button}
@@ -122,7 +118,7 @@ function App() {
               to="/create-account"
               disabled={location.pathname === "/create-account" ? true : false}
             >
-              Get Onboard
+              Create Account
             </Button>
           </Box>
           <Box>
