@@ -19,10 +19,6 @@ let key = dhive.PrivateKey.fromLogin(config.account, config.password, "active");
 
 // Use this function for production
 exports.createAccount = functions.https.onCall(async (data, context) => {
-  let referrer = data.referrer;
-  let creator = config.account;
-  let provider = config.account;
-
   let oneWeekAgo = admin.firestore.Timestamp.fromDate(
     new Date(Date.now() - 604800000)
   );
@@ -79,6 +75,8 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     }
   });
 
+  console.log(creatorCandidate);
+
   // Double-Check if the remote instance is up and running
   let endpointCheck;
   try {
@@ -93,8 +91,6 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   ) {
     // Creator instance available
     try {
-      creator = creatorCandidate.account;
-
       let postRequest = await axios.post(
         creatorCandidate.endpoint + "/createAccount",
         {
@@ -103,17 +99,17 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
           metaData: {
             beneficiaries: [
               {
-                name: referrer,
+                name: data.referrer,
                 weight: config.fee.referrer,
                 label: "referrer",
               },
               {
-                name: creator,
+                name: creatorCandidate.account,
                 weight: config.fee.creator,
                 label: "creator",
               },
               {
-                name: provider,
+                name: config.account,
                 weight: config.fee.provider,
                 label: "provider",
               },
@@ -164,17 +160,17 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
         json_metadata: JSON.stringify({
           beneficiaries: [
             {
-              name: referrer,
+              name: data.referrer,
               weight: config.fee.referrer,
               label: "referrer",
             },
             {
-              name: creator,
+              name: config.account,
               weight: config.fee.creator,
               label: "creator",
             },
             {
-              name: provider,
+              name: config.account,
               weight: config.fee.provider,
               label: "provider",
             },
@@ -191,18 +187,14 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     }
   }
 
-  let accountData = {
+  await db.collection("accounts").doc(data.username).set({
     accountName: data.username,
     ipAddress: context.rawRequest.ip,
     uid: context.auth.uid,
     timestamp: new Date(),
-    referrer: referrer,
-    creator: creator,
-    provider: provider,
-  };
-
-  await db.collection("accounts").doc(data.username).set(accountData);
-  console.log(accountData);
+    voted: false,
+    posted: false,
+  });
 
   return data;
 });
