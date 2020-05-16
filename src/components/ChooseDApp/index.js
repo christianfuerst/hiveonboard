@@ -22,8 +22,9 @@ const CreateAccount = ({ account, redirectUrl }) => {
     return (
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          You will be redirected to: <a href={redirectUrl}>{redirectUrl}</a>
-          {(window.location.href = redirectUrl)}
+          You will be redirected to:{" "}
+          <a href={decodeURI(redirectUrl)}>{decodeURI(redirectUrl)}</a>
+          {(window.location.href = decodeURI(redirectUrl))}
         </Grid>
       </Grid>
     );
