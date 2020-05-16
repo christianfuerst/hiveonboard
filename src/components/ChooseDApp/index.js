@@ -14,30 +14,40 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CreateAccount = ({ account }) => {
+const CreateAccount = ({ account, redirectUrl }) => {
   const classes = useStyles();
   const analytics = useAnalytics();
 
-  return (
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <Alert className={classes.alert} severity="success">
-          <AlertTitle>Welcome to HIVE @{account.username}</AlertTitle>
-          Your account was successfully created on the blockchain.
-          <br />
-          <b>Where do you want to go today?</b>
-        </Alert>
+  if (redirectUrl) {
+    return (
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          You will be redirected to: <a href={redirectUrl}>{redirectUrl}</a>
+          {(window.location.href = redirectUrl)}
+        </Grid>
       </Grid>
-
-      {dApps.map((element, index) => {
-        return (
-          <Grid item xs={12} sm={4} md={3} key={index}>
-            <BlogCard app={element} analytics={analytics} />
-          </Grid>
-        );
-      })}
-    </Grid>
-  );
+    );
+  } else {
+    return (
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Alert className={classes.alert} severity="success">
+            <AlertTitle>Welcome to HIVE @{account.username}</AlertTitle>
+            Your account was successfully created on the blockchain.
+            <br />
+            <b>Where do you want to go today?</b>
+          </Alert>
+        </Grid>
+        {dApps.map((element, index) => {
+          return (
+            <Grid item xs={12} sm={4} md={3} key={index}>
+              <BlogCard app={element} analytics={analytics} />
+            </Grid>
+          );
+        })}
+      </Grid>
+    );
+  }
 };
 
 export default CreateAccount;

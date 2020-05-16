@@ -8,5 +8,10 @@
       "endpoint": "ENDPOINT-URI",
       "apiKey": "YOUR-API-KEY"
     }
-  ]
+  ],
+  "fee": {
+    "referrer": 300,
+    "creator": 100,
+    "provider": 100
+  }
 }

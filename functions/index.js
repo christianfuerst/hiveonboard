@@ -96,6 +96,25 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
         {
           name: data.username,
           publicKeys: data.publicKeys,
+          metaData: {
+            beneficiaries: [
+              {
+                name: data.referrer,
+                weight: config.fee.referrer,
+                label: "referrer",
+              },
+              {
+                name: creatorCandidate.account,
+                weight: config.fee.creator,
+                label: "creator",
+              },
+              {
+                name: config.account,
+                weight: config.fee.provider,
+                label: "provider",
+              },
+            ],
+          },
         },
         {
           headers: {
@@ -138,7 +157,25 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
         active: activeAuth,
         posting: postingAuth,
         memo_key: data.publicKeys.memo,
-        json_metadata: "",
+        json_metadata: JSON.stringify({
+          beneficiaries: [
+            {
+              name: data.referrer,
+              weight: config.fee.referrer,
+              label: "referrer",
+            },
+            {
+              name: config.account,
+              weight: config.fee.creator,
+              label: "creator",
+            },
+            {
+              name: config.account,
+              weight: config.fee.provider,
+              label: "provider",
+            },
+          ],
+        }),
         extensions: [],
       },
     ];

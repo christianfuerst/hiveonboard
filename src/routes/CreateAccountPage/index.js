@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import { useFirestore, useFirestoreDocData } from "reactfire";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
@@ -13,6 +14,7 @@ import Alert from "@material-ui/lab/Alert";
 import AlertTitle from "@material-ui/lab/AlertTitle";
 import Link from "@material-ui/core/Link";
 
+import { defaultRef } from "../../config";
 import ChooseAccount from "../../components/ChooseAccount";
 import BackupAccount from "../../components/BackupAccount";
 import ChooseDApp from "../../components/ChooseDApp";
@@ -32,15 +34,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const useQuery = () => {
+  return new URLSearchParams(useLocation().search);
+};
+
 const CreateAccountPage = () => {
   const classes = useStyles();
+  const query = useQuery();
   const firestore = useFirestore();
   const publicData = useFirestoreDocData(firestore.doc("public/data"));
 
   const [accountTickets, setAccountTickets] = React.useState(0);
+  const [referrer, setReferrer] = React.useState(defaultRef);
+  const [redirectUrl, setRedirectUrl] = React.useState(null);
+
   const [activeStep, setActiveStep] = React.useState(0);
   const [account, setAccount] = React.useState({});
   const steps = getSteps();
+
+  React.useEffect(() => {
+    setReferrer(query.get("ref"));
+    setRedirectUrl(query.get("redirect_url"));
+  }, [query]);
 
   React.useEffect(() => {
     if (typeof publicData !== "undefined") {
@@ -75,10 +90,11 @@ const CreateAccountPage = () => {
             setActiveStep={setActiveStep}
             setAccount={setAccount}
             account={account}
+            referrer={referrer}
           />
         );
       case 2:
-        return <ChooseDApp account={account} />;
+        return <ChooseDApp account={account} redirectUrl={redirectUrl} />;
       default:
         return "Unknown step";
     }

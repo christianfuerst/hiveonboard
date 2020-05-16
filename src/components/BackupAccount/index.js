@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const BackupKeys = ({ setActiveStep, account }) => {
+const BackupKeys = ({ setActiveStep, account, referrer }) => {
   const classes = useStyles();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -326,8 +326,8 @@ const BackupKeys = ({ setActiveStep, account }) => {
                     />
                   </Box>
                   <DialogContentText>
-                    A SMS message has been sent to your phone number
-                    {" "}<b>+{phoneNumber}</b> with a one-time-code, which is
+                    A SMS message has been sent to your phone number{" "}
+                    <b>+{phoneNumber}</b> with a one-time-code, which is
                     required to finish account creation.
                   </DialogContentText>
                 </React.Fragment>
@@ -386,6 +386,7 @@ const BackupKeys = ({ setActiveStep, account }) => {
                         createAccount({
                           username: account.username,
                           publicKeys: account.publicKeys,
+                          referrer: referrer,
                         }).then(function (result) {
                           if (result.data.hasOwnProperty("error")) {
                             analytics.logEvent("create_account_error", {

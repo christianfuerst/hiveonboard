@@ -1,3 +1,5 @@
+export const defaultRef = "hiveonboard";
+
 export const muiThemeConfig = {
   palette: {
     background: {
