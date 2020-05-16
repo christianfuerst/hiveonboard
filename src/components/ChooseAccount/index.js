@@ -99,6 +99,7 @@ const ChooseAccount = ({ setActiveStep, setAccount }) => {
         <Grid container alignItems="center" justify="center" direction="row">
           <TextField
             className={classes.textField}
+            color={formik.errors.username ? "primary" : "secondary"}
             required
             type="text"
             id="username"
@@ -106,7 +107,7 @@ const ChooseAccount = ({ setActiveStep, setAccount }) => {
             label="Username"
             variant="outlined"
             margin="normal"
-            value={formik.values.username}
+            value={formik.values.username.toLowerCase()}
             onChange={(e) => {
               formik.handleChange(e);
               if (confirmed) {
