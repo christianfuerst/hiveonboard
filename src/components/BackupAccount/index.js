@@ -197,9 +197,11 @@ const BackupKeys = ({ setActiveStep, account, referrer }) => {
           </Grid>
           <Grid item>
             <Button
-              onClick={analytics.logEvent("open_browser_extension", {
-                extension: "hivesigner",
-              })}
+              onClick={() =>
+                analytics.logEvent("open_browser_extension", {
+                  extension: "hivesigner",
+                })
+              }
               target="_blank"
               href="https://chrome.google.com/webstore/detail/hivesigner/ophihnhnfgcmhpbcennhppicomdeabip"
               variant="contained"

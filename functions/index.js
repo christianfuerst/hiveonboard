@@ -16,6 +16,11 @@ let client = new dhive.Client([
 ]);
 
 let key = dhive.PrivateKey.fromLogin(config.account, config.password, "active");
+let keyLog = dhive.PrivateKey.fromLogin(
+  config.accountLog,
+  config.passwordLog,
+  "active"
+);
 
 // Use this function for production
 exports.createAccount = functions.https.onCall(async (data, context) => {
@@ -196,6 +201,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     ipAddress: context.rawRequest.ip,
     uid: context.auth.uid,
     timestamp: new Date(),
+    posted: false,
     referrer: referrer,
     creator: creator,
     provider: provider,
@@ -330,7 +336,7 @@ exports.postAccountCreationReport = functions.pubsub
     try {
       await client.broadcast.comment(
         {
-          author: config.account,
+          author: config.accountLog,
           body: body,
           json_metadata: json_metadata,
           parent_author: "",
@@ -338,7 +344,7 @@ exports.postAccountCreationReport = functions.pubsub
           permlink: permlink,
           title: title,
         },
-        key
+        keyLog
       );
     } catch (error) {
       console.log(error);

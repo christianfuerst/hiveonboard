@@ -80,7 +80,7 @@ const AppCard = ({ app, analytics }) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={analytics.logEvent("open_dapp", {
+          onClick={() => analytics.logEvent("open_dapp", {
             dapp: app.name,
           })}
           target="_blank"

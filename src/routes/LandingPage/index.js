@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const LandingPage = () => {
+const LandingPage = ({ location }) => {
   const classes = useStyles();
 
   return (
@@ -27,12 +27,8 @@ const LandingPage = () => {
       {landingContent.map((element, index) => {
         return (
           <Grid item xs={12} sm={4} key={index}>
-            <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-            >
-              <LandingCard content={element} />
+            <Box display="flex" justifyContent="center" alignItems="center">
+              <LandingCard content={element} location={location} />
             </Box>
           </Grid>
         );

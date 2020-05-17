@@ -1,4 +1,5 @@
 import React from "react";
+import _ from "lodash";
 import { useLocation } from "react-router-dom";
 import { useFirestore, useFirestoreDocData } from "reactfire";
 import { makeStyles } from "@material-ui/core/styles";
@@ -53,8 +54,12 @@ const CreateAccountPage = () => {
   const steps = getSteps();
 
   React.useEffect(() => {
-    setReferrer(query.get("ref"));
-    setRedirectUrl(query.get("redirect_url"));
+    if (!_.isNil(query.get("ref"))) {
+      setReferrer(query.get("ref"));
+    }
+    if (!_.isNil(query.get("redirect_url"))) {
+      setRedirectUrl(query.get("redirect_url"));
+    }
   }, [query]);
 
   React.useEffect(() => {

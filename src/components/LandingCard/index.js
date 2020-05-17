@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const LandingCard = ({ content }) => {
+const LandingCard = ({ content, location }) => {
   const styles = useStyles();
   const mediaStyles = useFourThreeCardMediaStyles();
   const textCardContentStyles = useN04TextInfoContentStyles();
@@ -34,7 +34,7 @@ const LandingCard = ({ content }) => {
         className={cx(styles.media, mediaStyles.root)}
         image={content.image}
         component={RouterLink}
-        to={content.to}
+        to={content.to + location.search}
       />
       <CardContent className={styles.content}>
         <TextInfoContent

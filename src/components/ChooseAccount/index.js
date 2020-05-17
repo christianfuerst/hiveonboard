@@ -10,6 +10,16 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Icon from "@material-ui/core/Icon";
+import FormGroup from "@material-ui/core/FormGroup";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+
+import { tos } from "../../config";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -28,6 +38,7 @@ const ChooseAccount = ({ setActiveStep, setAccount }) => {
   const analytics = useAnalytics();
 
   const [confirmed, setConfirmed] = React.useState(false);
+  const [showTermsOfService, setShowTermsOfService] = React.useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -88,6 +99,7 @@ const ChooseAccount = ({ setActiveStep, setAccount }) => {
           ]),
         });
 
+        analytics.logEvent("confirm_account_name");
         setActiveStep(1);
       }
     },
@@ -136,28 +148,63 @@ const ChooseAccount = ({ setActiveStep, setAccount }) => {
             }}
           />
         </Grid>
+        <Grid container alignItems="center" justify="center" direction="row">
+          <Button onClick={() => setShowTermsOfService(true)}>
+            Terms of Service
+          </Button>
+        </Grid>
+        <Dialog
+          maxWidth="xs"
+          open={showTermsOfService}
+          onClose={() => setShowTermsOfService(false)}
+          aria-labelledby="tos-dialog-title"
+          aria-describedby="tos-dialog-description"
+        >
+          <DialogTitle id="tos-dialog-title">Terms of Service</DialogTitle>
+          <DialogContent>
+            {tos.map((element, index) => {
+              return (
+                <DialogContentText key={index} variant="body2">
+                  {element}
+                </DialogContentText>
+              );
+            })}
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => {
+                setShowTermsOfService(false);
+              }}
+              color="primary"
+            >
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Grid container alignItems="center" justify="center" direction="row">
+          <FormGroup row>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={confirmed}
+                  onChange={() =>
+                    confirmed ? setConfirmed(false) : setConfirmed(true)
+                  }
+                  name="confirm_terms_of_service"
+                  disabled={
+                    formik.errors.username || formik.values.username === ""
+                      ? true
+                      : false
+                  }
+                />
+              }
+              label="I agree to the terms of service"
+            />
+          </FormGroup>
+        </Grid>
       </div>
       <div>
         <Grid container alignItems="center" justify="center" direction="row">
-          <Button
-            type="submit"
-            disabled={
-              formik.errors.username ||
-              formik.values.username === "" ||
-              confirmed
-                ? true
-                : false
-            }
-            variant="contained"
-            color="primary"
-            onClick={() => {
-              analytics.logEvent("confirm_account_name");
-              setConfirmed(true);
-            }}
-            className={classes.submit}
-          >
-            Confirm Username
-          </Button>
           <Button
             type="submit"
             disabled={formik.isSubmitting || !confirmed ? true : false}

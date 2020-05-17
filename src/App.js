@@ -74,7 +74,7 @@ function App() {
               <Grid item>
                 <Button
                   component={RouterLink}
-                  to="/"
+                  to={"/" + location.search}
                   disabled={location.pathname === "/" ? true : false}
                 >
                   <img
@@ -101,7 +101,7 @@ function App() {
               size="large"
               color="secondary"
               component={RouterLink}
-              to="/what-is-hive"
+              to={"/what-is-hive" + location.search}
               disabled={location.pathname === "/what-is-hive" ? true : false}
             >
               Learn
@@ -113,7 +113,7 @@ function App() {
               size="large"
               color="secondary"
               component={RouterLink}
-              to="/create-account?ref=roomservice"
+              to={"/create-account" + location.search}
               disabled={location.pathname === "/create-account" ? true : false}
             >
               Create Account
@@ -124,7 +124,7 @@ function App() {
               className={classes.button}
               size="large"
               component={RouterLink}
-              to="/discover-dapps"
+              to={"/discover-dapps" + location.search}
               disabled={location.pathname === "/discover-dapps" ? true : false}
             >
               Explore
@@ -146,7 +146,7 @@ function App() {
               alignItems="center"
             >
               <Grid item>
-                hiveonboard.com is sponsored by
+                hiveonboard.com -
                 <Link
                   className={classes.link}
                   target="_blank"
