@@ -310,7 +310,7 @@ exports.postAccountCreationReport = functions.pubsub
       config.account +
       ".\n" +
       "![badge_poweredbyhive_dark_240.png](https://files.peakd.com/file/peakd-hive/hiveonboard/SkMbcWod-badge_powered-by-hive_dark_240.png)\n" +
-      "|Account|Creation Time|\n|-|-|\n";
+      "|Account|Referrer|Creation Time|\n|-|-|-|\n";
     let tag = "hiveonboard";
     let json_metadata = JSON.stringify({ tags: [tag] });
 
@@ -321,6 +321,8 @@ exports.postAccountCreationReport = functions.pubsub
         body +
         "|@" +
         account.accountName +
+        "|@" +
+        account.referrer +
         "|" +
         timestamp.toISOString() +
         "|\n";
