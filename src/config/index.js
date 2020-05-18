@@ -41,7 +41,7 @@ export const landingContent = [
     overline: "Get Onboard",
     heading: "Create Account",
     text:
-      "Create a free HIVE account, start today and get engaged. The community is waiting for you!",
+      "Create a HIVE account, start today and get engaged. The community is waiting for you!",
     to: "/create-account",
   },
   {
