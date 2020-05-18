@@ -1,8 +1,8 @@
 {
   "account": "INSERT-HIVE-ACCOUNT",
-  "password": "INSERT-HIVE-ACTIVE-KEY",
+  "activeKey": "INSERT-HIVE-ACTIVE-KEY",
   "accountLog": "INSERT-HIVE-ACCOUNT",
-  "passwordLog": "INSERT-HIVE-ACTIVE-KEY",
+  "activeKeyLog": "INSERT-HIVE-ACTIVE-KEY",
   "rcThreshold": 30,
   "creator_instances": [
     {
