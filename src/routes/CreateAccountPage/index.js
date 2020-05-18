@@ -47,6 +47,7 @@ const CreateAccountPage = () => {
 
   const [accountTickets, setAccountTickets] = React.useState(0);
   const [referrer, setReferrer] = React.useState(defaultRef);
+  const [creator, setCreator] = React.useState(null);
   const [redirectUrl, setRedirectUrl] = React.useState(null);
 
   const [activeStep, setActiveStep] = React.useState(0);
@@ -56,6 +57,9 @@ const CreateAccountPage = () => {
   React.useEffect(() => {
     if (!_.isNil(query.get("ref"))) {
       setReferrer(query.get("ref"));
+    }
+    if (!_.isNil(query.get("creator"))) {
+      setCreator(query.get("creator"));
     }
     if (!_.isNil(query.get("redirect_url"))) {
       setRedirectUrl(query.get("redirect_url"));
@@ -96,6 +100,7 @@ const CreateAccountPage = () => {
             setAccount={setAccount}
             account={account}
             referrer={referrer}
+            creator={creator}
           />
         );
       case 2:

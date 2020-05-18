@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const BackupKeys = ({ setActiveStep, account, referrer }) => {
+const BackupKeys = ({ setActiveStep, account, referrer, creator }) => {
   const classes = useStyles();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -389,6 +389,7 @@ const BackupKeys = ({ setActiveStep, account, referrer }) => {
                           username: account.username,
                           publicKeys: account.publicKeys,
                           referrer: referrer,
+                          creator: creator,
                         }).then(function (result) {
                           if (result.data.hasOwnProperty("error")) {
                             analytics.logEvent("create_account_error", {

@@ -63,9 +63,15 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   let creators = queryCreators.data().creators;
   let creatorCandidate = null;
 
-  // Look up a creator with the most tickets available
+  // Look up a creator with the most tickets available, prefer a creator if passed in
   creators.forEach((element) => {
-    if (element.accountTickets > 0) {
+    if (element.accountTickets > 0 && data.creator === element.account) {
+      creatorCandidate = element;
+      let creatorConfig = _.find(config.creator_instances, {
+        creator: element.account,
+      });
+      creatorCandidate = { ...creatorCandidate, ...creatorConfig };
+    } else if (element.accountTickets > 0) {
       if (creatorCandidate) {
         if (element.accountTickets > creatorCandidate.accountTickets) {
           creatorCandidate = element;
