@@ -15,8 +15,8 @@ let client = new dhive.Client([
   "https://api.openhive.network",
 ]);
 
-let key = dhive.PrivateKey.fromLogin(config.activeKey);
-let keyLog = dhive.PrivateKey.fromString(config.accountLog);
+let key = dhive.PrivateKey.fromString(config.activeKey);
+let keyLog = dhive.PrivateKey.fromString(config.activeKeyLog);
 
 // Use this function for production
 exports.createAccount = functions.https.onCall(async (data, context) => {
