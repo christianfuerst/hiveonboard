@@ -30,6 +30,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   );
 
   if (!context.auth.hasOwnProperty("uid")) {
+    console.log("Verficiation failed.");
     return {
       error: "Verficiation failed.",
     };
@@ -42,6 +43,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     .get();
 
   if (!query.empty) {
+    console.log("IP was recently used for account creation.");
     return {
       error: "Your IP was recently used for account creation.",
     };
@@ -50,6 +52,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   let queryUser = await accountsRef.where("uid", "==", context.auth.uid).get();
 
   if (!queryUser.empty) {
+    console.log("Phone number was already used for account creation.");
     return {
       error: "Your phone number was already used for account creation.",
     };
@@ -92,30 +95,8 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   try {
     endpointCheck = await axios.get(creatorCandidate.endpoint);
   } catch (error) {
+    console.log("Remote creator instance is offline.");
     return { error: "Remote creator instance is offline." };
-  }
-
-  // Build the custom_json beneficiaries array
-  if (referrer) {
-    beneficiaries.push({
-      name: referrer,
-      weight: config.fee.referrer,
-      label: "referrer",
-    });
-  }
-  if (creator) {
-    beneficiaries.push({
-      name: creator,
-      weight: config.fee.creator,
-      label: "creator",
-    });
-  }
-  if (provider) {
-    beneficiaries.push({
-      name: provider,
-      weight: config.fee.provider,
-      label: "provider",
-    });
   }
 
   if (
@@ -125,6 +106,29 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     // Creator instance available
     try {
       creator = creatorCandidate.account;
+
+      // Build the custom_json beneficiaries array
+      if (referrer) {
+        beneficiaries.push({
+          name: referrer,
+          weight: config.fee.referrer,
+          label: "referrer",
+        });
+      }
+      if (creator) {
+        beneficiaries.push({
+          name: creator,
+          weight: config.fee.creator,
+          label: "creator",
+        });
+      }
+      if (provider) {
+        beneficiaries.push({
+          name: provider,
+          weight: config.fee.provider,
+          label: "provider",
+        });
+      }
 
       let postRequest = await axios.post(
         creatorCandidate.endpoint + "/createAccount",
@@ -147,6 +151,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
         return { error: "Account creation on remote creator instance failed." };
       }
     } catch (error) {
+      console.log("Remote creator instance is offline.");
       return { error: "Remote creator instance is offline." };
     }
   } else {
@@ -166,6 +171,29 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
       account_auths: [],
       key_auths: [[data.publicKeys.posting, 1]],
     };
+
+    // Build the custom_json beneficiaries array
+    if (referrer) {
+      beneficiaries.push({
+        name: referrer,
+        weight: config.fee.referrer,
+        label: "referrer",
+      });
+    }
+    if (creator) {
+      beneficiaries.push({
+        name: creator,
+        weight: config.fee.creator,
+        label: "creator",
+      });
+    }
+    if (provider) {
+      beneficiaries.push({
+        name: provider,
+        weight: config.fee.provider,
+        label: "provider",
+      });
+    }
 
     const op = [
       "create_claimed_account",
