@@ -16,8 +16,6 @@ export const muiThemeConfig = {
   },
 };
 
-export const defaultRef = "hiveonboard";
-
 export const tos = [
   "You have to agree to this terms of service:",
   "- In order to prevent abuse & spam a verification of your phone number is required. Your data won't be used for any other purpose than that.",

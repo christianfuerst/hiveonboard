@@ -23,6 +23,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   let referrer = data.referrer;
   let creator = config.account;
   let provider = config.account;
+  let beneficiaries = [];
 
   let oneWeekAgo = admin.firestore.Timestamp.fromDate(
     new Date(Date.now() - 604800000)
@@ -94,6 +95,29 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     return { error: "Remote creator instance is offline." };
   }
 
+  // Build the custom_json beneficiaries array
+  if (referrer) {
+    beneficiaries.push({
+      name: referrer,
+      weight: config.fee.referrer,
+      label: "referrer",
+    });
+  }
+  if (creator) {
+    beneficiaries.push({
+      name: creator,
+      weight: config.fee.creator,
+      label: "creator",
+    });
+  }
+  if (provider) {
+    beneficiaries.push({
+      name: provider,
+      weight: config.fee.provider,
+      label: "provider",
+    });
+  }
+
   if (
     creatorCandidate &&
     endpointCheck.data.owner_account === creatorCandidate.account
@@ -108,23 +132,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
           name: data.username,
           publicKeys: data.publicKeys,
           metaData: {
-            beneficiaries: [
-              {
-                name: referrer,
-                weight: config.fee.referrer,
-                label: "referrer",
-              },
-              {
-                name: creator,
-                weight: config.fee.creator,
-                label: "creator",
-              },
-              {
-                name: provider,
-                weight: config.fee.provider,
-                label: "provider",
-              },
-            ],
+            beneficiaries: beneficiaries,
           },
         },
         {
@@ -169,23 +177,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
         posting: postingAuth,
         memo_key: data.publicKeys.memo,
         json_metadata: JSON.stringify({
-          beneficiaries: [
-            {
-              name: referrer,
-              weight: config.fee.referrer,
-              label: "referrer",
-            },
-            {
-              name: creator,
-              weight: config.fee.creator,
-              label: "creator",
-            },
-            {
-              name: provider,
-              weight: config.fee.provider,
-              label: "provider",
-            },
-          ],
+          beneficiaries: beneficiaries,
         }),
         extensions: [],
       },

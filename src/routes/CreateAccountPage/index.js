@@ -1,5 +1,6 @@
 import React from "react";
 import _ from "lodash";
+import hive from "@hiveio/hive-js";
 import { useLocation } from "react-router-dom";
 import { useFirestore, useFirestoreDocData } from "reactfire";
 import { makeStyles } from "@material-ui/core/styles";
@@ -15,7 +16,6 @@ import Alert from "@material-ui/lab/Alert";
 import AlertTitle from "@material-ui/lab/AlertTitle";
 import Link from "@material-ui/core/Link";
 
-import { defaultRef } from "../../config";
 import ChooseAccount from "../../components/ChooseAccount";
 import BackupAccount from "../../components/BackupAccount";
 import ChooseDApp from "../../components/ChooseDApp";
@@ -46,7 +46,7 @@ const CreateAccountPage = () => {
   const publicData = useFirestoreDocData(firestore.doc("public/data"));
 
   const [accountTickets, setAccountTickets] = React.useState(0);
-  const [referrer, setReferrer] = React.useState(defaultRef);
+  const [referrer, setReferrer] = React.useState(null);
   const [creator, setCreator] = React.useState(null);
   const [redirectUrl, setRedirectUrl] = React.useState(null);
 
@@ -56,7 +56,14 @@ const CreateAccountPage = () => {
 
   React.useEffect(() => {
     if (!_.isNil(query.get("ref"))) {
-      setReferrer(query.get("ref"));
+      hive.api.getAccounts([query.get("ref")], function (err, result) {
+        if (result) {
+          if (result.length === 1) {
+            setReferrer(query.get("ref"));
+            console.log("Valid ref");
+          }
+        }
+      });
     }
     if (!_.isNil(query.get("creator"))) {
       setCreator(query.get("creator"));
