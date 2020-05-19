@@ -5,14 +5,14 @@
   },
   "hosting": {
     "public": "build",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
-        "source": "**",
+        "source": "/api/**",
+        "function": "api"
+      },
+      {
+        "source": "!/@(api)/**",
         "destination": "/index.html"
       }
     ]

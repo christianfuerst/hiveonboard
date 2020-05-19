@@ -2,6 +2,8 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios").default;
 const dhive = require("@hivechain/dhive");
+const express = require("express");
+const cors = require("cors");
 const _ = require("lodash");
 const config = require("./config.json");
 
@@ -374,3 +376,56 @@ exports.postAccountCreationReport = functions.pubsub
       console.log(error);
     }
   });
+
+let app = express();
+app.use(cors());
+
+app.get("/api/referrer/:account", async (req, res) => {
+  let response = [];
+  let ref = db.collection("referrals");
+  let query = await ref.where("referrer.name", "==", req.params.account).get();
+
+  query.forEach((doc) => {
+    let data = doc.data();
+    response.push({
+      account: doc.id,
+      weight: data.referrer.weight,
+    });
+  });
+
+  res.json(response);
+});
+
+app.get("/api/provider/:account", async (req, res) => {
+  let response = [];
+  let ref = db.collection("referrals");
+  let query = await ref.where("provider.name", "==", req.params.account).get();
+
+  query.forEach((doc) => {
+    let data = doc.data();
+    response.push({
+      account: doc.id,
+      weight: data.provider.weight,
+    });
+  });
+
+  res.json(response);
+});
+
+app.get("/api/creator/:account", async (req, res) => {
+  let response = [];
+  let ref = db.collection("referrals");
+  let query = await ref.where("creator.name", "==", req.params.account).get();
+
+  query.forEach((doc) => {
+    let data = doc.data();
+    response.push({
+      account: doc.id,
+      weight: data.creator.weight,
+    });
+  });
+
+  res.json(response);
+});
+
+exports.api = functions.https.onRequest(app);
