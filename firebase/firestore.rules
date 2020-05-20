@@ -7,7 +7,15 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    match /accounts/ {document=**} {
+    match /accounts/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /referrals/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /referralsCount/{document=**} {
       allow read, write: if false;
     }
 

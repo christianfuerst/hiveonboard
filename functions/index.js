@@ -377,55 +377,185 @@ exports.postAccountCreationReport = functions.pubsub
     }
   });
 
+exports.addReferrals = functions.firestore
+  .document("referrals/{referralId}")
+  .onCreate((snap, context) => {
+    let referral = snap.data();
+    let increment = admin.firestore.FieldValue.increment(1);
+
+    if (referral.hasOwnProperty("referrer")) {
+      db.collection("referralsCount")
+        .doc(referral.referrer.name)
+        .set({ referrerCount: increment }, { merge: true });
+    }
+
+    if (referral.hasOwnProperty("provider")) {
+      db.collection("referralsCount")
+        .doc(referral.provider.name)
+        .set({ providerCount: increment }, { merge: true });
+    }
+
+    if (referral.hasOwnProperty("creator")) {
+      db.collection("referralsCount")
+        .doc(referral.creator.name)
+        .set({ creatorCount: increment }, { merge: true });
+    }
+  });
+
 let app = express();
 app.use(cors());
 
 app.get("/api/referrer/:account", async (req, res) => {
-  let response = [];
+  let items = [];
+  let refSize = db.collection("referralsCount");
   let ref = db.collection("referrals");
-  let query = await ref.where("referrer.name", "==", req.params.account).get();
+
+  let offset = 0;
+  let limit = 20;
+  let size = 0;
+
+  if (req.query.hasOwnProperty("offset")) {
+    if (Number.isInteger(parseInt(req.query.offset))) {
+      offset = parseInt(req.query.offset);
+    } else {
+      res.status(400).json({ error: "Invalid offset parameter" });
+    }
+  }
+
+  if (req.query.hasOwnProperty("limit")) {
+    if (Number.isInteger(parseInt(req.query.limit))) {
+      limit = parseInt(req.query.limit);
+    } else {
+      res.status(400).json({ error: "Invalid limit parameter" });
+    }
+  }
+
+  let querySize = await refSize.doc(req.params.account).get();
+
+  if (!querySize.empty) {
+    let referralsCount = querySize.data();
+    size = referralsCount.referrerCount;
+  }
+
+  let query = await ref
+    .where("referrer.name", "==", req.params.account)
+    .orderBy(admin.firestore.FieldPath.documentId())
+    .limit(limit)
+    .offset(offset)
+    .get();
 
   query.forEach((doc) => {
     let data = doc.data();
-    response.push({
+    items.push({
       account: doc.id,
       weight: data.referrer.weight,
+      timestamp: data.referrer.timestamp._seconds * 1000,
     });
   });
 
-  res.json(response);
+  res.json({ items: items, limit: limit, offset: offset, size: size });
 });
 
 app.get("/api/provider/:account", async (req, res) => {
-  let response = [];
+  let items = [];
+  let refSize = db.collection("referralsCount");
   let ref = db.collection("referrals");
-  let query = await ref.where("provider.name", "==", req.params.account).get();
+
+  let offset = 0;
+  let limit = 20;
+  let size = 0;
+
+  if (req.query.hasOwnProperty("offset")) {
+    if (Number.isInteger(parseInt(req.query.offset))) {
+      offset = parseInt(req.query.offset);
+    } else {
+      res.status(400).json({ error: "Invalid offset parameter" });
+    }
+  }
+
+  if (req.query.hasOwnProperty("limit")) {
+    if (Number.isInteger(parseInt(req.query.limit))) {
+      limit = parseInt(req.query.limit);
+    } else {
+      res.status(400).json({ error: "Invalid limit parameter" });
+    }
+  }
+
+  let querySize = await refSize.doc(req.params.account).get();
+
+  if (!querySize.empty) {
+    let referralsCount = querySize.data();
+    size = referralsCount.providerCount;
+  }
+
+  let query = await ref
+    .where("provider.name", "==", req.params.account)
+    .orderBy(admin.firestore.FieldPath.documentId())
+    .limit(limit)
+    .offset(offset)
+    .get();
 
   query.forEach((doc) => {
     let data = doc.data();
-    response.push({
+    items.push({
       account: doc.id,
       weight: data.provider.weight,
+      timestamp: data.provider.timestamp._seconds * 1000,
     });
   });
 
-  res.json(response);
+  res.json({ items: items, limit: limit, offset: offset, size: size });
 });
 
 app.get("/api/creator/:account", async (req, res) => {
-  let response = [];
+  let items = [];
+  let refSize = db.collection("referralsCount");
   let ref = db.collection("referrals");
-  let query = await ref.where("creator.name", "==", req.params.account).get();
+
+  let offset = 0;
+  let limit = 20;
+  let size = 0;
+
+  if (req.query.hasOwnProperty("offset")) {
+    if (Number.isInteger(parseInt(req.query.offset))) {
+      offset = parseInt(req.query.offset);
+    } else {
+      res.status(400).json({ error: "Invalid offset parameter" });
+    }
+  }
+
+  if (req.query.hasOwnProperty("limit")) {
+    if (Number.isInteger(parseInt(req.query.limit))) {
+      limit = parseInt(req.query.limit);
+    } else {
+      res.status(400).json({ error: "Invalid limit parameter" });
+    }
+  }
+
+  let querySize = await refSize.doc(req.params.account).get();
+
+  if (!querySize.empty) {
+    let referralsCount = querySize.data();
+    size = referralsCount.creatorCount;
+  }
+
+  let query = await ref
+    .where("creator.name", "==", req.params.account)
+    .orderBy(admin.firestore.FieldPath.documentId())
+    .limit(limit)
+    .offset(offset)
+    .get();
 
   query.forEach((doc) => {
     let data = doc.data();
-    response.push({
+    items.push({
       account: doc.id,
       weight: data.creator.weight,
+      timestamp: data.creator.timestamp._seconds * 1000,
     });
   });
 
-  res.json(response);
+  res.json({ items: items, limit: limit, offset: offset, size: size });
 });
 
 exports.api = functions.https.onRequest(app);
