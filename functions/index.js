@@ -379,26 +379,36 @@ exports.postAccountCreationReport = functions.pubsub
 
 exports.addReferrals = functions.firestore
   .document("referrals/{referralId}")
-  .onCreate((snap, context) => {
+  .onCreate(async (snap, context) => {
     let referral = snap.data();
     let increment = admin.firestore.FieldValue.increment(1);
 
-    if (referral.hasOwnProperty("referrer")) {
-      db.collection("referralsCount")
-        .doc(referral.referrer.name)
-        .set({ referrerCount: increment }, { merge: true });
-    }
+    try {
+      if (referral.hasOwnProperty("referrer")) {
+        await db
+          .collection("referralsCount")
+          .doc(referral.referrer.name)
+          .set({ referrerCount: increment }, { merge: true });
+      }
 
-    if (referral.hasOwnProperty("provider")) {
-      db.collection("referralsCount")
-        .doc(referral.provider.name)
-        .set({ providerCount: increment }, { merge: true });
-    }
+      if (referral.hasOwnProperty("provider")) {
+        await db
+          .collection("referralsCount")
+          .doc(referral.provider.name)
+          .set({ providerCount: increment }, { merge: true });
+      }
 
-    if (referral.hasOwnProperty("creator")) {
-      db.collection("referralsCount")
-        .doc(referral.creator.name)
-        .set({ creatorCount: increment }, { merge: true });
+      if (referral.hasOwnProperty("creator")) {
+        await db
+          .collection("referralsCount")
+          .doc(referral.creator.name)
+          .set({ creatorCount: increment }, { merge: true });
+      }
+
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
     }
   });
 
