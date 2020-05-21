@@ -440,12 +440,14 @@ app.get("/api/referrer/:account", async (req, res) => {
     }
   }
 
-  let querySize = await refSize.doc(req.params.account).get();
+  let querySize = await refSize
+    .where(admin.firestore.FieldPath.documentId(), "==", req.params.account)
+    .get();
 
-  if (!querySize.empty) {
-    let referralsCount = querySize.data();
+  querySize.forEach((doc) => {
+    let referralsCount = doc.data();
     size = referralsCount.referrerCount;
-  }
+  });
 
   let query = await ref
     .where("referrer.name", "==", req.params.account)
@@ -491,12 +493,14 @@ app.get("/api/provider/:account", async (req, res) => {
     }
   }
 
-  let querySize = await refSize.doc(req.params.account).get();
+  let querySize = await refSize
+    .where(admin.firestore.FieldPath.documentId(), "==", req.params.account)
+    .get();
 
-  if (!querySize.empty) {
-    let referralsCount = querySize.data();
+  querySize.forEach((doc) => {
+    let referralsCount = doc.data();
     size = referralsCount.providerCount;
-  }
+  });
 
   let query = await ref
     .where("provider.name", "==", req.params.account)
@@ -542,12 +546,14 @@ app.get("/api/creator/:account", async (req, res) => {
     }
   }
 
-  let querySize = await refSize.doc(req.params.account).get();
+  let querySize = await refSize
+    .where(admin.firestore.FieldPath.documentId(), "==", req.params.account)
+    .get();
 
-  if (!querySize.empty) {
-    let referralsCount = querySize.data();
+  querySize.forEach((doc) => {
+    let referralsCount = doc.data();
     size = referralsCount.creatorCount;
-  }
+  });
 
   let query = await ref
     .where("creator.name", "==", req.params.account)
