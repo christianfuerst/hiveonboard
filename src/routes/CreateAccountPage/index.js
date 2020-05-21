@@ -49,6 +49,7 @@ const CreateAccountPage = () => {
   const [referrer, setReferrer] = React.useState(null);
   const [creator, setCreator] = React.useState(null);
   const [redirectUrl, setRedirectUrl] = React.useState(null);
+  const [debugMode, setDebugMode] = React.useState(false);
 
   const [activeStep, setActiveStep] = React.useState(0);
   const [account, setAccount] = React.useState({});
@@ -70,6 +71,9 @@ const CreateAccountPage = () => {
     }
     if (!_.isNil(query.get("redirect_url"))) {
       setRedirectUrl(query.get("redirect_url"));
+    }
+    if (!_.isNil(query.get("debug_mode"))) {
+      setDebugMode(query.get("debug_mode"));
     }
   }, [query]);
 
@@ -108,6 +112,7 @@ const CreateAccountPage = () => {
             account={account}
             referrer={referrer}
             creator={creator}
+            debugMode={debugMode}
           />
         );
       case 2:

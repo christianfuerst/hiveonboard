@@ -63,7 +63,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const BackupKeys = ({ setActiveStep, account, referrer, creator }) => {
+const BackupKeys = ({
+  setActiveStep,
+  account,
+  referrer,
+  creator,
+  debugMode,
+}) => {
   const classes = useStyles();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -253,7 +259,11 @@ const BackupKeys = ({ setActiveStep, account, referrer, creator }) => {
             id="create-account"
             onClick={() => {
               if (confirmed) {
-                setShowDialog(true);
+                if (debugMode) {
+                  setActiveStep(2);
+                } else {
+                  setShowDialog(true);
+                }
               }
             }}
             className={classes.button}
