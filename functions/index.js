@@ -5,6 +5,8 @@ const dhive = require("@hivechain/dhive");
 const express = require("express");
 const cors = require("cors");
 const _ = require("lodash");
+var AES = require("crypto-js/aes");
+var SHA256 = require("crypto-js/sha256");
 const config = require("./config.json");
 
 admin.initializeApp();
@@ -51,7 +53,9 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     };
   }
 
-  let queryUser = await accountsRef.where("uid", "==", context.auth.uid).get();
+  let queryUser = await accountsRef
+    .where("phoneNumberHash", "==", SHA256(context.auth.phoneNumber))
+    .get();
 
   if (!queryUser.empty) {
     console.log("Phone number was already used for account creation.");
@@ -223,7 +227,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   let accountData = {
     accountName: data.username,
     ipAddress: context.rawRequest.ip,
-    uid: context.auth.uid,
+    phoneNumberHash: SHA256(context.auth.phoneNumber),
     timestamp: new Date(),
     posted: false,
     referrer: referrer,
@@ -232,6 +236,10 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   };
 
   await db.collection("accounts").doc(data.username).set(accountData);
+
+  // Delete user including phone number
+  await admin.auth().deleteUser(context.auth.uid);
+
   console.log(accountData);
 
   return data;
