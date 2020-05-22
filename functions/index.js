@@ -5,7 +5,6 @@ const dhive = require("@hivechain/dhive");
 const express = require("express");
 const cors = require("cors");
 const _ = require("lodash");
-var AES = require("crypto-js/aes");
 var SHA256 = require("crypto-js/sha256");
 const config = require("./config.json");
 
@@ -58,6 +57,8 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     .get();
 
   if (!queryUser.empty) {
+    // Delete user including phone number
+    await admin.auth().deleteUser(context.auth.uid);
     console.log("Phone number was already used for account creation.");
     return {
       error: "Your phone number was already used for account creation.",
