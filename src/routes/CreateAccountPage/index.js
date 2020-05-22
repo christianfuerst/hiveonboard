@@ -92,7 +92,7 @@ const CreateAccountPage = () => {
   }, [publicData]);
 
   function getSteps() {
-    return ["Choose your account", "Backup your account", "Choose your dapp"];
+    return ["Choose your account", "Backup your account", "Choose your dApp"];
   }
 
   function getStepContent(step) {

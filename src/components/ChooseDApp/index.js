@@ -6,6 +6,7 @@ import Alert from "@material-ui/lab/Alert";
 import AlertTitle from "@material-ui/lab/AlertTitle";
 
 import { dApps } from "../../config";
+import whitelist from "../../config/whitelist.json";
 import BlogCard from "../BlogCard";
 
 const useStyles = makeStyles((theme) => ({
@@ -18,12 +19,16 @@ const CreateAccount = ({ account, redirectUrl }) => {
   const classes = useStyles();
   const analytics = useAnalytics();
 
-  if (redirectUrl) {
+  console.log(redirectUrl);
+  console.log(redirectUrl.split("/")[0]);
+
+  if (redirectUrl && whitelist.some((url) => redirectUrl.startsWith(url))) {
     return (
       <Grid container spacing={2}>
         <Grid item xs={12}>
           You will be redirected to:{" "}
           <a href={decodeURI(redirectUrl)}>{decodeURI(redirectUrl)}</a>
+          <br />
           {(window.location.href = decodeURI(redirectUrl))}
         </Grid>
       </Grid>
