@@ -5,7 +5,7 @@ const dhive = require("@hivechain/dhive");
 const express = require("express");
 const cors = require("cors");
 const _ = require("lodash");
-var SHA256 = require("crypto-js/sha256");
+const SHA256 = require("crypto-js/sha256");
 const config = require("./config.json");
 
 admin.initializeApp();
@@ -46,6 +46,8 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     .get();
 
   if (!query.empty) {
+    // Delete user including phone number
+    await admin.auth().deleteUser(context.auth.uid);
     console.log("IP was recently used for account creation.");
     return {
       error: "Your IP was recently used for account creation.",
