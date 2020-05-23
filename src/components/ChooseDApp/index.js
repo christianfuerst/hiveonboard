@@ -19,9 +19,6 @@ const CreateAccount = ({ account, redirectUrl }) => {
   const classes = useStyles();
   const analytics = useAnalytics();
 
-  console.log(redirectUrl);
-  console.log(redirectUrl.split("/")[0]);
-
   if (redirectUrl && whitelist.some((url) => redirectUrl.startsWith(url))) {
     return (
       <Grid container spacing={2}>

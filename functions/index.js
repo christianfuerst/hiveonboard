@@ -5,7 +5,7 @@ const dhive = require("@hivechain/dhive");
 const express = require("express");
 const cors = require("cors");
 const _ = require("lodash");
-const SHA256 = require("crypto-js/sha256");
+const CryptoJS = require("crypto-js");
 const config = require("./config.json");
 
 admin.initializeApp();
@@ -54,8 +54,14 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     };
   }
 
+  let phoneNumberHashObject = CryptoJS.SHA256(context.auth.token.phone_number);
+
   let queryUser = await accountsRef
-    .where("phoneNumberHash", "==", SHA256(context.auth.phoneNumber))
+    .where(
+      "phoneNumberHash",
+      "==",
+      phoneNumberHashObject.toString(CryptoJS.enc.Hex)
+    )
     .get();
 
   if (!queryUser.empty) {
@@ -230,7 +236,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   let accountData = {
     accountName: data.username,
     ipAddress: context.rawRequest.ip,
-    phoneNumberHash: SHA256(context.auth.phoneNumber),
+    phoneNumberHash: phoneNumberHashObject.toString(CryptoJS.enc.Hex),
     timestamp: new Date(),
     posted: false,
     referrer: referrer,
