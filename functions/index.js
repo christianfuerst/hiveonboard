@@ -21,7 +21,6 @@ let client = new dhive.Client([
 let key = dhive.PrivateKey.fromString(config.activeKey);
 let keyLog = dhive.PrivateKey.fromString(config.activeKeyLog);
 
-// Use this function for production
 exports.createAccount = functions.https.onCall(async (data, context) => {
   let referrer = data.referrer;
   let creator = config.account;
@@ -435,6 +434,23 @@ app.get("/api/referrer/:account", async (req, res) => {
   let offset = 0;
   let limit = 20;
   let size = 0;
+  let orderBy = admin.firestore.FieldPath.documentId();
+
+  if (req.query.hasOwnProperty("orderBy")) {
+    switch (req.query.orderBy) {
+      case "account":
+        orderBy = admin.firestore.FieldPath.documentId();
+        break;
+      case "weight":
+        orderBy = "referrer.weight";
+        break;
+      case "timestamp":
+        orderBy = "referrer.timestamp";
+        break;
+      default:
+        res.status(400).json({ error: "Invalid orderBy parameter" });
+    }
+  }
 
   if (req.query.hasOwnProperty("offset")) {
     if (Number.isInteger(parseInt(req.query.offset))) {
@@ -463,7 +479,7 @@ app.get("/api/referrer/:account", async (req, res) => {
 
   let query = await ref
     .where("referrer.name", "==", req.params.account)
-    .orderBy(admin.firestore.FieldPath.documentId())
+    .orderBy(orderBy)
     .limit(limit)
     .offset(offset)
     .get();
@@ -488,6 +504,23 @@ app.get("/api/provider/:account", async (req, res) => {
   let offset = 0;
   let limit = 20;
   let size = 0;
+  let orderBy = admin.firestore.FieldPath.documentId();
+
+  if (req.query.hasOwnProperty("orderBy")) {
+    switch (req.query.orderBy) {
+      case "account":
+        orderBy = admin.firestore.FieldPath.documentId();
+        break;
+      case "weight":
+        orderBy = "provider.weight";
+        break;
+      case "timestamp":
+        orderBy = "provider.timestamp";
+        break;
+      default:
+        res.status(400).json({ error: "Invalid orderBy parameter" });
+    }
+  }
 
   if (req.query.hasOwnProperty("offset")) {
     if (Number.isInteger(parseInt(req.query.offset))) {
@@ -516,7 +549,7 @@ app.get("/api/provider/:account", async (req, res) => {
 
   let query = await ref
     .where("provider.name", "==", req.params.account)
-    .orderBy(admin.firestore.FieldPath.documentId())
+    .orderBy(orderBy)
     .limit(limit)
     .offset(offset)
     .get();
@@ -541,6 +574,23 @@ app.get("/api/creator/:account", async (req, res) => {
   let offset = 0;
   let limit = 20;
   let size = 0;
+  let orderBy = admin.firestore.FieldPath.documentId();
+
+  if (req.query.hasOwnProperty("orderBy")) {
+    switch (req.query.orderBy) {
+      case "account":
+        orderBy = admin.firestore.FieldPath.documentId();
+        break;
+      case "weight":
+        orderBy = "creator.weight";
+        break;
+      case "timestamp":
+        orderBy = "creator.timestamp";
+        break;
+      default:
+        res.status(400).json({ error: "Invalid orderBy parameter" });
+    }
+  }
 
   if (req.query.hasOwnProperty("offset")) {
     if (Number.isInteger(parseInt(req.query.offset))) {
@@ -569,7 +619,7 @@ app.get("/api/creator/:account", async (req, res) => {
 
   let query = await ref
     .where("creator.name", "==", req.params.account)
-    .orderBy(admin.firestore.FieldPath.documentId())
+    .orderBy(orderBy)
     .limit(limit)
     .offset(offset)
     .get();
