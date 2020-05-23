@@ -170,6 +170,14 @@ function App() {
                 >
                   GitHub
                 </Link>
+                -
+                <Link
+                  className={classes.link}
+                  target="_blank"
+                  href="https://app.swaggerhub.com/apis-docs/christianfuerst/hiveonboard.com/1.0.0"
+                >
+                  API
+                </Link>
               </Grid>
             </Grid>
           </Toolbar>
