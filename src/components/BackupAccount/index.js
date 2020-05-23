@@ -86,7 +86,6 @@ const BackupKeys = ({
   const [confirmationResult, setConfirmationResult] = React.useState(null);
   const [confirmationCode, setConfirmationCode] = React.useState("");
 
-  //const createAccount = functions.httpsCallable("createFakeAccount"); // Use this for development
   const createAccount = functions.httpsCallable("createAccount");
 
   React.useEffect(() => {

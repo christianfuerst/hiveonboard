@@ -254,11 +254,6 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   return data;
 });
 
-// Use this function for development
-exports.createFakeAccount = functions.https.onCall(async (data, context) => {
-  return data;
-});
-
 exports.claimAccounts = functions.pubsub
   .schedule("every 10 minutes")
   .timeZone("Europe/Berlin")
