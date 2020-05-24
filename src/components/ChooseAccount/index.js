@@ -18,6 +18,13 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import ListItemAvatar from "@material-ui/core/ListItemAvatar";
+import Avatar from "@material-ui/core/Avatar";
+import Typography from "@material-ui/core/Typography";
+import Paper from "@material-ui/core/Paper";
 
 import { tos } from "../../config";
 
@@ -31,14 +38,56 @@ const useStyles = makeStyles((theme) => ({
   textField: {
     width: 300,
   },
+  list: {
+    width: 320,
+    color: "#FFFFFF",
+  },
+  listItemText: {
+    color: "#FFFFFF",
+  },
+  paper: {
+    backgroundColor: theme.palette.secondary.main,
+  },
 }));
 
-const ChooseAccount = ({ setActiveStep, setAccount }) => {
+const ChooseAccount = ({ setActiveStep, setAccount, referrerAccount }) => {
   const classes = useStyles();
   const analytics = useAnalytics();
 
+  const [referrerProfile, setReferrerProfile] = React.useState({});
   const [confirmed, setConfirmed] = React.useState(false);
   const [showTermsOfService, setShowTermsOfService] = React.useState(false);
+
+  React.useEffect(() => {
+    if (referrerAccount) {
+      let referrerProfileCandidate = {};
+
+      try {
+        const profileJSON = JSON.parse(referrerAccount.posting_json_metadata)
+          .profile;
+
+        if (profileJSON.hasOwnProperty("name")) {
+          referrerProfileCandidate.name = profileJSON.name;
+        }
+
+        if (profileJSON.hasOwnProperty("profile_image")) {
+          referrerProfileCandidate.profile_image = profileJSON.profile_image;
+        }
+
+        if (profileJSON.hasOwnProperty("about")) {
+          referrerProfileCandidate.about = profileJSON.about;
+        }
+
+        setReferrerProfile(referrerProfileCandidate);
+      } catch (error) {
+        referrerProfileCandidate.name = referrerAccount.name;
+        referrerProfileCandidate.profile_image = "";
+        referrerProfileCandidate.about = "";
+
+        setReferrerProfile(referrerProfileCandidate);
+      }
+    }
+  }, [referrerAccount]);
 
   const formik = useFormik({
     initialValues: {
@@ -107,6 +156,43 @@ const ChooseAccount = ({ setActiveStep, setAccount }) => {
 
   return (
     <form className={classes.form} onSubmit={formik.handleSubmit}>
+      {!_.isEmpty(referrerAccount) && (
+        <div>
+          <Typography variant="overline" display="block" align="center">
+            <b>Your Referrer</b>
+          </Typography>
+
+          <Paper className={classes.paper}>
+            <List className={classes.list}>
+              <ListItem
+                alignItems="flex-start"
+                onClick={() =>
+                  window.open(
+                    "https://peakd.com/@" + referrerAccount.name,
+                    "_blank"
+                  )
+                }
+              >
+                <ListItemAvatar>
+                  <Avatar
+                    alt={referrerProfile.name}
+                    src={referrerProfile.profile_image}
+                  />
+                </ListItemAvatar>
+                <ListItemText
+                  primaryTypographyProps={{ color: "initial" }}
+                  secondaryTypographyProps={{
+                    color: "initial",
+                    variant: "caption",
+                  }}
+                  primary={referrerProfile.name}
+                  secondary={referrerProfile.about}
+                />
+              </ListItem>
+            </List>
+          </Paper>
+        </div>
+      )}
       <div>
         <Grid container alignItems="center" justify="center" direction="row">
           <TextField

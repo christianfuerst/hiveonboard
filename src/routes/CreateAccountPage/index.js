@@ -35,18 +35,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const useQuery = () => {
-  return new URLSearchParams(useLocation().search);
-};
-
 const CreateAccountPage = () => {
   const classes = useStyles();
-  const query = useQuery();
+  const location = useLocation();
   const firestore = useFirestore();
   const publicData = useFirestoreDocData(firestore.doc("public/data"));
 
   const [accountTickets, setAccountTickets] = React.useState(0);
   const [referrer, setReferrer] = React.useState(null);
+  const [referrerAccount, setReferrerAccount] = React.useState(null);
   const [creator, setCreator] = React.useState(null);
   const [redirectUrl, setRedirectUrl] = React.useState(null);
   const [debugMode, setDebugMode] = React.useState(false);
@@ -56,12 +53,14 @@ const CreateAccountPage = () => {
   const steps = getSteps();
 
   React.useEffect(() => {
+    const query = new URLSearchParams(location.search);
+
     if (!_.isNil(query.get("ref"))) {
       hive.api.getAccounts([query.get("ref")], function (err, result) {
         if (result) {
           if (result.length === 1) {
             setReferrer(query.get("ref"));
-            console.log("Valid ref");
+            setReferrerAccount(result[0]);
           }
         }
       });
@@ -75,7 +74,7 @@ const CreateAccountPage = () => {
     if (!_.isNil(query.get("debug_mode"))) {
       setDebugMode(query.get("debug_mode"));
     }
-  }, [query]);
+  }, [location.search]);
 
   React.useEffect(() => {
     if (typeof publicData !== "undefined") {
@@ -102,6 +101,7 @@ const CreateAccountPage = () => {
           <ChooseAccount
             setActiveStep={setActiveStep}
             setAccount={setAccount}
+            referrerAccount={referrerAccount}
           />
         );
       case 1:
