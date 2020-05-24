@@ -115,7 +115,7 @@ const WhatIsHivePage = () => {
               <img
                 className={classes.media}
                 src="/images/learn_hive_banner.png"
-                alt="Learn Hive"
+                alt="Quick Starter Guide"
               />
             </Typography>
           </ExpansionPanelDetails>
@@ -123,8 +123,32 @@ const WhatIsHivePage = () => {
         <ExpansionPanel>
           <ExpansionPanelSummary
             expandIcon={<Icon>expand_more</Icon>}
-            aria-controls="panel1-content"
-            id="panel1-header"
+            aria-controls="panel2-content"
+            id="panel2-header"
+            open={true}
+          >
+            <Typography className={classes.heading}>
+              <b>Keys and Roles Guide</b>
+            </Typography>
+            <Typography className={classes.secondaryHeading}>
+              What are keys and their roles?
+            </Typography>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            <Typography>
+              <img
+                className={classes.media}
+                src="/images/user_guide_to_hive_keys_and_roles.jpg"
+                alt="Keys and Roles Guide"
+              />
+            </Typography>
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
+        <ExpansionPanel>
+          <ExpansionPanelSummary
+            expandIcon={<Icon>expand_more</Icon>}
+            aria-controls="panel3-content"
+            id="panel3-header"
             open={true}
           >
             <Typography className={classes.heading}>
