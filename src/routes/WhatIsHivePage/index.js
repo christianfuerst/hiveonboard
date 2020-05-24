@@ -241,7 +241,7 @@ const WhatIsHivePage = () => {
                   gain 3% beneficiary rewards from post earnings of the referred
                   account. Please beware that referred accounts could always
                   change this setting on a frontend, since it's a totally
-                  optional. In this case you may reconsider your delegation.
+                  optional.
                 </Typography>
               </Grid>
             </Grid>
