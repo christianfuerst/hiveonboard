@@ -161,7 +161,6 @@ const ChooseAccount = ({ setActiveStep, setAccount, referrerAccount }) => {
           <Typography variant="overline" display="block" align="center">
             <b>Your Referrer</b>
           </Typography>
-
           <Paper className={classes.paper}>
             <List className={classes.list}>
               <ListItem
