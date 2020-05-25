@@ -152,10 +152,10 @@ const WhatIsHivePage = () => {
             open={true}
           >
             <Typography className={classes.heading}>
-              <b>Referral program</b>
+              <b>Referral Program</b>
             </Typography>
             <Typography className={classes.secondaryHeading}>
-              Help onboarding people and gain beneficiary rewards
+              Onboard your friends an earn rewards
             </Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
@@ -252,19 +252,18 @@ const WhatIsHivePage = () => {
                   </Grid>
                 </form>
                 <Typography>
-                  If a new user was created using your referral link,
-                  @hiveonboard will send you a memo to your HIVE account for
-                  notification.
+                  If someone joins HIVE with your referral link, @hiveonboard
+                  will send a memo to your HIVE account.
                   <br />
                   Please take care of the referred user and consider sending a
-                  small delegation since the new account won't have many
-                  ressource credits available at start.
+                  small delegation since your referral won't have many resource
+                  credits available at start.
                   <br />
                   <br />
-                  We will suggest to HIVE frontends that you, the referrer, will
-                  gain 3% beneficiary rewards from post earnings of the referred
-                  account. Please beware that referred accounts could always
-                  change this setting on a frontend, since it's a totally
+                  We are recommending that Hive interfaces (dApps) give you, the
+                  referrer, a 3% beneficiary reward from the post earnings of
+                  your referral. Please be advised that your referrals can
+                  always change this setting on their own, since it's totally
                   optional.
                 </Typography>
               </Grid>
