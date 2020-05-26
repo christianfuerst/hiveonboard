@@ -166,6 +166,14 @@ function App() {
                 <Link
                   className={classes.link}
                   target="_blank"
+                  href="https://hivesigner.com/sign/account-witness-vote?witness=roomservice&approve=1"
+                >
+                  Vote for Witness
+                </Link>
+                -
+                <Link
+                  className={classes.link}
+                  target="_blank"
                   href="https://github.com/christianfuerst/hiveonboard"
                 >
                   GitHub
