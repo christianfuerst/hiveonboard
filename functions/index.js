@@ -109,14 +109,11 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   try {
     endpointCheck = await axios.get(creatorCandidate.endpoint);
   } catch (error) {
+    endpointCheck = false;
     console.log("Remote creator instance is offline.");
-    return { error: "Remote creator instance is offline." };
   }
 
-  if (
-    creatorCandidate &&
-    endpointCheck.data.owner_account === creatorCandidate.account
-  ) {
+  if (creatorCandidate && endpointCheck) {
     // Creator instance available
     try {
       creator = creatorCandidate.account;
@@ -228,6 +225,8 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     try {
       await client.broadcast.sendOperations([op], key);
     } catch (error) {
+      // Delete user including phone number
+      await admin.auth().deleteUser(context.auth.uid);
       return { error: error };
     }
   }
