@@ -128,7 +128,31 @@ const WhatIsHivePage = () => {
             open={true}
           >
             <Typography className={classes.heading}>
-              <b>Keys and Roles Guide</b>
+              <b>Advantages</b>
+            </Typography>
+            <Typography className={classes.secondaryHeading}>
+              Why is HIVE more than just a Cryptocurrency?
+            </Typography>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            <Typography>
+              <img
+                className={classes.media}
+                src="/images/more_than_cryptocurrency_banner.png"
+                alt="Advantages"
+              />
+            </Typography>
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
+        <ExpansionPanel>
+          <ExpansionPanelSummary
+            expandIcon={<Icon>expand_more</Icon>}
+            aria-controls="panel3-content"
+            id="panel3-header"
+            open={true}
+          >
+            <Typography className={classes.heading}>
+              <b>Keys and Roles</b>
             </Typography>
             <Typography className={classes.secondaryHeading}>
               What are keys and their roles?
@@ -139,7 +163,7 @@ const WhatIsHivePage = () => {
               <img
                 className={classes.media}
                 src="/images/user_guide_to_hive_keys_and_roles.jpg"
-                alt="Keys and Roles Guide"
+                alt="Keys and Roles"
               />
             </Typography>
           </ExpansionPanelDetails>
@@ -147,8 +171,8 @@ const WhatIsHivePage = () => {
         <ExpansionPanel>
           <ExpansionPanelSummary
             expandIcon={<Icon>expand_more</Icon>}
-            aria-controls="panel3-content"
-            id="panel3-header"
+            aria-controls="panel4-content"
+            id="panel4-header"
             open={true}
           >
             <Typography className={classes.heading}>
