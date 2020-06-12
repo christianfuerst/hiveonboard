@@ -296,9 +296,6 @@ const LandingPage = () => {
           ]}
           data={referredAccounts}
           title={"Referred Accounts @" + account}
-          options={{
-            pageSize: 10,
-          }}
         />
       </Grid>
     </Grid>
