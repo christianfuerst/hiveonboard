@@ -1,4 +1,5 @@
 import React from "react";
+import { useHistory } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import _ from "lodash";
@@ -54,6 +55,7 @@ const useStyles = makeStyles((theme) => ({
 
 const WhatIsHivePage = () => {
   const classes = useStyles();
+  const history = useHistory();
 
   const [referrerAccount, SetReferrerAccount] = React.useState(null);
 
@@ -190,10 +192,6 @@ const WhatIsHivePage = () => {
               alignItems="center"
             >
               <Grid item xs={12}>
-                <Typography>
-                  Create your personal referrer link and bring new people to
-                  HIVE!
-                </Typography>
                 {referrerAccount && (
                   <Grid
                     container
@@ -265,12 +263,30 @@ const WhatIsHivePage = () => {
                     </Grid>
                     <Grid item xs={12}>
                       <Button
+                        disabled={
+                          formik.errors.username ||
+                          formik.values.username === ""
+                        }
                         type="submit"
                         variant="contained"
                         color="primary"
                         className={classes.submit}
                       >
                         Create Referral Link
+                      </Button>
+                      <Button
+                        disabled={
+                          formik.errors.username ||
+                          formik.values.username === ""
+                        }
+                        variant="contained"
+                        color="primary"
+                        className={classes.submit}
+                        onClick={() => {
+                          history.push("/referrals/" + formik.values.username);
+                        }}
+                      >
+                        Track your referrals
                       </Button>
                     </Grid>
                   </Grid>

@@ -27,6 +27,7 @@ import LandingPage from "./routes/LandingPage";
 import WhatIsHivePage from "./routes/WhatIsHivePage";
 import CreateAccountPage from "./routes/CreateAccountPage";
 import DAppsPage from "./routes/DAppsPage";
+import ReferralsPage from "./routes/ReferralsPage";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -136,6 +137,7 @@ function App() {
           <Route path="/what-is-hive" exact component={WhatIsHivePage} />
           <Route path="/create-account" exact component={CreateAccountPage} />
           <Route path="/discover-dapps" exact component={DAppsPage} />
+          <Route path="/referrals/:account" exact component={ReferralsPage} />
         </Switch>
         <AppBar className={classes.appBar} position="static">
           <Toolbar variant="dense">
