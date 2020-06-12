@@ -66,7 +66,9 @@ const LandingPage = () => {
     hive.api.getDynamicGlobalProperties((err, dynamicGlobalProperties) => {
       if (dynamicGlobalProperties) {
         axios
-          .get("https://hiveonboard.com/api/referrer/" + account)
+          .get(
+            "https://hiveonboard.com/api/referrer/" + account + "?limit=1000"
+          )
           .then(function (response) {
             if (response.data.items.length > 0) {
               let accounts = [];
