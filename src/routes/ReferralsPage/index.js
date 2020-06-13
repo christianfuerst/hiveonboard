@@ -198,7 +198,7 @@ const LandingPage = () => {
                     let refBeneficiary = 0;
                     if (json_metadata.hasOwnProperty("beneficiaries")) {
                       json_metadata.beneficiaries.forEach((element) => {
-                        if (element.name === account) {
+                        if (element.name === account && element.label === "referrer") {
                           refBeneficiary = element.weight;
                         }
                       });
