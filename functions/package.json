@@ -9,7 +9,7 @@
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "8"
+    "node": "10"
   },
   "dependencies": {
     "@hiveio/dhive": "^0.13.6",
@@ -18,7 +18,7 @@
     "crypto-js": "^4.0.0",
     "express": "^4.17.1",
     "firebase-admin": "^8.12.1",
-    "firebase-functions": "^3.6.2",
+    "firebase-functions": "^3.7.0",
     "lodash": "^4.17.15"
   },
   "devDependencies": {

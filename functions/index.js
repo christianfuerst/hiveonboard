@@ -256,6 +256,23 @@ exports.claimAccounts = functions.pubsub
   .schedule("every 10 minutes")
   .timeZone("Europe/Berlin")
   .onRun(async (context) => {
+    async function checkInstances(instances) {
+      let result = [];
+
+      instances.forEach((element, index) => {
+        axios
+          .get(element.endpoint)
+          .then(() => {
+            result[index].push(true);
+          })
+          .catch(() => {
+            result[index].push(false);
+          });
+      });
+
+      return result;
+    }
+
     try {
       let ac = await client.call("rc_api", "find_rc_accounts", {
         accounts: [config.account],
@@ -293,6 +310,8 @@ exports.claimAccounts = functions.pubsub
       if (config.creator_instances.length > 0) {
         let accounts = [];
 
+        let instances = await checkInstances(config.creator_instances);
+
         config.creator_instances.forEach((element) => {
           accounts.push(element.creator);
         });
@@ -300,11 +319,12 @@ exports.claimAccounts = functions.pubsub
         let accountsResponse = await client.database.getAccounts(accounts);
         let creators = [];
 
-        accountsResponse.forEach((element) => {
+        accountsResponse.forEach((element, index) => {
           if (element.hasOwnProperty("pending_claimed_accounts")) {
             creators.push({
               account: element.name,
               accountTickets: element.pending_claimed_accounts,
+              available: instances[index],
             });
           }
         });
