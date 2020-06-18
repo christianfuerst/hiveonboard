@@ -79,7 +79,11 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
 
   // Look up a creator with the most tickets available, prefer a creator if passed in
   creators.forEach((element) => {
-    if (element.accountTickets > 0 && element.available && data.creator === element.account) {
+    if (
+      element.accountTickets > 0 &&
+      element.available &&
+      data.creator === element.account
+    ) {
       creatorCandidate = element;
       let creatorConfig = _.find(config.creator_instances, {
         creator: element.account,
@@ -247,7 +251,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   // Delete user including phone number
   await admin.auth().deleteUser(context.auth.uid);
 
-  console.log(accountData);
+  console.log(JSON.stringify(accountData));
 
   return data;
 });
