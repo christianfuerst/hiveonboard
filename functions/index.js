@@ -79,13 +79,13 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
 
   // Look up a creator with the most tickets available, prefer a creator if passed in
   creators.forEach((element) => {
-    if (element.accountTickets > 0 && data.creator === element.account) {
+    if (element.accountTickets > 0 && element.available && data.creator === element.account) {
       creatorCandidate = element;
       let creatorConfig = _.find(config.creator_instances, {
         creator: element.account,
       });
       creatorCandidate = { ...creatorCandidate, ...creatorConfig };
-    } else if (element.accountTickets > 0) {
+    } else if (element.accountTickets > 0 && element.available) {
       if (creatorCandidate) {
         if (element.accountTickets > creatorCandidate.accountTickets) {
           creatorCandidate = element;
@@ -256,23 +256,6 @@ exports.claimAccounts = functions.pubsub
   .schedule("every 10 minutes")
   .timeZone("Europe/Berlin")
   .onRun(async (context) => {
-    async function checkInstances(instances) {
-      let result = [];
-
-      instances.forEach((element, index) => {
-        axios
-          .get(element.endpoint)
-          .then(() => {
-            result[index].push(true);
-          })
-          .catch(() => {
-            result[index].push(false);
-          });
-      });
-
-      return result;
-    }
-
     try {
       let ac = await client.call("rc_api", "find_rc_accounts", {
         accounts: [config.account],
@@ -309,8 +292,18 @@ exports.claimAccounts = functions.pubsub
       // Update creator_instances
       if (config.creator_instances.length > 0) {
         let accounts = [];
+        let instances = {};
 
-        let instances = await checkInstances(config.creator_instances);
+        await Promise.all(
+          config.creator_instances.map(async (object) => {
+            try {
+              await axios.get(object.endpoint);
+              instances[object.creator] = true;
+            } catch (error) {
+              instances[object.creator] = false;
+            }
+          })
+        );
 
         config.creator_instances.forEach((element) => {
           accounts.push(element.creator);
@@ -319,12 +312,12 @@ exports.claimAccounts = functions.pubsub
         let accountsResponse = await client.database.getAccounts(accounts);
         let creators = [];
 
-        accountsResponse.forEach((element, index) => {
+        accountsResponse.forEach((element) => {
           if (element.hasOwnProperty("pending_claimed_accounts")) {
             creators.push({
               account: element.name,
               accountTickets: element.pending_claimed_accounts,
-              available: instances[index],
+              available: instances[element.name],
             });
           }
         });

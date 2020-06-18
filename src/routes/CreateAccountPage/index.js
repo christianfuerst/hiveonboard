@@ -82,7 +82,9 @@ const CreateAccountPage = () => {
 
       if (publicData.creators) {
         publicData.creators.forEach((element) => {
-          tickets = tickets + element.accountTickets;
+          if (element.available) {
+            tickets = tickets + element.accountTickets;
+          }
         });
       }
 
