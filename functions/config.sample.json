@@ -1,4 +1,5 @@
 {
+  "provider": "INSERT-HIVE-ACCOUNT",
   "account": "INSERT-HIVE-ACCOUNT",
   "activeKey": "INSERT-HIVE-ACTIVE-KEY",
   "accountLog": "INSERT-HIVE-ACCOUNT",

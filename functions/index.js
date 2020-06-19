@@ -24,7 +24,7 @@ let keyLog = dhive.PrivateKey.fromString(config.activeKeyLog);
 exports.createAccount = functions.https.onCall(async (data, context) => {
   let referrer = data.referrer;
   let creator = config.account;
-  let provider = config.account;
+  let provider = config.provider;
   let beneficiaries = [];
 
   let oneWeekAgo = admin.firestore.Timestamp.fromDate(
