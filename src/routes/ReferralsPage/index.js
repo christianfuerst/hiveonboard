@@ -198,7 +198,10 @@ const LandingPage = () => {
                     let refBeneficiary = 0;
                     if (json_metadata.hasOwnProperty("beneficiaries")) {
                       json_metadata.beneficiaries.forEach((element) => {
-                        if (element.name === account && element.label === "referrer") {
+                        if (
+                          element.name === account &&
+                          element.label === "referrer"
+                        ) {
                           refBeneficiary = element.weight;
                         }
                       });
@@ -446,6 +449,27 @@ const LandingPage = () => {
                         </Tooltip>
                       </Grid>
                       <Grid item>{renderRcStatus(rowData, classes)}</Grid>
+                      {rowData.rcPercentage < 80 && (
+                        <Grid item>
+                          <Button
+                            className={classes.button}
+                            size="small"
+                            color="secondary"
+                            variant="outlined"
+                            onClick={() => {
+                              let url =
+                                "https://hivesigner.com/sign/delegateVestingShares?delegator=__signer&delegatee=" +
+                                rowData.account +
+                                "&vesting_shares=" +
+                                rowData.sugDelegation.toFixed(3) +
+                                "%20VESTS";
+                              window.open(url, "_blank");
+                            }}
+                          >
+                            Delegate 5 HP
+                          </Button>
+                        </Grid>
+                      )}
                     </Grid>
                   );
                 }
