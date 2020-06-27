@@ -66,7 +66,11 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   if (!queryUser.empty) {
     // Delete user including phone number
     await admin.auth().deleteUser(context.auth.uid);
-    console.log("Phone number was already used for account creation.");
+    console.log(
+      "Phone number (" +
+        phoneNumberHashObject.toString(CryptoJS.enc.Hex) +
+        ") was already used for account creation."
+    );
     return {
       error: "Your phone number was already used for account creation.",
     };

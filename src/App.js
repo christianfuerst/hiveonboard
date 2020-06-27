@@ -21,7 +21,7 @@ import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 
 import { muiThemeConfig } from "./config";
-import HiveLogo from "./assets/hive_logo.png";
+import HiveLogo from "./assets/hiveonboard_logo_white.png";
 import HiveClaim from "./assets/hive_claim.png";
 import LandingPage from "./routes/LandingPage";
 import WhatIsHivePage from "./routes/WhatIsHivePage";

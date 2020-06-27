@@ -27,7 +27,7 @@ export const tos = [
 
 export const landingContent = [
   {
-    image: "images/social_hive_lets-talk-community.jpg",
+    image: "images/social_hive_lets-talk-community.png",
     overline: "What is HIVE?",
     heading: "Learn",
     text:
@@ -35,7 +35,7 @@ export const landingContent = [
     to: "/what-is-hive",
   },
   {
-    image: "images/social_hive_lets-talk-onboarding.jpg",
+    image: "images/social_hive_lets-talk-onboarding.png",
     overline: "Get Onboard",
     heading: "Create Account",
     text:
@@ -43,7 +43,7 @@ export const landingContent = [
     to: "/create-account",
   },
   {
-    image: "images/social_hive_lets-talk-dapps.jpg",
+    image: "images/social_hive_lets-talk-dapps.png",
     overline: "Discover dApps",
     heading: "Explore",
     text:

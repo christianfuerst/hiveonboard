@@ -5,6 +5,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 import CardContent from "@material-ui/core/CardContent";
+import Button from "@material-ui/core/Button";
+import Box from "@material-ui/core/Box";
 import TextInfoContent from "@mui-treasury/components/content/textInfo";
 import { useFourThreeCardMediaStyles } from "@mui-treasury/styles/cardMedia/fourThree";
 import { useN04TextInfoContentStyles } from "@mui-treasury/styles/textInfoContent/n04";
@@ -20,6 +22,10 @@ const useStyles = makeStyles((theme) => ({
   media: {
     height: 0,
     borderRadius: 6,
+    backgroundColor: "#ffffff",
+  },
+  button: {
+    marginBottom: theme.spacing(1),
   },
 }));
 
@@ -37,10 +43,22 @@ const LandingCard = ({ content, location }) => {
         to={content.to + location.search}
       />
       <CardContent className={styles.content}>
+        <Box display="flex">
+          <Button
+            className={styles.button}
+            component={RouterLink}
+            to={content.to + location.search}
+            variant="contained"
+            color="secondary"
+            size="large"
+            fullWidth
+          >
+            {content.heading}
+          </Button>
+        </Box>
         <TextInfoContent
           classes={textCardContentStyles}
           overline={content.overline}
-          heading={content.heading}
           body={content.text}
         />
       </CardContent>
