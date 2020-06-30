@@ -443,6 +443,131 @@ exports.addReferrals = functions.firestore
     }
   });
 
+exports.updateReferralsCount = functions.firestore
+  .document("referralsCount/{referralId}")
+  .onUpdate(async (snap, context) => {
+    let referral = snap.data();
+    let keyBadgeOne = dhive.PrivateKey.fromString(config.activeKeyBadgeOne);
+    let keyBadgeTwo = dhive.PrivateKey.fromString(config.activeKeyBadgeTwo);
+    let keyBadgeThree = dhive.PrivateKey.fromString(config.activeKeyBadgeThree);
+
+    try {
+      if (referral.hasOwnProperty("referrerCount")) {
+        if (referral.referrerCount >= 10 && referral.referrerCount < 100) {
+          if (!referral.hasOwnProperty("badge")) {
+            // Add BadgeOne
+            let jsonData = [
+              "follow",
+              { follower: config.badgeOne, following: snap.id, what: ["blog"] },
+            ];
+
+            await client.broadcast.json(
+              {
+                required_auths: [],
+                required_posting_auths: [config.badgeOne],
+                id: "follow",
+                json: JSON.stringify(jsonData),
+              },
+              keyBadgeOne
+            );
+
+            await db
+              .collection("referralsCount")
+              .doc(snap.id)
+              .set({ badge: config.badgeOne }, { merge: true });
+          }
+        }
+
+        if (referral.referrerCount >= 100 && referral.referrerCount < 1000) {
+          if (referral.badge === config.badgeOne) {
+            // Remove BadgeOne & Add BadgeTwo
+            let jsonData = [
+              "follow",
+              { follower: config.badgeOne, following: snap.id, what: [] },
+            ];
+
+            await client.broadcast.json(
+              {
+                required_auths: [],
+                required_posting_auths: [config.badgeOne],
+                id: "follow",
+                json: JSON.stringify(jsonData),
+              },
+              keyBadgeOne
+            );
+
+            jsonData = [
+              "follow",
+              { follower: config.badgeTwo, following: snap.id, what: ["blog"] },
+            ];
+
+            await client.broadcast.json(
+              {
+                required_auths: [],
+                required_posting_auths: [config.badgeTwo],
+                id: "follow",
+                json: JSON.stringify(jsonData),
+              },
+              keyBadgeTwo
+            );
+
+            await db
+              .collection("referralsCount")
+              .doc(snap.id)
+              .set({ badge: config.badgeTwo }, { merge: true });
+          }
+        }
+
+        if (referral.referrerCount >= 1000) {
+          if (referral.badge === config.badgeTwo) {
+            // Remove BadgeTwo & Add BadgeThree
+            let jsonData = [
+              "follow",
+              { follower: config.badgeTwo, following: snap.id, what: [] },
+            ];
+
+            await client.broadcast.json(
+              {
+                required_auths: [],
+                required_posting_auths: [config.badgeTwo],
+                id: "follow",
+                json: JSON.stringify(jsonData),
+              },
+              keyBadgeTwo
+            );
+
+            jsonData = [
+              "follow",
+              {
+                follower: config.badgeThree,
+                following: snap.id,
+                what: ["blog"],
+              },
+            ];
+
+            await client.broadcast.json(
+              {
+                required_auths: [],
+                required_posting_auths: [config.badgeThree],
+                id: "follow",
+                json: JSON.stringify(jsonData),
+              },
+              keyBadgeThree
+            );
+
+            await db
+              .collection("referralsCount")
+              .doc(snap.id)
+              .set({ badge: config.badgeThree }, { merge: true });
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  });
+
 let app = express();
 app.use(cors());
 

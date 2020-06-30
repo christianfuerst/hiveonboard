@@ -16,5 +16,11 @@
     "referrer": 300,
     "creator": 100,
     "provider": 100
-  }
+  },
+  "badgeOne": "INSERT-HIVE-ACCOUNT",
+  "activeKeyBadgeOne": "INSERT-HIVE-ACTIVE-KEY",
+  "badgeTwo": "INSERT-HIVE-ACCOUNT",
+  "activeKeyBadgeTwo": "INSERT-HIVE-ACTIVE-KEY",
+  "badgeThree": "INSERT-HIVE-ACCOUNT",
+  "activeKeyBadgeThree": "INSERT-HIVE-ACTIVE-KEY"
 }
