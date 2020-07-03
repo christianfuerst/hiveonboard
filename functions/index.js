@@ -445,8 +445,8 @@ exports.addReferrals = functions.firestore
 
 exports.updateReferralsCount = functions.firestore
   .document("referralsCount/{referralId}")
-  .onUpdate(async (snap, context) => {
-    let referral = snap.data();
+  .onUpdate(async (change, context) => {
+    let referral = change.after.data();
     let keyBadgeOne = dhive.PrivateKey.fromString(config.activeKeyBadgeOne);
     let keyBadgeTwo = dhive.PrivateKey.fromString(config.activeKeyBadgeTwo);
     let keyBadgeThree = dhive.PrivateKey.fromString(config.activeKeyBadgeThree);
@@ -458,7 +458,7 @@ exports.updateReferralsCount = functions.firestore
             // Add BadgeOne
             let jsonData = [
               "follow",
-              { follower: config.badgeOne, following: snap.id, what: ["blog"] },
+              { follower: config.badgeOne, following: change.after.id, what: ["blog"] },
             ];
 
             await client.broadcast.json(
@@ -473,7 +473,7 @@ exports.updateReferralsCount = functions.firestore
 
             await db
               .collection("referralsCount")
-              .doc(snap.id)
+              .doc(change.after.id)
               .set({ badge: config.badgeOne }, { merge: true });
           }
         }
@@ -483,7 +483,7 @@ exports.updateReferralsCount = functions.firestore
             // Remove BadgeOne & Add BadgeTwo
             let jsonData = [
               "follow",
-              { follower: config.badgeOne, following: snap.id, what: [] },
+              { follower: config.badgeOne, following: change.after.id, what: [] },
             ];
 
             await client.broadcast.json(
@@ -498,7 +498,7 @@ exports.updateReferralsCount = functions.firestore
 
             jsonData = [
               "follow",
-              { follower: config.badgeTwo, following: snap.id, what: ["blog"] },
+              { follower: config.badgeTwo, following: change.after.id, what: ["blog"] },
             ];
 
             await client.broadcast.json(
@@ -513,7 +513,7 @@ exports.updateReferralsCount = functions.firestore
 
             await db
               .collection("referralsCount")
-              .doc(snap.id)
+              .doc(change.after.id)
               .set({ badge: config.badgeTwo }, { merge: true });
           }
         }
@@ -523,7 +523,7 @@ exports.updateReferralsCount = functions.firestore
             // Remove BadgeTwo & Add BadgeThree
             let jsonData = [
               "follow",
-              { follower: config.badgeTwo, following: snap.id, what: [] },
+              { follower: config.badgeTwo, following: change.after.id, what: [] },
             ];
 
             await client.broadcast.json(
@@ -540,7 +540,7 @@ exports.updateReferralsCount = functions.firestore
               "follow",
               {
                 follower: config.badgeThree,
-                following: snap.id,
+                following: change.after.id,
                 what: ["blog"],
               },
             ];
@@ -557,7 +557,7 @@ exports.updateReferralsCount = functions.firestore
 
             await db
               .collection("referralsCount")
-              .doc(snap.id)
+              .doc(change.after.id)
               .set({ badge: config.badgeThree }, { merge: true });
           }
         }
