@@ -19,5 +19,9 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    match /tickets/{document=**} {
+      allow read, write: if false;
+    }
+
   }
 }

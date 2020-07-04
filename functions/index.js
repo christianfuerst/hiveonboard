@@ -458,7 +458,11 @@ exports.updateReferralsCount = functions.firestore
             // Add BadgeOne
             let jsonData = [
               "follow",
-              { follower: config.badgeOne, following: change.after.id, what: ["blog"] },
+              {
+                follower: config.badgeOne,
+                following: change.after.id,
+                what: ["blog"],
+              },
             ];
 
             await client.broadcast.json(
@@ -483,7 +487,11 @@ exports.updateReferralsCount = functions.firestore
             // Remove BadgeOne & Add BadgeTwo
             let jsonData = [
               "follow",
-              { follower: config.badgeOne, following: change.after.id, what: [] },
+              {
+                follower: config.badgeOne,
+                following: change.after.id,
+                what: [],
+              },
             ];
 
             await client.broadcast.json(
@@ -498,7 +506,11 @@ exports.updateReferralsCount = functions.firestore
 
             jsonData = [
               "follow",
-              { follower: config.badgeTwo, following: change.after.id, what: ["blog"] },
+              {
+                follower: config.badgeTwo,
+                following: change.after.id,
+                what: ["blog"],
+              },
             ];
 
             await client.broadcast.json(
@@ -523,7 +535,11 @@ exports.updateReferralsCount = functions.firestore
             // Remove BadgeTwo & Add BadgeThree
             let jsonData = [
               "follow",
-              { follower: config.badgeTwo, following: change.after.id, what: [] },
+              {
+                follower: config.badgeTwo,
+                following: change.after.id,
+                what: [],
+              },
             ];
 
             await client.broadcast.json(
@@ -779,6 +795,70 @@ app.get("/api/creator/:account", async (req, res) => {
   });
 
   res.json({ items: items, limit: limit, offset: offset, size: size });
+});
+
+app.post("/api/tickets", async (req, res) => {
+  function create_UUID() {
+    var dt = new Date().getTime();
+    var uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        var r = (dt + Math.random() * 16) % 16 | 0;
+        dt = Math.floor(dt / 16);
+        return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+      }
+    );
+    return uuid;
+  }
+
+  let auth = req.headers.authority;
+
+  if (!auth) {
+    console.log(
+      "POST request to /api/tickets - Refused: Authorization header missing. - Source: " +
+        req.ip
+    );
+    res.status(401).send("Authorization header missing.");
+  } else {
+    if (auth !== config.ticketApiKey) {
+      console.log(
+        "POST request to /api/tickets - Refused: Invalid auth token. - Source: " +
+          req.ip
+      );
+      res.status(401).send("Invalid auth token.");
+    } else {
+      let referrer = req.body.referrer;
+      let tickets = req.body.tickets;
+
+      if (typeof referrer === "undefined" || typeof tickets === "undefined") {
+        res.status(400).send("Body data is invalid or missing.");
+      } else {
+        let tickets = [];
+        let batch = db.batch();
+        let i = 0;
+
+        do {
+          let ticket = create_UUID();
+          let ticketRef = db.collection("tickets").doc(ticket);
+
+          batch.set(ticketRef, {
+            ticket: ticket,
+            referrer: referrer,
+            consumed: false,
+          });
+
+          tickets.push(ticket);
+
+          i += 1;
+        } while (i < parseInt(tickets));
+
+        await batch.commit();
+
+        res.setHeader("Content-Type", "application/json");
+        res.json(tickets);
+      }
+    }
+  }
 });
 
 exports.api = functions.https.onRequest(app);
