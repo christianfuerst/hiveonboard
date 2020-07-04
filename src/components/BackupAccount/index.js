@@ -68,6 +68,7 @@ const BackupKeys = ({
   account,
   referrer,
   creator,
+  ticket,
   debugMode,
 }) => {
   const classes = useStyles();
@@ -260,6 +261,26 @@ const BackupKeys = ({
               if (confirmed) {
                 if (debugMode) {
                   setActiveStep(2);
+                } else if (ticket) {
+                  setSubmitting(true);
+                  createAccount({
+                    username: account.username,
+                    publicKeys: account.publicKeys,
+                    referrer: referrer,
+                    creator: creator,
+                    ticket: ticket,
+                  }).then(function (result) {
+                    if (result.data.hasOwnProperty("error")) {
+                      analytics.logEvent("create_account_error", {
+                        error: result.data.error,
+                      });
+                      setError(result.data.error);
+                      setSubmitting(false);
+                    } else {
+                      analytics.logEvent("create_account_success");
+                      setActiveStep(2);
+                    }
+                  });
                 } else {
                   setShowDialog(true);
                 }

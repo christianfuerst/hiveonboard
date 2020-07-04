@@ -7,6 +7,7 @@ const cors = require("cors");
 const _ = require("lodash");
 const CryptoJS = require("crypto-js");
 const config = require("./config.json");
+const { merge } = require("lodash");
 
 admin.initializeApp();
 let db = admin.firestore();
@@ -22,58 +23,84 @@ let key = dhive.PrivateKey.fromString(config.activeKey);
 let keyLog = dhive.PrivateKey.fromString(config.activeKeyLog);
 
 exports.createAccount = functions.https.onCall(async (data, context) => {
+  let ticket = data.ticket;
+  let phoneNumberHashObject = CryptoJS.SHA256("No Phone Number");
   let referrer = data.referrer;
   let creator = config.account;
   let provider = config.provider;
   let beneficiaries = [];
 
-  let oneWeekAgo = admin.firestore.Timestamp.fromDate(
-    new Date(Date.now() - 604800000)
-  );
+  if (ticket) {
+    let ticketRef = db.collection("tickets").doc(ticket);
+    let ticketDoc = await ticketRef.get();
 
-  if (!context.auth.hasOwnProperty("uid")) {
-    console.log("Verficiation failed.");
-    return {
-      error: "Verficiation failed.",
-    };
-  }
-
-  let accountsRef = db.collection("accounts");
-  let query = await accountsRef
-    .where("ipAddress", "==", context.rawRequest.ip)
-    .where("timestamp", ">", oneWeekAgo)
-    .get();
-
-  if (!query.empty) {
-    // Delete user including phone number
-    await admin.auth().deleteUser(context.auth.uid);
-    console.log("IP was recently used for account creation.");
-    return {
-      error: "Your IP was recently used for account creation.",
-    };
-  }
-
-  let phoneNumberHashObject = CryptoJS.SHA256(context.auth.token.phone_number);
-
-  let queryUser = await accountsRef
-    .where(
-      "phoneNumberHash",
-      "==",
-      phoneNumberHashObject.toString(CryptoJS.enc.Hex)
-    )
-    .get();
-
-  if (!queryUser.empty) {
-    // Delete user including phone number
-    await admin.auth().deleteUser(context.auth.uid);
-    console.log(
-      "Phone number (" +
-        phoneNumberHashObject.toString(CryptoJS.enc.Hex) +
-        ") was already used for account creation."
+    if (ticketDoc.exists) {
+      let ticketData = ticketDoc.data();
+      if (ticketData.consumed) {
+        console.log("Ticket already consumed.");
+        return {
+          error: "Ticket already consumed.",
+        };
+      }
+    } else {
+      console.log("Ticket is invalid.");
+      return {
+        error: "Ticket is invalid.",
+      };
+    }
+  } else {
+    let oneWeekAgo = admin.firestore.Timestamp.fromDate(
+      new Date(Date.now() - 604800000)
     );
-    return {
-      error: "Your phone number was already used for account creation.",
-    };
+
+    if (!context.auth.hasOwnProperty("uid")) {
+      console.log("Verficiation failed.");
+      return {
+        error: "Verficiation failed.",
+      };
+    }
+
+    let accountsRef = db.collection("accounts");
+    let query = await accountsRef
+      .where("ipAddress", "==", context.rawRequest.ip)
+      .where("timestamp", ">", oneWeekAgo)
+      .get();
+
+    if (!query.empty) {
+      // Delete user including phone number
+      if (context.hasOwnProperty("auth")) {
+        await admin.auth().deleteUser(context.auth.uid);
+      }
+      console.log("IP was recently used for account creation.");
+      return {
+        error: "Your IP was recently used for account creation.",
+      };
+    }
+
+    phoneNumberHashObject = CryptoJS.SHA256(context.auth.token.phone_number);
+
+    let queryUser = await accountsRef
+      .where(
+        "phoneNumberHash",
+        "==",
+        phoneNumberHashObject.toString(CryptoJS.enc.Hex)
+      )
+      .get();
+
+    if (!queryUser.empty) {
+      // Delete user including phone number
+      if (context.hasOwnProperty("auth")) {
+        await admin.auth().deleteUser(context.auth.uid);
+      }
+      console.log(
+        "Phone number (" +
+          phoneNumberHashObject.toString(CryptoJS.enc.Hex) +
+          ") was already used for account creation."
+      );
+      return {
+        error: "Your phone number was already used for account creation.",
+      };
+    }
   }
 
   let publicRef = db.collection("public");
@@ -234,7 +261,9 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
       await client.broadcast.sendOperations([op], key);
     } catch (error) {
       // Delete user including phone number
-      await admin.auth().deleteUser(context.auth.uid);
+      if (context.hasOwnProperty("auth")) {
+        await admin.auth().deleteUser(context.auth.uid);
+      }
       return { error: error };
     }
   }
@@ -253,7 +282,17 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   await db.collection("accounts").doc(data.username).set(accountData);
 
   // Delete user including phone number
-  await admin.auth().deleteUser(context.auth.uid);
+  if (context.hasOwnProperty("auth")) {
+    await admin.auth().deleteUser(context.auth.uid);
+  }
+
+  // Set ticket to consumed
+  if (ticket) {
+    await db
+      .collection("tickets")
+      .doc(ticket)
+      .set({ consumed: true }, { merge: true });
+  }
 
   console.log(JSON.stringify(accountData));
 
@@ -808,7 +847,6 @@ app.get("/api/tickets/:ticket", async (req, res) => {
     } else {
       res.json({ valid: true });
     }
-    res.json(ticket);
   } else {
     res.json({ valid: false });
   }

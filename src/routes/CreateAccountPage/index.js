@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 import _ from "lodash";
 import hive from "@hiveio/hive-js";
 import { useLocation } from "react-router-dom";
@@ -46,6 +47,7 @@ const CreateAccountPage = () => {
   const [referrerAccount, setReferrerAccount] = React.useState(null);
   const [creator, setCreator] = React.useState(null);
   const [redirectUrl, setRedirectUrl] = React.useState(null);
+  const [ticket, setTicket] = React.useState(null);
   const [debugMode, setDebugMode] = React.useState(false);
 
   const [activeStep, setActiveStep] = React.useState(0);
@@ -71,6 +73,9 @@ const CreateAccountPage = () => {
     if (!_.isNil(query.get("redirect_url"))) {
       setRedirectUrl(query.get("redirect_url"));
     }
+    if (!_.isNil(query.get("ticket"))) {
+      setTicket(query.get("ticket"));
+    }
     if (!_.isNil(query.get("debug_mode"))) {
       setDebugMode(query.get("debug_mode"));
     }
@@ -91,6 +96,18 @@ const CreateAccountPage = () => {
       setAccountTickets(tickets);
     }
   }, [publicData]);
+
+  React.useEffect(() => {
+    if (ticket) {
+      axios
+        .get("https://hiveonboard.com/api/tickets/" + ticket)
+        .then(function (response) {
+          if (response.data.valid === false) {
+            setTicket(null);
+          }
+        });
+    }
+  }, [ticket]);
 
   function getSteps() {
     return ["Choose your account", "Backup your account", "Choose your dApp"];
@@ -114,6 +131,7 @@ const CreateAccountPage = () => {
             account={account}
             referrer={referrer}
             creator={creator}
+            ticket={ticket}
             debugMode={debugMode}
           />
         );
