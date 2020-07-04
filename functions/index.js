@@ -797,6 +797,23 @@ app.get("/api/creator/:account", async (req, res) => {
   res.json({ items: items, limit: limit, offset: offset, size: size });
 });
 
+app.get("/api/tickets/:ticket", async (req, res) => {
+  let ref = db.collection("tickets").doc(req.params.ticket);
+  let doc = await ref.get();
+
+  if (doc.exists) {
+    let ticket = doc.data();
+    if (ticket.consumed) {
+      res.json({ valid: false });
+    } else {
+      res.json({ valid: true });
+    }
+    res.json(ticket);
+  } else {
+    res.json({ valid: false });
+  }
+});
+
 app.post("/api/tickets", async (req, res) => {
   function create_UUID() {
     var dt = new Date().getTime();
@@ -833,11 +850,11 @@ app.post("/api/tickets", async (req, res) => {
       if (typeof referrer === "undefined" || typeof tickets === "undefined") {
         res.status(400).send("Body data is invalid or missing.");
       } else {
-        let tickets = [];
+        let ticketsArray = [];
         let batch = db.batch();
-        let i = 0;
+        let i;
 
-        do {
+        for (i = 0; i < parseInt(tickets); i++) {
           let ticket = create_UUID();
           let ticketRef = db.collection("tickets").doc(ticket);
 
@@ -847,15 +864,13 @@ app.post("/api/tickets", async (req, res) => {
             consumed: false,
           });
 
-          tickets.push(ticket);
-
-          i += 1;
-        } while (i < parseInt(tickets));
+          ticketsArray.push(ticket);
+        }
 
         await batch.commit();
 
         res.setHeader("Content-Type", "application/json");
-        res.json(tickets);
+        res.json(ticketsArray);
       }
     }
   }
