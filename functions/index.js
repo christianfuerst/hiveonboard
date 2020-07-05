@@ -388,6 +388,37 @@ exports.claimAccounts = functions.pubsub
           .doc("data")
           .set({ creators: creators }, { merge: true });
       }
+
+      // Remove HP delegation
+      let twoWeeksAgo = admin.firestore.Timestamp.fromDate(
+        new Date(Date.now() - 1209600000)
+      );
+      let accountsRef = db.collection("accounts");
+      let query = await accountsRef
+        .where("delegation", "==", true)
+        .where("timestamp", "<", twoWeeksAgo)
+        .get();
+
+      query.forEach((element) => {
+        try {
+          client.broadcast
+            .delegateVestingShares(
+              {
+                delegatee: element.id,
+                delegator: config.account,
+                vesting_shares: "0.000000 VESTS",
+              },
+              key
+            )
+            .then(() => {
+              accountsRef
+                .doc(element.id)
+                .set({ delegation: false }, { merge: true });
+            });
+        } catch (error) {
+          console.log("Removing delegation Error", error);
+        }
+      });
     } catch (error) {
       console.log(error);
     }
