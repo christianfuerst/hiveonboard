@@ -7,7 +7,6 @@ const cors = require("cors");
 const _ = require("lodash");
 const CryptoJS = require("crypto-js");
 const config = require("./config.json");
-const { merge } = require("lodash");
 
 admin.initializeApp();
 let db = admin.firestore();
@@ -277,6 +276,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     referrer: referrer,
     creator: creator,
     provider: provider,
+    delegation: true,
   };
 
   await db.collection("accounts").doc(data.username).set(accountData);
@@ -294,13 +294,27 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
       .set({ consumed: true }, { merge: true });
   }
 
+  // HP delegation
+  try {
+    await client.broadcast.delegateVestingShares(
+      {
+        delegatee: data.username,
+        delegator: config.account,
+        vesting_shares: "5000.000000 VESTS",
+      },
+      key
+    );
+  } catch (error) {
+    console.log("Delegation Error", error);
+  }
+
   console.log(JSON.stringify(accountData));
 
   return data;
 });
 
 exports.claimAccounts = functions.pubsub
-  .schedule("every 10 minutes")
+  .schedule("every 30 minutes")
   .timeZone("Europe/Berlin")
   .onRun(async (context) => {
     try {

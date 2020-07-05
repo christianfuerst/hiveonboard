@@ -25,6 +25,7 @@ import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
+import Chip from "@material-ui/core/Chip";
 
 import { tos } from "../../config";
 
@@ -48,9 +49,17 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     backgroundColor: theme.palette.secondary.main,
   },
+  chip: {
+    marginTop: theme.spacing(2),
+  },
 }));
 
-const ChooseAccount = ({ setActiveStep, setAccount, referrerAccount }) => {
+const ChooseAccount = ({
+  setActiveStep,
+  setAccount,
+  referrerAccount,
+  ticket,
+}) => {
   const classes = useStyles();
   const analytics = useAnalytics();
 
@@ -190,6 +199,30 @@ const ChooseAccount = ({ setActiveStep, setAccount, referrerAccount }) => {
               </ListItem>
             </List>
           </Paper>
+        </div>
+      )}
+      {!_.isEmpty(ticket) && ticket !== "invalid" && (
+        <div>
+          <Grid container alignItems="center" justify="center" direction="row">
+            <Chip
+              className={classes.chip}
+              icon={<Icon>confirmation_number</Icon>}
+              label="Your VIP Ticket is valid"
+              color="secondary"
+            />
+          </Grid>
+        </div>
+      )}
+      {!_.isEmpty(ticket) && ticket === "invalid" && (
+        <div>
+          <Grid container alignItems="center" justify="center" direction="row">
+            <Chip
+              className={classes.chip}
+              icon={<Icon>confirmation_number</Icon>}
+              label="Your VIP Ticket is invalid or has already be used"
+              color="primary"
+            />
+          </Grid>
         </div>
       )}
       <div>

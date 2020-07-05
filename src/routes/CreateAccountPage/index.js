@@ -103,7 +103,7 @@ const CreateAccountPage = () => {
         .get("https://hiveonboard.com/api/tickets/" + ticket)
         .then(function (response) {
           if (response.data.valid === false) {
-            setTicket(null);
+            setTicket("invalid");
           }
         });
     }
@@ -121,6 +121,7 @@ const CreateAccountPage = () => {
             setActiveStep={setActiveStep}
             setAccount={setAccount}
             referrerAccount={referrerAccount}
+            ticket={ticket}
           />
         );
       case 1:

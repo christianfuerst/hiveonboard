@@ -261,7 +261,7 @@ const BackupKeys = ({
               if (confirmed) {
                 if (debugMode) {
                   setActiveStep(2);
-                } else if (ticket) {
+                } else if (ticket && ticket !== "invalid") {
                   setSubmitting(true);
                   createAccount({
                     username: account.username,
