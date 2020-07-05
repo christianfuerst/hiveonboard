@@ -300,7 +300,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
       {
         delegatee: data.username,
         delegator: config.account,
-        vesting_shares: "5000.000000 VESTS",
+        vesting_shares: config.defaultDelegation,
       },
       key
     );

@@ -23,5 +23,6 @@
   "activeKeyBadgeTwo": "INSERT-HIVE-ACTIVE-KEY",
   "badgeThree": "INSERT-HIVE-ACCOUNT",
   "activeKeyBadgeThree": "INSERT-HIVE-ACTIVE-KEY",
-  "ticketApiKey": "YOUR-TICKET-API-KEY"
+  "ticketApiKey": "YOUR-TICKET-API-KEY",
+  "defaultDelegation": "20000.000000 VESTS"
 }
