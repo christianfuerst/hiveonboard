@@ -48,6 +48,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
       };
     }
   } else {
+    ticket = "NO TICKET";
     let oneWeekAgo = admin.firestore.Timestamp.fromDate(
       new Date(Date.now() - 604800000)
     );
@@ -277,6 +278,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     creator: creator,
     provider: provider,
     delegation: true,
+    ticket: ticket,
   };
 
   await db.collection("accounts").doc(data.username).set(accountData);
