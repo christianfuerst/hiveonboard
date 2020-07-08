@@ -391,14 +391,15 @@ exports.claimAccounts = functions.pubsub
           .set({ creators: creators }, { merge: true });
       }
 
-      // Remove HP delegation
-      let twoWeeksAgo = admin.firestore.Timestamp.fromDate(
-        new Date(Date.now() - 1209600000)
+      // Remove HP delegation after 1 week
+      let oneWeekAgo = admin.firestore.Timestamp.fromDate(
+        new Date(Date.now() - 604800000)
       );
+
       let accountsRef = db.collection("accounts");
       let query = await accountsRef
         .where("delegation", "==", true)
-        .where("timestamp", "<", twoWeeksAgo)
+        .where("timestamp", "<", oneWeekAgo)
         .get();
 
       query.forEach((element) => {
