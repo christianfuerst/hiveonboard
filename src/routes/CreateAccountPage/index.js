@@ -51,7 +51,7 @@ const CreateAccountPage = () => {
   const [debugMode, setDebugMode] = React.useState(false);
 
   const [activeStep, setActiveStep] = React.useState(0);
-  const [account, setAccount] = React.useState({});
+  const [account, setAccount] = React.useState({ username: "" });
   const steps = getSteps();
 
   React.useEffect(() => {
@@ -75,6 +75,9 @@ const CreateAccountPage = () => {
     }
     if (!_.isNil(query.get("ticket"))) {
       setTicket(query.get("ticket"));
+    }
+    if (!_.isNil(query.get("account_name"))) {
+      setAccount({ username: query.get("account_name") });
     }
     if (!_.isNil(query.get("debug_mode"))) {
       setDebugMode(query.get("debug_mode"));
@@ -119,6 +122,7 @@ const CreateAccountPage = () => {
         return (
           <ChooseAccount
             setActiveStep={setActiveStep}
+            account={account}
             setAccount={setAccount}
             referrerAccount={referrerAccount}
             ticket={ticket}

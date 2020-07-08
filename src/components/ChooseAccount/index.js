@@ -55,6 +55,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ChooseAccount = ({
+  account,
   setActiveStep,
   setAccount,
   referrerAccount,
@@ -100,7 +101,7 @@ const ChooseAccount = ({
 
   const formik = useFormik({
     initialValues: {
-      username: "",
+      username: account.username,
     },
     validationSchema: Yup.object({
       username: Yup.string()
