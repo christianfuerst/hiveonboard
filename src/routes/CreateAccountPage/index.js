@@ -125,7 +125,11 @@ const CreateAccountPage = () => {
             account={account}
             setAccount={setAccount}
             referrerAccount={referrerAccount}
+            setReferrerAccount={setReferrerAccount}
+            referrer={referrer}
+            setReferrer={setReferrer}
             ticket={ticket}
+            setTicket={setTicket}
           />
         );
       case 1:

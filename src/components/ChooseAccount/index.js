@@ -26,6 +26,7 @@ import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import Chip from "@material-ui/core/Chip";
+import Tooltip from "@material-ui/core/Tooltip";
 
 import { tos } from "../../config";
 
@@ -59,7 +60,11 @@ const ChooseAccount = ({
   setActiveStep,
   setAccount,
   referrerAccount,
+  setReferrerAccount,
+  referrer,
+  setReferrer,
   ticket,
+  setTicket,
 }) => {
   const classes = useStyles();
   const analytics = useAnalytics();
@@ -67,6 +72,8 @@ const ChooseAccount = ({
   const [referrerProfile, setReferrerProfile] = React.useState({});
   const [confirmed, setConfirmed] = React.useState(false);
   const [showTermsOfService, setShowTermsOfService] = React.useState(false);
+  const [showReferrerDialog, setShowReferrerDialog] = React.useState(false);
+  const [showTicketDialog, setShowTicketDialog] = React.useState(false);
 
   React.useEffect(() => {
     if (referrerAccount) {
@@ -164,8 +171,287 @@ const ChooseAccount = ({
     },
   });
 
+  const formikReferrer = useFormik({
+    initialValues: {
+      referrer: "",
+    },
+    validationSchema: Yup.object({
+      referrer: Yup.string()
+        .nullable()
+        .min(3, "Username should contain at least 3 characters")
+        .required("Username is required")
+        .test("isValid", "Username is invalid", (value) => {
+          if (value) {
+            if (value.length >= 3) {
+              if (_.isEmpty(hive.utils.validateAccountName(value))) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+          } else {
+            return true;
+          }
+        })
+        .test("isAvailable", "Username doesn't exist", async (value) => {
+          if (value) {
+            if (value.length >= 3) {
+              let result = await hive.api.lookupAccountNamesAsync([value]);
+              if (_.isEmpty(result[0])) {
+                return false;
+              } else {
+                return true;
+              }
+            } else {
+              return true;
+            }
+          } else {
+            return true;
+          }
+        }),
+    }),
+    onSubmit: (values) => {
+      hive.api.getAccounts([values.referrer], function (err, result) {
+        if (result) {
+          if (result.length === 1) {
+            setReferrer(values.referrer);
+            setReferrerAccount(result[0]);
+          }
+        }
+      });
+      setShowReferrerDialog(false);
+    },
+  });
+
+  const formikTicket = useFormik({
+    initialValues: {
+      ticket: "",
+    },
+    validationSchema: Yup.object({
+      ticket: Yup.string()
+        .nullable()
+        .required("VIP Ticket is required")
+        .test("isValid", "VIP Ticket is invalid", (value) => {
+          if (value) {
+            if (value.length === 36) {
+              return true;
+            } else {
+              return false;
+            }
+          } else {
+            return true;
+          }
+        }),
+    }),
+    onSubmit: (values) => {
+      setTicket(values.ticket);
+      setShowTicketDialog(false);
+    },
+  });
+
+  const renderReferrerDialog = () => {
+    return (
+      <Dialog
+        maxWidth="xs"
+        open={showReferrerDialog}
+        onClose={() => setShowReferrerDialog(false)}
+        aria-labelledby="referrer-dialog-title"
+        aria-describedby="referrer-dialog-description"
+      >
+        <form className={classes.form} onSubmit={formikReferrer.handleSubmit}>
+          <DialogTitle id="referrer-dialog-title">
+            Enter your Referrer
+          </DialogTitle>
+          <DialogContent>
+            <TextField
+              fullWidth
+              color={formikReferrer.errors.referrer ? "primary" : "secondary"}
+              required
+              type="text"
+              id="referrer"
+              name="referrer"
+              label="Referrer"
+              variant="outlined"
+              margin="normal"
+              value={
+                formikReferrer.values.referrer &&
+                formikReferrer.values.referrer.toLowerCase()
+              }
+              onChange={formikReferrer.handleChange}
+              onBlur={formikReferrer.handleBlur}
+              error={formikReferrer.errors.referrer ? true : false}
+              helperText={
+                formikReferrer.errors.referrer
+                  ? formikReferrer.errors.referrer
+                  : "Choose your Referrer for HIVE"
+              }
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="start">
+                    {formikReferrer.values.referrer === "" ? (
+                      <Icon>emoji_nature</Icon>
+                    ) : formikReferrer.errors.referrer ? (
+                      <Icon color="error">error</Icon>
+                    ) : (
+                      <Icon color="action">check</Icon>
+                    )}
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => {
+                setShowReferrerDialog(false);
+              }}
+              color="primary"
+            >
+              Close
+            </Button>
+            {referrer && (
+              <Button
+                onClick={() => {
+                  setReferrer(null);
+                  setReferrerAccount(null);
+                  setShowReferrerDialog(false);
+                }}
+                color="primary"
+                className={classes.submit}
+              >
+                Remove
+              </Button>
+            )}
+            <Button
+              type="submit"
+              disabled={
+                formikReferrer.values.referrer === "" ||
+                formikReferrer.errors.referrer
+                  ? true
+                  : false
+              }
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+            >
+              Save
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+    );
+  };
+
+  const renderTicketDialog = () => {
+    return (
+      <Dialog
+        maxWidth="xs"
+        open={showTicketDialog}
+        onClose={() => setShowTicketDialog(false)}
+        aria-labelledby="ticket-dialog-title"
+        aria-describedby="ticket-dialog-description"
+      >
+        <form className={classes.form} onSubmit={formikTicket.handleSubmit}>
+          <DialogTitle id="ticket-dialog-title">
+            Enter your VIP Ticket
+          </DialogTitle>
+          <DialogContent>
+            <TextField
+              fullWidth
+              color={formikTicket.errors.ticket ? "primary" : "secondary"}
+              required
+              type="text"
+              id="ticket"
+              name="ticket"
+              label="VIP Ticket"
+              variant="outlined"
+              margin="normal"
+              inputProps={{
+                maxLength: 36,
+              }}
+              value={formikTicket.values.ticket}
+              onChange={formikTicket.handleChange}
+              onBlur={formikTicket.handleBlur}
+              error={formikTicket.errors.ticket ? true : false}
+              helperText={
+                formikTicket.errors.ticket
+                  ? formikTicket.errors.ticket
+                  : "Enter your VIP Ticket Code"
+              }
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => {
+                setShowTicketDialog(false);
+              }}
+              color="primary"
+            >
+              Close
+            </Button>
+            {ticket && (
+              <Button
+                onClick={() => {
+                  setTicket(null);
+                  setShowTicketDialog(false);
+                }}
+                color="primary"
+                className={classes.submit}
+              >
+                Remove
+              </Button>
+            )}
+            <Button
+              type="submit"
+              disabled={
+                formikTicket.values.ticket === "" || formikTicket.errors.ticket
+                  ? true
+                  : false
+              }
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+            >
+              Save
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+    );
+  };
+
   return (
     <form className={classes.form} onSubmit={formik.handleSubmit}>
+      <div>
+        <Grid container alignItems="center" justify="center" direction="row">
+          <Grid item>
+            <Button
+              onClick={() => {
+                formikReferrer.setValues({
+                  referrer: referrer ? referrer : "",
+                });
+                setShowReferrerDialog(true);
+              }}
+            >
+              {_.isEmpty(referrerAccount) ? "Got a Referrer?" : "Edit Referrer"}
+            </Button>
+            {showReferrerDialog && renderReferrerDialog()}
+          </Grid>
+          <Grid item>
+            <Button
+              onClick={() => {
+                formikTicket.setValues({
+                  ticket: ticket ? ticket : "",
+                });
+                setShowTicketDialog(true);
+              }}
+            >
+              {_.isEmpty(ticket) ? "Got a VIP Ticket?" : "Edit VIP Ticket"}
+            </Button>
+            {showTicketDialog && renderTicketDialog()}
+          </Grid>
+        </Grid>
+      </div>
       {!_.isEmpty(referrerAccount) && (
         <div>
           <Typography variant="overline" display="block" align="center">
@@ -205,12 +491,17 @@ const ChooseAccount = ({
       {!_.isEmpty(ticket) && ticket !== "invalid" && (
         <div>
           <Grid container alignItems="center" justify="center" direction="row">
-            <Chip
-              className={classes.chip}
-              icon={<Icon>confirmation_number</Icon>}
-              label="Your VIP Ticket is valid"
-              color="secondary"
-            />
+            <Tooltip
+              title="This VIP Ticket allows you to bypass our verification process."
+              placement="top"
+            >
+              <Chip
+                className={classes.chip}
+                icon={<Icon>confirmation_number</Icon>}
+                label="Your VIP Ticket is valid"
+                color="secondary"
+              />
+            </Tooltip>
           </Grid>
         </div>
       )}
