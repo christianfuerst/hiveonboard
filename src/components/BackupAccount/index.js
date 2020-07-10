@@ -110,17 +110,23 @@ const BackupKeys = ({
   const accountString =
     `--------------- YOUR ACCOUNT -------------\n` +
     `Username: ${account.username}\n` +
-    `Password: ${account.password}\n` +
+    `Password: ${account.password}\n\n` +
     `------------------------ PRIVATE KEYS ----------------------\n` +
     `Owner:   ${account.privateKeys.owner}\n` +
     `Active:  ${account.privateKeys.active}\n` +
     `Posting: ${account.privateKeys.posting}\n` +
-    `Memo:    ${account.privateKeys.memo}\n` +
-    `------------------------ PUBLIC KEYS -------------------------\n` +
-    `Owner:   ${account.publicKeys.owner}\n` +
-    `Active:  ${account.publicKeys.active}\n` +
-    `Posting: ${account.publicKeys.posting}\n` +
-    `Memo:    ${account.publicKeys.memo}`;
+    `Memo:    ${account.privateKeys.memo}\n\n` +
+    `-------------------------- KEY DESCRIPTION -----------------------\n` +
+    `Owner:   Change Password, Change Keys, Recover Account\n` +
+    `Active:  Transfer Funds, Power up/down, Voting Witnesses/Proposals\n` +
+    `Posting: Post, Comment, Vote, Reblog, Follow, Profile\n` +
+    `Memo:    Send/View encrypted messages on transfers\n\n` +
+    `---------------------- WHERE TO USE YOUR KEYS --------------------\n` +
+    `Hive Keychain and Hive Signer should allow you to do transactions\n` +
+    `on all Hive sites and applications.\n\n` +
+    `PeakD.com allows your own browser to store Posting key via\n` +
+    `"PeakLock" login method (an alternative for mobile).\n\n` +
+    `Be very careful directly using your keys on any other website or application.`;
 
   const downloadBackupFile = () => {
     const element = document.createElement("a");
