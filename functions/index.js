@@ -21,6 +21,10 @@ let client = new dhive.Client([
 let key = dhive.PrivateKey.fromString(config.activeKey);
 let keyLog = dhive.PrivateKey.fromString(config.activeKeyLog);
 
+const getRandomArbitrary = (min, max) => {
+  return Math.random() * (max - min) + min;
+};
+
 exports.createAccount = functions.https.onCall(async (data, context) => {
   let ticket = data.ticket;
   let phoneNumberHashObject = CryptoJS.SHA256("No Phone Number");
@@ -316,7 +320,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
 });
 
 exports.claimAccounts = functions.pubsub
-  .schedule("every 30 minutes")
+  .schedule("every 10 minutes")
   .timeZone("Europe/Berlin")
   .onRun(async (context) => {
     try {
@@ -404,26 +408,30 @@ exports.claimAccounts = functions.pubsub
 
       query.forEach((element) => {
         try {
-          client.broadcast
-            .delegateVestingShares(
-              {
-                delegatee: element.id,
-                delegator: config.account,
-                vesting_shares: "0.000000 VESTS",
-              },
-              key
-            )
-            .then(() => {
-              accountsRef
-                .doc(element.id)
-                .set({ delegation: false }, { merge: true });
-            });
+          _.delay(() => {
+            client.broadcast
+              .delegateVestingShares(
+                {
+                  delegatee: element.id,
+                  delegator: config.account,
+                  vesting_shares: "0.000000 VESTS",
+                },
+                key
+              )
+              .then(() => {
+                accountsRef
+                  .doc(element.id)
+                  .set({ delegation: false }, { merge: true });
+              });
+          }, getRandomArbitrary(0, 100000));
         } catch (error) {
           console.log("Removing delegation Error", error);
+          throw new Error(error);
         }
       });
     } catch (error) {
       console.log(error);
+      throw new Error(error);
     }
   });
 
