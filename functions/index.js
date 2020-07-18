@@ -409,6 +409,7 @@ exports.claimAccounts = functions.pubsub
       query.forEach((element) => {
         try {
           _.delay(() => {
+            console.log("Removing Delegation: " + element.id);
             client.broadcast
               .delegateVestingShares(
                 {

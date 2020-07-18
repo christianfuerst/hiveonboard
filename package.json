@@ -16,6 +16,7 @@
     "clsx": "^1.1.1",
     "firebase": "^7.16.0",
     "formik": "^2.1.4",
+    "hivesigner": "^3.2.0",
     "lodash": "^4.17.19",
     "material-table": "^1.64.0",
     "react": "^16.13.1",

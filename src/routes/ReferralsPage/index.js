@@ -136,7 +136,7 @@ const renderRefBeneficiary = (rowData, classes) => {
   }
 };
 
-const LandingPage = () => {
+const ReferralsPage = () => {
   const classes = useStyles();
   const { account } = useParams();
   const [referredAccounts, setReferredAccounts] = React.useState([]);
@@ -484,4 +484,4 @@ const LandingPage = () => {
   );
 };
 
-export default LandingPage;
+export default ReferralsPage;
