@@ -81,4 +81,18 @@ export const dApps = [
     text: "Mobile & Desktop App for Hive",
     url: "https://esteem.app",
   },
+  {
+    icon: "quello.png",
+    name: "quello.io",
+    subtitle: "Questions & Answers",
+    text: "Quello allows you to ask and answer questions and earn Hive",
+    url: "https://quello.io",
+  },
+  {
+    icon: "dbuzz.jpg",
+    name: "dbuzz.io",
+    subtitle: "Micro blogging",
+    text: "If you like twitter, you'll love dbuzz",
+    url: "https://d.buzz",
+  },
 ];
