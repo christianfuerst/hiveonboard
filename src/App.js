@@ -99,7 +99,6 @@ function App() {
           <Box>
             <Button
               className={classes.button}
-              size="large"
               color="secondary"
               component={RouterLink}
               to={"/what-is-hive" + location.search}
@@ -111,7 +110,6 @@ function App() {
           <Box>
             <Button
               className={classes.button}
-              size="large"
               color="secondary"
               component={RouterLink}
               to={"/create-account" + location.search}
@@ -123,7 +121,6 @@ function App() {
           <Box>
             <Button
               className={classes.button}
-              size="large"
               component={RouterLink}
               to={"/discover-dapps" + location.search}
               disabled={location.pathname === "/discover-dapps" ? true : false}
