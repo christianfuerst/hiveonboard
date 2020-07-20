@@ -75,6 +75,27 @@ export const dApps = [
     url: "https://3speak.online?utm_source=hiveonboard",
   },
   {
+    icon: "dapplr.jpg",
+    name: "dapplr",
+    subtitle: "Advanced mobile app",
+    text: "Incredible user experience on your smartphone",
+    url: "https://dapplr.in",
+  },
+  {
+    icon: "quello.png",
+    name: "quello.io",
+    subtitle: "Questions & Answers",
+    text: "Quello allows you to ask and answer questions and earn Hive",
+    url: "https://quello.io",
+  },
+  {
+    icon: "dbuzz.jpg",
+    name: "dbuzz.io",
+    subtitle: "Micro blogging",
+    text: "If you like twitter, you'll love dbuzz",
+    url: "https://d.buzz",
+  },
+  {
     icon: "esteem.svg",
     name: "Esteem",
     subtitle: "Device-friendly blog",
