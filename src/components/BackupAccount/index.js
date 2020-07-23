@@ -146,6 +146,7 @@ const BackupKeys = ({
     setSubmitting(false);
   };
 
+  console.log(account)
   return (
     <Grid container alignItems="center" justify="center" direction="column">
       <Grid item>

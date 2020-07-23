@@ -34,6 +34,9 @@ const useStyles = makeStyles((theme) => ({
   chip: {
     margin: theme.spacing(0.5, 0, 0.5, 0),
   },
+  alert: {
+    margin: theme.spacing(2),
+  },
 }));
 
 const CreateAccountPage = () => {

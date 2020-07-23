@@ -311,6 +311,10 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
       key
     );
   } catch (error) {
+    await db
+      .collection("accounts")
+      .doc(data.username)
+      .set({ delegation: false }, { merge: true });
     console.log("Delegation Error", error);
   }
 
@@ -409,6 +413,7 @@ exports.claimAccounts = functions.pubsub
       query.forEach((element) => {
         try {
           _.delay(() => {
+            console.log("Removing Delegation: " + element.id);
             client.broadcast
               .delegateVestingShares(
                 {
