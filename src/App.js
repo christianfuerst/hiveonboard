@@ -1,4 +1,5 @@
 import React from "react";
+import createPersistedState from "use-persisted-state";
 import _ from "lodash";
 import {
   Route,
@@ -63,14 +64,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-let theme = createMuiTheme(muiThemeConfig);
-theme = responsiveFontSizes(theme);
+const theme = responsiveFontSizes(createMuiTheme(muiThemeConfig));
+const useAccessTokenState = createPersistedState("accessToken");
+const useUsernameState = createPersistedState("username");
 
 function App() {
   const classes = useStyles();
   const location = useLocation();
 
-  const [accessToken, setAccessToken] = React.useState(null);
+  const [accessToken, setAccessToken] = useAccessTokenState(null);
+  const [username, setUsername] = useUsernameState(null);
   const [auth, setAuth] = React.useState(null);
   const [userProfile, setUserProfile] = React.useState({});
 
@@ -87,22 +90,52 @@ function App() {
     if (!_.isNil(query.get("access_token"))) {
       setAccessToken(query.get("access_token"));
     }
-  }, [location.search]);
+
+    if (!_.isNil(query.get("username"))) {
+      setUsername(query.get("username"));
+    }
+  }, [location.search, setAccessToken, setUsername]);
 
   React.useEffect(() => {
-    if (accessToken && !auth) {
+    if (accessToken && username && !auth) {
       client.me(function (err, res) {
         if (err) {
           setAuth(null);
           setUserProfile({});
         } else {
           setAuth(res);
-          setUserProfile(JSON.parse(res.account.posting_json_metadata));
+
+          let userProfileCandidate = {};
+
+          try {
+            const profileJSON = JSON.parse(res.account.posting_json_metadata)
+              .profile;
+
+            if (profileJSON.hasOwnProperty("name")) {
+              userProfileCandidate.name = profileJSON.name;
+            }
+
+            if (profileJSON.hasOwnProperty("profile_image")) {
+              userProfileCandidate.profile_image = profileJSON.profile_image;
+            }
+
+            if (profileJSON.hasOwnProperty("about")) {
+              userProfileCandidate.about = profileJSON.about;
+            }
+
+            setUserProfile(userProfileCandidate);
+          } catch (error) {
+            userProfileCandidate.name = username;
+            userProfileCandidate.profile_image = "";
+            userProfileCandidate.about = "";
+
+            setUserProfile(userProfileCandidate);
+          }
         }
       });
     }
-  }, [auth, accessToken, client]);
-  console.log(userProfile);
+  }, [auth, accessToken, username, client]);
+
   return (
     <ThemeProvider theme={theme}>
       <Container className={classes.container} maxWidth="md">
@@ -185,7 +218,7 @@ function App() {
                   client.login({});
                 }}
               >
-                Login
+                Referral Login
               </Button>
             </Box>
           ) : (
@@ -235,6 +268,7 @@ function App() {
                 {...props}
                 client={client}
                 auth={auth}
+                userProfile={userProfile}
                 setAuth={setAuth}
               />
             )}

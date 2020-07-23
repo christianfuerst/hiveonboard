@@ -18,17 +18,12 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
-import Paper from "@material-ui/core/Paper";
 import Chip from "@material-ui/core/Chip";
 import Tooltip from "@material-ui/core/Tooltip";
 
 import { tos } from "../../config";
+import ProfileCard from "../ProfileCard";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -39,16 +34,6 @@ const useStyles = makeStyles((theme) => ({
   },
   textField: {
     width: 300,
-  },
-  list: {
-    width: 320,
-    color: "#FFFFFF",
-  },
-  listItemText: {
-    color: "#FFFFFF",
-  },
-  paper: {
-    backgroundColor: theme.palette.secondary.main,
   },
   chip: {
     marginTop: theme.spacing(2),
@@ -457,35 +442,7 @@ const ChooseAccount = ({
           <Typography variant="overline" display="block" align="center">
             <b>Your Referrer</b>
           </Typography>
-          <Paper className={classes.paper}>
-            <List className={classes.list}>
-              <ListItem
-                alignItems="flex-start"
-                onClick={() =>
-                  window.open(
-                    "https://peakd.com/@" + referrerAccount.name,
-                    "_blank"
-                  )
-                }
-              >
-                <ListItemAvatar>
-                  <Avatar
-                    alt={referrerProfile.name}
-                    src={referrerProfile.profile_image}
-                  />
-                </ListItemAvatar>
-                <ListItemText
-                  primaryTypographyProps={{ color: "initial" }}
-                  secondaryTypographyProps={{
-                    color: "initial",
-                    variant: "caption",
-                  }}
-                  primary={referrerProfile.name}
-                  secondary={referrerProfile.about}
-                />
-              </ListItem>
-            </List>
-          </Paper>
+          <ProfileCard profile={referrerProfile} />
         </div>
       )}
       {!_.isEmpty(ticket) && ticket !== "invalid" && (
