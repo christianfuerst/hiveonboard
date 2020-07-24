@@ -60,7 +60,7 @@ const DashboardPage = ({ auth, userProfile }) => {
                 <ProfileCard profile={userProfile} />
               </Grid>
             </Grid>
-            <ReferralsTable account={userProfile.name} />
+            <ReferralsTable profile={userProfile} />
           </React.Fragment>
         ) : (
           <Alert className={classes.alert} severity="error">
