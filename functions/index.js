@@ -197,10 +197,18 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
       );
 
       if (postRequest.created === false) {
+        // Delete user including phone number
+        if (context.hasOwnProperty("auth")) {
+          await admin.auth().deleteUser(context.auth.uid);
+        }
         console.log("Account creation on remote creator instance failed.");
         return { error: "Account creation on remote creator instance failed." };
       }
     } catch (error) {
+      // Delete user including phone number
+      if (context.hasOwnProperty("auth")) {
+        await admin.auth().deleteUser(context.auth.uid);
+      }
       console.log("Remote creator instance is offline.");
       return { error: "Remote creator instance is offline." };
     }
@@ -268,7 +276,8 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
       if (context.hasOwnProperty("auth")) {
         await admin.auth().deleteUser(context.auth.uid);
       }
-      return { error: error };
+      console.log("Account creation on backup instance failed.");
+      return { error: "Account creation on backup instance failed." };
     }
   }
 
@@ -315,7 +324,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
       .collection("accounts")
       .doc(data.username)
       .set({ delegation: false }, { merge: true });
-    console.log("Delegation Error", error);
+    console.log("Delegation for " + data.username + " failed.");
   }
 
   console.log(JSON.stringify(accountData));
