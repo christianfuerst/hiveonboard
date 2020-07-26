@@ -108,6 +108,6 @@ export const dApps = [
     subtitle: "Curating content",
     text:
       "Curation project around science, technology, engineering & mathematics",
-    url: "https://d.buzz",
+    url: "https://stem.openhive.network",
   },
 ];

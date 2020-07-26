@@ -1710,19 +1710,19 @@
     call-me-maybe "^1.0.1"
     glob-to-regexp "^0.3.0"
 
-"@mui-treasury/components@^1.8.0":
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/@mui-treasury/components/-/components-1.8.0.tgz#0ea0f81ca5d772944ba68bc262d21846e59df0ae"
-  integrity sha512-WcnVB1fpBcNEfpC3FbVJhSs4GbjIisXXvpnwaa0IYvO8Khj3qQOT1VIa1dlzyj/9MUmTgeydRgCP6sAtR0Qd8A==
+"@mui-treasury/components@^1.9.0":
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/@mui-treasury/components/-/components-1.9.0.tgz#29401a139b79b5bc5aab3be953d6a6f438b4d963"
+  integrity sha512-Rev9UaFyY8vnTu6aiTxZnAbCbgV+mO2RnCA3yop0kla0nXxRIIaLONuOb7xo/43r8iA/vUidO7kVkMCpe1BC2A==
   dependencies:
-    "@mui-treasury/styles" "^1.11.0"
+    "@mui-treasury/styles" "^1.12.0"
     "@mui-treasury/utils" "^0.4.1"
     use-deep-compare-effect "^1.3.0"
 
-"@mui-treasury/styles@^1.11.0":
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/@mui-treasury/styles/-/styles-1.11.0.tgz#1fffd245d1bacd5fc95a275263c4cf0bc3fc61ce"
-  integrity sha512-KGpsIrQ/0RR/ri5rXwE8juEs+LRmfEuS/lYo+jLrPXUcb7gmkGDOYKx8QXaEk0abOjR56YMaTqdsz+11tktS3g==
+"@mui-treasury/styles@^1.12.0":
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/@mui-treasury/styles/-/styles-1.12.0.tgz#38ea0b74f83ed512b390dc838aba19cb28d3dfa9"
+  integrity sha512-C0d+WYP88sbV8k+jEsxe7e+N0adtFsDI/VhBZS0aUvDiUT8+FAjpusyazOgVZGvmKQ0zElMvSfLHUavlkelX2w==
   dependencies:
     "@mui-treasury/utils" "^0.4.1"
     color "^3.1.2"
@@ -1943,10 +1943,10 @@
     "@babel/runtime" "^7.10.3"
     "@testing-library/dom" "^7.17.1"
 
-"@testing-library/user-event@^12.0.14":
-  version "12.0.14"
-  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-12.0.14.tgz#75bd399744f5f41c36310a2b8f2d8c71c7710d33"
-  integrity sha512-aqxiCJyV1ED4mzIiR2ThQ0m/snpqtH22Y/J1scEeesor6TZ8EHq7bu2XF1Ca1MHv8uaaSZOqEJG6uQQvy0Z0XQ==
+"@testing-library/user-event@^12.0.15":
+  version "12.0.15"
+  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-12.0.15.tgz#464e0478cbecf2059780c46f119e5ef49a1e07bf"
+  integrity sha512-B+f8lpty7Nnq0i06FBGPDWT+asnHaudpmYBKDw7wqIq5xpUdzfDBSOdlcwRNneM3XrD0RsOZE9BXuDwr5pwsvw==
   dependencies:
     "@babel/runtime" "^7.10.2"
 
