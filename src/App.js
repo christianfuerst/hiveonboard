@@ -257,7 +257,11 @@ function App() {
         </Box>
         <Switch>
           <Route path="/" exact component={LandingPage} />
-          <Route path="/what-is-hive" exact component={WhatIsHivePage} />
+          <Route
+            path="/what-is-hive"
+            exact
+            render={(props) => <WhatIsHivePage {...props} client={client} />}
+          />
           <Route path="/create-account" exact component={CreateAccountPage} />
           <Route path="/discover-dapps" exact component={DAppsPage} />
           <Route path="/referrals/:account" exact component={ReferralsPage} />

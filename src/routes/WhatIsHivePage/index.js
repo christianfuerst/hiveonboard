@@ -1,9 +1,5 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import _ from "lodash";
-import hive from "@hiveio/hive-js";
+import { Link as RouterLink } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import ExpansionPanel from "@material-ui/core/ExpansionPanel";
@@ -11,10 +7,9 @@ import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import Typography from "@material-ui/core/Typography";
 import Icon from "@material-ui/core/Icon";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import Paper from "@material-ui/core/Paper";
+import Alert from "@material-ui/lab/Alert";
+import AlertTitle from "@material-ui/lab/AlertTitle";
+import Link from "@material-ui/core/Link";
 
 const useStyles = makeStyles((theme) => ({
   grid: {
@@ -51,43 +46,16 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0.5),
     backgroundColor: theme.palette.secondary.main,
   },
+  alert: {
+    margin: theme.spacing(2),
+  },
+  link: {
+    margin: theme.spacing(0, 0.5, 0, 0.5),
+  },
 }));
 
-const WhatIsHivePage = () => {
+const WhatIsHivePage = ({ client }) => {
   const classes = useStyles();
-  const history = useHistory();
-
-  const [referrerAccount, SetReferrerAccount] = React.useState(null);
-
-  const formik = useFormik({
-    initialValues: {
-      username: "",
-    },
-    validationSchema: Yup.object({
-      username: Yup.string()
-        .min(3, "Username should contain at least 3 characters")
-        .required("Username is required")
-        .test("isUser", "Username does not exist", async (value) => {
-          if (value) {
-            if (value.length >= 3) {
-              let result = await hive.api.lookupAccountNamesAsync([value]);
-              if (!_.isEmpty(result[0])) {
-                return true;
-              } else {
-                return false;
-              }
-            } else {
-              return true;
-            }
-          } else {
-            return true;
-          }
-        }),
-    }),
-    onSubmit: (values) => {
-      SetReferrerAccount(values.username);
-    },
-  });
 
   return (
     <Grid
@@ -192,105 +160,21 @@ const WhatIsHivePage = () => {
               alignItems="center"
             >
               <Grid item xs={12}>
-                {referrerAccount && (
-                  <Grid
-                    container
-                    alignItems="center"
-                    justify="center"
-                    direction="column"
+                <Alert className={classes.alert} severity="info">
+                  <AlertTitle>Login to your Referral Dashboard</AlertTitle>
+                  Please use the
+                  <Link
+                    className={classes.link}
+                    component={RouterLink}
+                    onClick={() => {
+                      client.login({});
+                    }}
                   >
-                    <Grid item>
-                      <Typography
-                        variant="overline"
-                        display="block"
-                        align="center"
-                      >
-                        <b>Your Referral Link</b>
-                      </Typography>
-                      <Paper className={classes.paper} elevation={3}>
-                        <Typography className={classes.text}>
-                          <b>
-                            {"https://hiveonboard.com?ref=" + referrerAccount}
-                          </b>
-                        </Typography>
-                      </Paper>
-                    </Grid>
-                  </Grid>
-                )}
-                <form onSubmit={formik.handleSubmit}>
-                  <Grid
-                    container
-                    direction="column"
-                    justify="center"
-                    alignItems="center"
-                  >
-                    <Grid item xs={12}>
-                      <TextField
-                        className={classes.textField}
-                        color={formik.errors.username ? "primary" : "secondary"}
-                        required
-                        type="text"
-                        id="username"
-                        name="username"
-                        label="Username"
-                        variant="outlined"
-                        margin="normal"
-                        value={formik.values.username.toLowerCase()}
-                        onChange={(e) => {
-                          formik.handleChange(e);
-                        }}
-                        onBlur={formik.handleBlur}
-                        error={formik.errors.username ? true : false}
-                        helperText={
-                          formik.errors.username
-                            ? formik.errors.username
-                            : "Choose your Username for HIVE"
-                        }
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="start">
-                              {formik.values.username === "" ? (
-                                <Icon>emoji_nature</Icon>
-                              ) : formik.errors.username ? (
-                                <Icon color="error">error</Icon>
-                              ) : (
-                                <Icon color="action">check</Icon>
-                              )}
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Button
-                        disabled={
-                          formik.errors.username ||
-                          formik.values.username === ""
-                        }
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
-                      >
-                        Create Referral Link
-                      </Button>
-                      <Button
-                        disabled={
-                          formik.errors.username ||
-                          formik.values.username === ""
-                        }
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
-                        onClick={() => {
-                          history.push("/referrals/" + formik.values.username);
-                        }}
-                      >
-                        Track your referrals
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </form>
+                    Referral Login
+                  </Link>
+                  in order to access your dashboard including your personal
+                  referral link.
+                </Alert>
                 <Typography>
                   If someone joins HIVE with your referral link, @hiveonboard
                   will send a memo to your HIVE account.

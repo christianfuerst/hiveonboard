@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
         color: "#FFFFFF",
       },
       paper: {
-        backgroundColor: theme.palette.secondary.main,
+        backgroundColor: theme.palette.secondary.light,
       },
 }));
 
