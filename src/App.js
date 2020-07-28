@@ -79,8 +79,8 @@ function App() {
 
   const client = new hivesigner.Client({
     app: "hiveonboard",
-    //callbackURL: "http://hiveonboard.com/dashboard",
-    callbackURL: "http://localhost:3000/dashboard",
+    callbackURL: "http://hiveonboard.com/dashboard",
+    //callbackURL: "http://localhost:3000/dashboard",
     scope: ["login"],
     accessToken: [accessToken],
   });
