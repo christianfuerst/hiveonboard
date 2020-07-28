@@ -148,7 +148,13 @@ const CreateAccountPage = () => {
           />
         );
       case 2:
-        return <ChooseDApp account={account} redirectUrl={redirectUrl} />;
+        return (
+          <ChooseDApp
+            account={account}
+            redirectUrl={redirectUrl}
+            debugMode={debugMode}
+          />
+        );
       default:
         return "Unknown step";
     }

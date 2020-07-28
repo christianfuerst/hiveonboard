@@ -15,11 +15,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CreateAccount = ({ account, redirectUrl }) => {
+const CreateAccount = ({ account, redirectUrl, debugMode }) => {
   const classes = useStyles();
   const analytics = useAnalytics();
 
-  if (redirectUrl && whitelist.some((url) => redirectUrl.startsWith(url))) {
+  if (
+    redirectUrl &&
+    (whitelist.some((url) => redirectUrl.startsWith(url)) || debugMode)
+  ) {
     return (
       <Grid container spacing={2}>
         <Grid item xs={12}>
