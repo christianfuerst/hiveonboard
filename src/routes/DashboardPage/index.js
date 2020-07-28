@@ -66,7 +66,7 @@ function a11yProps(index) {
   };
 }
 
-const DashboardPage = ({ auth, userProfile }) => {
+const DashboardPage = ({ userProfile }) => {
   const classes = useStyles();
   const [tab, setTab] = React.useState(1);
 
@@ -77,7 +77,7 @@ const DashboardPage = ({ auth, userProfile }) => {
   return (
     <Card className={classes.card}>
       <CardContent>
-        {auth ? (
+        {userProfile ? (
           <React.Fragment>
             <Grid
               container
@@ -92,7 +92,7 @@ const DashboardPage = ({ auth, userProfile }) => {
                 </Typography>
                 <Paper className={classes.paper} elevation={3}>
                   <Typography className={classes.text}>
-                    {"https://hiveonboard.com?ref=" + auth.name}
+                    {"https://hiveonboard.com?ref=" + userProfile.account}
                   </Typography>
                 </Paper>
                 <Typography>

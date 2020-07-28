@@ -144,7 +144,7 @@ const ReferralsTable = ({ profile }) => {
   React.useEffect(() => {
     let data = [];
 
-    if (profile && !_.isEmpty(profile.name)) {
+    if (profile && !_.isEmpty(profile.account)) {
       setLoading(true);
 
       const client = new Client([
@@ -159,7 +159,7 @@ const ReferralsTable = ({ profile }) => {
           axios
             .get(
               "https://hiveonboard.com/api/referrer/" +
-              profile.name +
+              profile.account +
                 "?limit=1000"
             )
             .then(function (response) {
@@ -202,7 +202,7 @@ const ReferralsTable = ({ profile }) => {
                       if (json_metadata.hasOwnProperty("beneficiaries")) {
                         json_metadata.beneficiaries.forEach((element) => {
                           if (
-                            element.name === profile.name &&
+                            element.name === profile.account &&
                             element.label === "referrer"
                           ) {
                             refBeneficiary = element.weight;

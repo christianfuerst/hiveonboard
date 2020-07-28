@@ -68,6 +68,8 @@ const ChooseAccount = ({
         const profileJSON = JSON.parse(referrerAccount.posting_json_metadata)
           .profile;
 
+        referrerProfileCandidate.account = referrer;
+
         if (profileJSON.hasOwnProperty("name")) {
           referrerProfileCandidate.name = profileJSON.name;
         }
@@ -82,6 +84,7 @@ const ChooseAccount = ({
 
         setReferrerProfile(referrerProfileCandidate);
       } catch (error) {
+        referrerProfileCandidate.account = referrer;
         referrerProfileCandidate.name = referrerAccount.name;
         referrerProfileCandidate.profile_image = "";
         referrerProfileCandidate.about = "";
@@ -89,7 +92,7 @@ const ChooseAccount = ({
         setReferrerProfile(referrerProfileCandidate);
       }
     }
-  }, [referrerAccount]);
+  }, [referrerAccount, referrer]);
 
   const formik = useFormik({
     initialValues: {

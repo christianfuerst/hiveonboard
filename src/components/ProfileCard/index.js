@@ -28,7 +28,7 @@ const ProfileCard = ({ profile }) => {
         alignItems="flex-start"
         onClick={() =>
           window.open(
-            "https://peakd.com/@" + profile.name,
+            "https://peakd.com/@" + profile.account,
             "_blank"
           )
         }

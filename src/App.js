@@ -112,6 +112,8 @@ function App() {
             const profileJSON = JSON.parse(res.account.posting_json_metadata)
               .profile;
 
+            userProfileCandidate.account = username;
+
             if (profileJSON.hasOwnProperty("name")) {
               userProfileCandidate.name = profileJSON.name;
             }
@@ -126,6 +128,7 @@ function App() {
 
             setUserProfile(userProfileCandidate);
           } catch (error) {
+            userProfileCandidate.account = username;
             userProfileCandidate.name = username;
             userProfileCandidate.profile_image = "";
             userProfileCandidate.about = "";
@@ -272,9 +275,7 @@ function App() {
               <DashboardPage
                 {...props}
                 client={client}
-                auth={auth}
                 userProfile={userProfile}
-                setAuth={setAuth}
               />
             )}
           />
