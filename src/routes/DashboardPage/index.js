@@ -87,13 +87,18 @@ const DashboardPage = ({ auth, userProfile }) => {
               alignItems="flex-start"
             >
               <Grid item>
-                <Typography variant="overline"><b>Your Referral Link:</b></Typography>
+                <Typography variant="overline">
+                  <b>Your Referral Link:</b>
+                </Typography>
                 <Paper className={classes.paper} elevation={3}>
                   <Typography className={classes.text}>
-                    {"https://hiveonboard.com?ref=" + userProfile.name}
+                    {"https://hiveonboard.com?ref=" + auth.name}
                   </Typography>
                 </Paper>
-                <Typography>Earn 3% of Posting-Rewards from your Referral on supported dApps.</Typography>
+                <Typography>
+                  Earn 3% of Posting-Rewards from your Referral on supported
+                  dApps.
+                </Typography>
               </Grid>
               <Grid item>
                 <ProfileCard profile={userProfile} />
@@ -104,22 +109,21 @@ const DashboardPage = ({ auth, userProfile }) => {
                 value={tab}
                 onChange={handleTabChange}
                 variant="fullWidth"
-
                 aria-label="dashboard-content"
               >
-                
+                <Tab label="Overview" {...a11yProps(0)} />
                 <Tab label="Referred Accounts" {...a11yProps(1)} />
-
+                <Tab label="VIP Tickets" {...a11yProps(2)} />
               </Tabs>
             </AppBar>
             <TabPanel value={tab} index={0}>
-              Achievements
+              Comming Soon! Stay tuned!
             </TabPanel>
             <TabPanel value={tab} index={1}>
-            <ReferralsTable profile={userProfile} />
+              <ReferralsTable profile={userProfile} />
             </TabPanel>
             <TabPanel value={tab} index={2}>
-              Item Two
+              Comming Soon! Stay tuned!
             </TabPanel>
           </React.Fragment>
         ) : (

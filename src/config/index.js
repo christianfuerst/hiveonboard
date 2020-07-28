@@ -79,7 +79,7 @@ export const dApps = [
     name: "Ecency",
     subtitle: "Device-friendly blog",
     text: "Rich & featured user experience accross all devices",
-    url: "https://esteem.app",
+    url: "https://ecency.com",
   },
   {
     icon: "dapplr.jpg",
