@@ -33,7 +33,6 @@ import LandingPage from "./routes/LandingPage";
 import WhatIsHivePage from "./routes/WhatIsHivePage";
 import CreateAccountPage from "./routes/CreateAccountPage";
 import DAppsPage from "./routes/DAppsPage";
-import ReferralsPage from "./routes/ReferralsPage";
 import DashboardPage from "./routes/DashboardPage";
 
 const useStyles = makeStyles((theme) => ({
@@ -108,11 +107,12 @@ function App() {
 
           let userProfileCandidate = {};
 
+          userProfileCandidate.account = username;
+          userProfileCandidate.reputation = res.account.reputation;
+
           try {
             const profileJSON = JSON.parse(res.account.posting_json_metadata)
               .profile;
-
-            userProfileCandidate.account = username;
 
             if (profileJSON.hasOwnProperty("name")) {
               userProfileCandidate.name = profileJSON.name;
@@ -128,7 +128,6 @@ function App() {
 
             setUserProfile(userProfileCandidate);
           } catch (error) {
-            userProfileCandidate.account = username;
             userProfileCandidate.name = username;
             userProfileCandidate.profile_image = "";
             userProfileCandidate.about = "";
@@ -267,14 +266,13 @@ function App() {
           />
           <Route path="/create-account" exact component={CreateAccountPage} />
           <Route path="/discover-dapps" exact component={DAppsPage} />
-          <Route path="/referrals/:account" exact component={ReferralsPage} />
           <Route
             path="/dashboard"
             exact
             render={(props) => (
               <DashboardPage
                 {...props}
-                client={client}
+                accessToken={accessToken}
                 userProfile={userProfile}
               />
             )}

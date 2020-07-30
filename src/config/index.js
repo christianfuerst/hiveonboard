@@ -78,8 +78,8 @@ export const dApps = [
     icon: "ecency.png",
     name: "Ecency",
     subtitle: "Device-friendly blog",
-    text: "Rich & featured user experience accross all devices",
-    url: "https://ecency.com",
+    text: "Rich & featured user experience across all devices",
+    url: "https://ecency.com/?referral=hiveonboard",
   },
   {
     icon: "dapplr.jpg",

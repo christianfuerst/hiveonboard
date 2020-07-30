@@ -2,6 +2,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios").default;
 const dhive = require("@hiveio/dhive");
+const hivesigner = require("hivesigner");
 const express = require("express");
 const cors = require("cors");
 const _ = require("lodash");
@@ -306,7 +307,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     await db
       .collection("tickets")
       .doc(ticket)
-      .set({ consumed: true }, { merge: true });
+      .set({ consumed: true, consumedBy: data.username }, { merge: true });
   }
 
   // HP delegation
@@ -500,7 +501,7 @@ exports.postAccountCreationReport = functions.pubsub
     });
 
     try {
-      await client.broadcast.comment(
+      await client.broadcast.commentWithOptions(
         {
           author: config.accountLog,
           body: body,
@@ -509,6 +510,17 @@ exports.postAccountCreationReport = functions.pubsub
           parent_permlink: tag,
           permlink: permlink,
           title: title,
+        },
+        {
+          author: config.accountLog,
+          permlink: permlink,
+          allow_votes: true,
+          allow_curation_rewards: true,
+          max_accepted_payout: "1000000.000 HBD",
+          percent_steem_dollars: 10000,
+          extensions: [
+            [0, { beneficiaries: [{ account: "hiveonboard", weight: 10000 }] }],
+          ],
         },
         keyLog
       );
@@ -922,6 +934,65 @@ app.get("/api/tickets/:ticket", async (req, res) => {
   }
 });
 
+app.get("/api/tickets", async (req, res) => {
+  if (req.query.hasOwnProperty("accessToken")) {
+    let hivesignerClient = new hivesigner.Client({
+      app: "hiveonboard",
+      callbackURL: "http://hiveonboard.com/dashboard",
+      scope: ["login"],
+      accessToken: [req.query.accessToken],
+    });
+
+    hivesignerClient.me(async function (error, result) {
+      if (error) {
+        console.log(
+          "GET request to /api/tickets - Refused: Invalid auth accessToken. - Source: " +
+            req.ip
+        );
+        res.status(401).send("Invalid access token.");
+      } else {
+        let items = [];
+        let size = 0;
+
+        let ref = db.collection("tickets");
+        let query = await ref.where("referrer", "==", result.user).get();
+
+        query.forEach((doc) => {
+          let data = doc.data();
+          items.push(data);
+          size += 1;
+        });
+
+        let referralRef = db.collection("referralsCount").doc(result.user);
+        let referralDoc = await referralRef.get();
+        let ticketAvailable = false;
+        let lastTicketRequest = 0;
+
+        if (referralDoc.exists) {
+          let referral = referralDoc.data();
+          if (referral.lastTicketRequest) {
+            lastTicketRequest = referral.lastTicketRequest.toMillis();
+          }
+          ticketAvailable = true;
+        }
+
+        res.json({
+          items: items,
+          size: size,
+          ticketAvailable: ticketAvailable,
+          lastTicketRequest: lastTicketRequest,
+        });
+      }
+    });
+  } else {
+    console.log(
+      "GET request to /api/tickets - Refused: Invalid auth accessToken. - Source: " +
+        req.ip
+    );
+    res.status(401).send("Invalid access token.");
+  }
+});
+
 app.post("/api/tickets", async (req, res) => {
   function create_UUID() {
     var dt = new Date().getTime();
@@ -936,51 +1007,94 @@ app.post("/api/tickets", async (req, res) => {
     return uuid;
   }
 
-  let auth = req.headers.authority;
+  function ticketClaimIsValid(referral) {
+    if (referral.referrerCount && referral.referrerCount >= 10) {
+      if (referral.lastTicketRequest) {
+        let cooldown = 7 * 24 * 60 * 60 * 1000;
 
-  if (!auth) {
-    console.log(
-      "POST request to /api/tickets - Refused: Authorization header missing. - Source: " +
-        req.ip
-    );
-    res.status(401).send("Authorization header missing.");
-  } else {
-    if (auth !== config.ticketApiKey) {
-      console.log(
-        "POST request to /api/tickets - Refused: Invalid auth token. - Source: " +
-          req.ip
-      );
-      res.status(401).send("Invalid auth token.");
-    } else {
-      let referrer = req.body.referrer;
-      let tickets = req.body.tickets;
-
-      if (typeof referrer === "undefined" || typeof tickets === "undefined") {
-        res.status(400).send("Body data is invalid or missing.");
-      } else {
-        let ticketsArray = [];
-        let batch = db.batch();
-        let i;
-
-        for (i = 0; i < parseInt(tickets); i++) {
-          let ticket = create_UUID();
-          let ticketRef = db.collection("tickets").doc(ticket);
-
-          batch.set(ticketRef, {
-            ticket: ticket,
-            referrer: referrer,
-            consumed: false,
-          });
-
-          ticketsArray.push(ticket);
+        if (referral.referrerCount >= 100 && referral.referrerCount < 1000) {
+          cooldown = cooldown / 7;
         }
 
-        await batch.commit();
+        if (referral.referrerCount >= 1000) {
+          cooldown = cooldown / 7 / 24;
+        }
 
-        res.setHeader("Content-Type", "application/json");
-        res.json(ticketsArray);
+        let lastDate = referral.lastTicketRequest.toDate();
+        let minDate = new Date(lastDate.getTime() + cooldown);
+        let nowDate = new Date();
+
+        if (minDate < nowDate) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return true;
       }
+    } else {
+      return false;
     }
+  }
+
+  if (req.body.accessToken) {
+    let hivesignerClient = new hivesigner.Client({
+      app: "hiveonboard",
+      callbackURL: "http://hiveonboard.com/dashboard",
+      scope: ["login"],
+      accessToken: [req.body.accessToken],
+    });
+
+    hivesignerClient.me(async function (error, result) {
+      if (error) {
+        console.log(
+          "POST request to /api/tickets - Refused: Invalid auth accessToken. - Source: " +
+            req.ip
+        );
+        res.status(401).send("Invalid access token.");
+      } else {
+        let ref = db.collection("referralsCount").doc(result.user);
+        let doc = await ref.get();
+
+        if (!doc.exists) {
+          console.log(
+            "POST request to /api/tickets - Error: referralsCount doc not found. - Source: " +
+              req.ip
+          );
+          res.status(412).send("Referrer record not found.");
+        } else {
+          let referral = doc.data();
+
+          if (ticketClaimIsValid(referral)) {
+            let ticket = create_UUID();
+            let ticketRef = db.collection("tickets").doc(ticket);
+            let ticketObject = {
+              ticket: ticket,
+              referrer: result.user,
+              consumed: false,
+            };
+
+            await ticketRef.set(ticketObject);
+            await ref.set({ lastTicketRequest: new Date() }, { merge: true });
+
+            res.setHeader("Content-Type", "application/json");
+            res.json(ticketObject);
+          } else {
+            console.log(
+              "POST request to /api/tickets - Error: Condition not fulfilled. - Source: " +
+                req.ip
+            );
+            res.status(412).send("Condition not fulfilled.");
+          }
+        }
+      }
+    });
+  } else {
+    console.log(
+      "POST request to /api/tickets - Refused: Invalid auth accessToken. - Source: " +
+        req.ip
+    );
+    res.status(401).send("Invalid access token.");
   }
 });
 

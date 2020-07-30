@@ -1,4 +1,6 @@
 import React from "react";
+import _ from "lodash";
+import axios from "axios";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
@@ -11,9 +13,16 @@ import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Box from "@material-ui/core/Box";
+import IconButton from "@material-ui/core/IconButton";
+import FileCopyIcon from "@material-ui/icons/FileCopyOutlined";
+import Tooltip from "@material-ui/core/Tooltip";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 
 import ProfileCard from "../../components/ProfileCard";
+import OverviewTable from "../../components/OverviewTable";
 import ReferralsTable from "../../components/ReferralsTable";
+import TicketsTable from "../../components/TicketsTable";
+import Loading from "../../components/Loading";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -66,76 +75,124 @@ function a11yProps(index) {
   };
 }
 
-const DashboardPage = ({ userProfile }) => {
+const DashboardPage = ({ accessToken, userProfile }) => {
   const classes = useStyles();
-  const [tab, setTab] = React.useState(1);
+  const [referrerData, setReferrerData] = React.useState(null);
+  const [tickets, setTickets] = React.useState(null);
+  const [tab, setTab] = React.useState(0);
+  const [reload, setReload] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!_.isEmpty(accessToken) && !_.isEmpty(userProfile)) {
+      axios
+        .get(
+          "https://hiveonboard.com/api/referrer/" +
+            userProfile.account +
+            "?limit=1000"
+        )
+        .then(function (response) {
+          setReferrerData(response.data);
+        });
+
+      axios
+        .get("https://hiveonboard.com/api/tickets?accessToken=" + accessToken)
+        .then(function (response) {
+          setTickets(response.data);
+        });
+
+      setReload(false);
+    }
+  }, [userProfile, accessToken, reload]);
 
   const handleTabChange = (event, newValue) => {
     setTab(newValue);
   };
 
-  return (
-    <Card className={classes.card}>
-      <CardContent>
-        {userProfile ? (
-          <React.Fragment>
-            <Grid
-              container
-              spacing={2}
-              direction="row"
-              justify="space-between"
-              alignItems="flex-start"
-            >
-              <Grid item>
-                <Typography variant="overline">
-                  <b>Your Referral Link:</b>
-                </Typography>
-                <Paper className={classes.paper} elevation={3}>
-                  <Typography className={classes.text}>
-                    {"https://hiveonboard.com?ref=" + userProfile.account}
-                  </Typography>
-                </Paper>
-                <Typography>
-                  Earn 3% of Posting-Rewards from your Referral on supported
-                  dApps.
-                </Typography>
-              </Grid>
-              <Grid item>
-                <ProfileCard profile={userProfile} />
-              </Grid>
-            </Grid>
-            <AppBar position="static" className={classes.appBar}>
-              <Tabs
-                value={tab}
-                onChange={handleTabChange}
-                variant="fullWidth"
-                aria-label="dashboard-content"
+  if (referrerData && tickets) {
+    return (
+      <Card className={classes.card}>
+        <CardContent>
+          {userProfile ? (
+            <React.Fragment>
+              <Grid
+                container
+                spacing={2}
+                direction="row"
+                justify="space-between"
+                alignItems="flex-start"
               >
-                <Tab label="Overview" {...a11yProps(0)} />
-                <Tab label="Referred Accounts" {...a11yProps(1)} />
-                <Tab label="VIP Tickets" {...a11yProps(2)} />
-              </Tabs>
-            </AppBar>
-            <TabPanel value={tab} index={0}>
-              Comming Soon! Stay tuned!
-            </TabPanel>
-            <TabPanel value={tab} index={1}>
-              <ReferralsTable profile={userProfile} />
-            </TabPanel>
-            <TabPanel value={tab} index={2}>
-              Comming Soon! Stay tuned!
-            </TabPanel>
-          </React.Fragment>
-        ) : (
-          <Alert className={classes.alert} severity="error">
-            <AlertTitle>Not Authorized</AlertTitle>
-            You have to login into your HIVE Account in order to access the
-            Dashboard.
-          </Alert>
-        )}
-      </CardContent>
-    </Card>
-  );
+                <Grid item>
+                  <Typography variant="overline">
+                    <b>Your Referral Link:</b>
+                  </Typography>
+                  <Paper className={classes.paper} elevation={3}>
+                    <Typography className={classes.text}>
+                      {"https://hiveonboard.com?ref=" + userProfile.account}
+                      <CopyToClipboard
+                        text={
+                          "https://hiveonboard.com?ref=" + userProfile.account
+                        }
+                      >
+                        <Tooltip title="Copy to Clipboard" placement="right">
+                          <IconButton className={classes.text}>
+                            <FileCopyIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </CopyToClipboard>
+                    </Typography>
+                  </Paper>
+                  <Typography>
+                    Earn 3% of Posting-Rewards from your Referral on supported
+                    dApps.
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <ProfileCard profile={userProfile} />
+                </Grid>
+              </Grid>
+              <AppBar position="static" className={classes.appBar}>
+                <Tabs
+                  value={tab}
+                  onChange={handleTabChange}
+                  variant="fullWidth"
+                  aria-label="dashboard-content"
+                >
+                  <Tab label="Overview" {...a11yProps(0)} />
+                  <Tab label="Referred Accounts" {...a11yProps(1)} />
+                  <Tab label="VIP Tickets" {...a11yProps(2)} />
+                </Tabs>
+              </AppBar>
+              <TabPanel value={tab} index={0}>
+                <OverviewTable
+                  accessToken={accessToken}
+                  referrerData={referrerData}
+                  tickets={tickets}
+                  setReload={setReload}
+                />
+              </TabPanel>
+              <TabPanel value={tab} index={1}>
+                <ReferralsTable
+                  profile={userProfile}
+                  referrerData={referrerData}
+                />
+              </TabPanel>
+              <TabPanel value={tab} index={2}>
+                <TicketsTable tickets={tickets} />
+              </TabPanel>
+            </React.Fragment>
+          ) : (
+            <Alert className={classes.alert} severity="error">
+              <AlertTitle>Not Authorized</AlertTitle>
+              You have to login into your HIVE Account in order to access the
+              Dashboard.
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
+    );
+  } else {
+    return <Loading />;
+  }
 };
 
 export default DashboardPage;

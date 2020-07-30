@@ -1,7 +1,6 @@
 import React from "react";
 import _ from "lodash";
 import { makeStyles } from "@material-ui/core/styles";
-import axios from "axios";
 import hive from "@hiveio/hive-js";
 import { Client } from "@hiveio/dhive";
 import Grid from "@material-ui/core/Grid";
@@ -136,125 +135,119 @@ const renderRefBeneficiary = (rowData, classes) => {
   }
 };
 
-const ReferralsTable = ({ profile }) => {
+const ReferralsTable = ({ profile, referrerData }) => {
   const classes = useStyles();
   const [referredAccounts, setReferredAccounts] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    let data = [];
+    if (referrerData && referrerData.hasOwnProperty("items")) {
+      let data = [];
 
-    if (profile && !_.isEmpty(profile.account)) {
-      setLoading(true);
+      if (profile && !_.isEmpty(profile.account)) {
+        setLoading(true);
 
-      const client = new Client([
-        "https://api.hive.blog",
-        "https://api.hivekings.com",
-        "https://anyx.io",
-        "https://api.openhive.network",
-      ]);
+        const client = new Client([
+          "https://api.hive.blog",
+          "https://api.hivekings.com",
+          "https://anyx.io",
+          "https://api.openhive.network",
+        ]);
 
-      hive.api.getDynamicGlobalProperties((err, dynamicGlobalProperties) => {
-        if (dynamicGlobalProperties) {
-          axios
-            .get(
-              "https://hiveonboard.com/api/referrer/" +
-              profile.account +
-                "?limit=1000"
-            )
-            .then(function (response) {
-              if (response.data.items.length > 0) {
-                let accounts = [];
+        hive.api.getDynamicGlobalProperties((err, dynamicGlobalProperties) => {
+          if (dynamicGlobalProperties) {
+            if (referrerData.items.length > 0) {
+              let accounts = [];
 
-                response.data.items.forEach((element) => {
-                  accounts.push(element.account);
-                });
+              referrerData.items.forEach((element) => {
+                accounts.push(element.account);
+              });
 
-                hive.api.getAccounts(accounts, async function (err, result) {
-                  if (result) {
-                    const rcAccounts = await client
-                      .call("rc_api", "find_rc_accounts", {
-                        accounts: accounts,
-                      })
-                      .then(
-                        function (result) {
-                          return result.rc_accounts;
-                        },
-                        function (error) {
-                          console.error(error);
+              hive.api.getAccounts(accounts, async function (err, result) {
+                if (result) {
+                  const rcAccounts = await client
+                    .call("rc_api", "find_rc_accounts", {
+                      accounts: accounts,
+                    })
+                    .then(
+                      function (result) {
+                        return result.rc_accounts;
+                      },
+                      function (error) {
+                        console.error(error);
+                      }
+                    );
+
+                  referrerData.items.forEach((element, index) => {
+                    let posting_json_metadata = {};
+                    if (IsJsonString(result[index].posting_json_metadata)) {
+                      posting_json_metadata = JSON.parse(
+                        result[index].posting_json_metadata
+                      );
+                    }
+
+                    let json_metadata = {};
+                    if (IsJsonString(result[index].json_metadata)) {
+                      json_metadata = JSON.parse(result[index].json_metadata);
+                    }
+
+                    let refBeneficiary = 0;
+                    if (json_metadata.hasOwnProperty("beneficiaries")) {
+                      json_metadata.beneficiaries.forEach((element) => {
+                        if (
+                          element.name === profile.account &&
+                          element.label === "referrer"
+                        ) {
+                          refBeneficiary = element.weight;
                         }
-                      );
+                      });
+                    }
 
-                    response.data.items.forEach((element, index) => {
-                      let posting_json_metadata = {};
-                      if (IsJsonString(result[index].posting_json_metadata)) {
-                        posting_json_metadata = JSON.parse(
-                          result[index].posting_json_metadata
-                        );
-                      }
-
-                      let json_metadata = {};
-                      if (IsJsonString(result[index].json_metadata)) {
-                        json_metadata = JSON.parse(result[index].json_metadata);
-                      }
-
-                      let refBeneficiary = 0;
-                      if (json_metadata.hasOwnProperty("beneficiaries")) {
-                        json_metadata.beneficiaries.forEach((element) => {
-                          if (
-                            element.name === profile.account &&
-                            element.label === "referrer"
-                          ) {
-                            refBeneficiary = element.weight;
-                          }
-                        });
-                      }
-
-                      data.push(element);
-                      data[index].data = result[index];
-                      data[index].rcPercentage = getRcPercentage(
-                        rcAccounts[index]
-                      );
-                      data[index].refBeneficiary = refBeneficiary;
-                      data[index].dateTime = new Date(data[index].timestamp);
-                      data[index].posting_json_metadata = posting_json_metadata;
-                      data[index].json_metadata = json_metadata;
-                      data[index].hp = hive.formatter.vestToHive(
-                        parseInt(data[index].data.vesting_shares) +
-                          parseInt(data[index].data.received_vesting_shares),
-                        dynamicGlobalProperties.total_vesting_shares,
-                        dynamicGlobalProperties.total_vesting_fund_steem
-                      );
-                      data[index].hpDelegated = hive.formatter.vestToHive(
+                    data.push(element);
+                    data[index].data = result[index];
+                    data[index].rcPercentage = getRcPercentage(
+                      rcAccounts[index]
+                    );
+                    data[index].refBeneficiary = refBeneficiary;
+                    data[index].dateTime = new Date(data[index].timestamp);
+                    data[index].posting_json_metadata = posting_json_metadata;
+                    data[index].json_metadata = json_metadata;
+                    data[index].hp = hive.formatter.vestToHive(
+                      parseInt(data[index].data.vesting_shares) +
                         parseInt(data[index].data.received_vesting_shares),
-                        dynamicGlobalProperties.total_vesting_shares,
-                        dynamicGlobalProperties.total_vesting_fund_steem
-                      );
-                      data[index].hpSelf =
-                        data[index].hp - data[index].hpDelegated;
-                      data[index].sugDelegation =
-                        (5 *
-                          parseFloat(
-                            dynamicGlobalProperties.total_vesting_shares
-                          )) /
-                          parseFloat(
-                            dynamicGlobalProperties.total_vesting_fund_steem
-                          ) -
-                        parseFloat(data[index].data.vesting_shares);
-                    });
+                      dynamicGlobalProperties.total_vesting_shares,
+                      dynamicGlobalProperties.total_vesting_fund_steem
+                    );
+                    data[index].hpDelegated = hive.formatter.vestToHive(
+                      parseInt(data[index].data.received_vesting_shares),
+                      dynamicGlobalProperties.total_vesting_shares,
+                      dynamicGlobalProperties.total_vesting_fund_steem
+                    );
+                    data[index].hpSelf =
+                      data[index].hp - data[index].hpDelegated;
+                    data[index].sugDelegation =
+                      (5 *
+                        parseFloat(
+                          dynamicGlobalProperties.total_vesting_shares
+                        )) /
+                        parseFloat(
+                          dynamicGlobalProperties.total_vesting_fund_steem
+                        ) -
+                      parseFloat(data[index].data.vesting_shares);
+                  });
 
-                    setReferredAccounts(data);
-                    setLoading(false);
-                  }
-                });
-              } else {
-                setLoading(false);
-              }
-            });
-        }
-      });
+                  setReferredAccounts(data);
+                  setLoading(false);
+                }
+              });
+            } else {
+              setLoading(false);
+            }
+          }
+        });
+      }
     }
-  }, [setReferredAccounts, profile]);
+  }, [setReferredAccounts, profile, referrerData]);
 
   return (
     <Grid
