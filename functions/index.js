@@ -472,7 +472,7 @@ exports.postAccountCreationReport = functions.pubsub
       "account-creation-report-" + today.toISOString().substring(0, 10);
     let body =
       "This is an automatic generated account creation report from @" +
-      config.account +
+      config.provider +
       ".\n" +
       "![badge_poweredbyhive_dark_240.png](https://files.peakd.com/file/peakd-hive/hiveonboard/SkMbcWod-badge_powered-by-hive_dark_240.png)\n" +
       "|Account|Referrer|Creation Time|\n|-|-|-|\n";
@@ -519,7 +519,7 @@ exports.postAccountCreationReport = functions.pubsub
           max_accepted_payout: "1000000.000 HBD",
           percent_steem_dollars: 10000,
           extensions: [
-            [0, { beneficiaries: [{ account: "hiveonboard", weight: 10000 }] }],
+            [0, { beneficiaries: [{ account: config.provider, weight: 10000 }] }],
           ],
         },
         keyLog
