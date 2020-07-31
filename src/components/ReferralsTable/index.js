@@ -26,7 +26,6 @@ import MaterialTable from "material-table";
 const useStyles = makeStyles((theme) => ({
   grid: {
     margin: 0,
-    padding: theme.spacing(1),
   },
   button: {
     margin: theme.spacing(1),

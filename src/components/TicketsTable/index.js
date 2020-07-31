@@ -8,7 +8,6 @@ import TicketCard from "../TicketCard";
 const useStyles = makeStyles((theme) => ({
   grid: {
     margin: 0,
-    padding: theme.spacing(1),
   },
 }));
 
