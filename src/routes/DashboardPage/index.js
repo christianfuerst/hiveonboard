@@ -61,7 +61,7 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box p={3}>
-          <Typography>{children}</Typography>
+          <Typography component={"span"}>{children}</Typography>
         </Box>
       )}
     </div>
@@ -165,6 +165,7 @@ const DashboardPage = ({ accessToken, userProfile }) => {
               <TabPanel value={tab} index={0}>
                 <OverviewTable
                   accessToken={accessToken}
+                  profile={userProfile}
                   referrerData={referrerData}
                   tickets={tickets}
                   setReload={setReload}
@@ -177,7 +178,7 @@ const DashboardPage = ({ accessToken, userProfile }) => {
                 />
               </TabPanel>
               <TabPanel value={tab} index={2}>
-                <TicketsTable tickets={tickets} />
+                <TicketsTable profile={userProfile} tickets={tickets} />
               </TabPanel>
             </React.Fragment>
           ) : (

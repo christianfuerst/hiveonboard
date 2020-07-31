@@ -23,6 +23,8 @@ import GetAppIcon from "@material-ui/icons/GetApp";
 import Alert from "@material-ui/lab/Alert";
 import AlertTitle from "@material-ui/lab/AlertTitle";
 
+import TicketCard from "../TicketCard";
+
 const useStyles = makeStyles((theme) => ({
   grid: {
     margin: 0,
@@ -44,34 +46,42 @@ const useStyles = makeStyles((theme) => ({
 
 function CircularProgressWithLabel(props) {
   return (
-    <Box position="relative" display="inline-flex">
-      <CircularProgress
-        color="secondary"
-        variant="static"
-        size={50}
-        {...props}
-      />
-      <Box
-        top={0}
-        left={0}
-        bottom={0}
-        right={0}
-        position="absolute"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Typography
-          variant="caption"
-          component="div"
-          color="textPrimary"
-        >{`${Math.round(props.value)}%`}</Typography>
+    <Tooltip title={props.title}>
+      <Box position="relative" display="inline-flex">
+        <CircularProgress
+          color="secondary"
+          variant="static"
+          size={50}
+          {...props}
+        />
+        <Box
+          top={0}
+          left={0}
+          bottom={0}
+          right={0}
+          position="absolute"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Typography
+            variant="caption"
+            component="div"
+            color="textPrimary"
+          >{`${Math.round(props.value)}%`}</Typography>
+        </Box>
       </Box>
-    </Box>
+    </Tooltip>
   );
 }
 
-const OverviewTable = ({ accessToken, referrerData, tickets, setReload }) => {
+const OverviewTable = ({
+  accessToken,
+  profile,
+  referrerData,
+  tickets,
+  setReload,
+}) => {
   const classes = useStyles();
   const [referredAccounts, setReferredAccounts] = React.useState(0);
   const [claimInfo, setClaimInfo] = React.useState({ status: "locked" });
@@ -143,22 +153,18 @@ const OverviewTable = ({ accessToken, referrerData, tickets, setReload }) => {
             />
             <ListItemSecondaryAction>
               <Paper className={classes.paper} elevation={3}>
-                <Typography
-                  className={classes.text}
-                  variant="h5"
-                  component="body2"
-                >
+                <Typography className={classes.text} variant="h5">
                   {referredAccounts}
                 </Typography>
               </Paper>
             </ListItemSecondaryAction>
           </ListItem>
-          <ListItem>
+          <ListItem disabled={claimInfo.status === "locked" ? true : false}>
             <ListItemIcon>
               <ConfirmationNumberIcon color="secondary" fontSize="large" />
             </ListItemIcon>
             <ListItemText
-              primary="VIP Ticket"
+              primary="Claim VIP Ticket"
               secondary="Allow your referred user to bypass the verification process"
             />
             <ListItemSecondaryAction>
@@ -189,11 +195,12 @@ const OverviewTable = ({ accessToken, referrerData, tickets, setReload }) => {
                   </IconButton>
                 </Tooltip>
               ) : claimInfo.status === "cooldown" ? (
-                <Tooltip title="Cooldown">
-                  <CircularProgressWithLabel value={claimInfo.progress} />
-                </Tooltip>
+                <CircularProgressWithLabel
+                  value={claimInfo.progress}
+                  title="Cooldown"
+                />
               ) : (
-                <Tooltip title="Locked">
+                <Tooltip title="Refer at least 10 accounts to unlock">
                   <LockIcon color="secondary" fontSize="large" />
                 </Tooltip>
               )}
@@ -209,15 +216,14 @@ const OverviewTable = ({ accessToken, referrerData, tickets, setReload }) => {
             </ListItemAvatar>
             <ListItemText
               primary="Referrer Badge - Refer at least 10 accounts"
-              secondary="Perks: Referrer Badge shown in your Profile, Claim VIP Ticket"
+              secondary="Perks: Claim VIP Ticket every week"
             />
             <ListItemSecondaryAction>
               {referredAccounts < 10 ? (
-                <Tooltip title="Progress">
-                  <CircularProgressWithLabel
-                    value={(referredAccounts / 10) * 100}
-                  />
-                </Tooltip>
+                <CircularProgressWithLabel
+                  value={(referredAccounts / 10) * 100}
+                  title="Progress"
+                />
               ) : (
                 <Tooltip title="Unlocked">
                   <DoneIcon color="secondary" fontSize="large" />
@@ -235,15 +241,14 @@ const OverviewTable = ({ accessToken, referrerData, tickets, setReload }) => {
             </ListItemAvatar>
             <ListItemText
               primary="Epic Referrer Badge - Refer at least 100 accounts"
-              secondary="Perks: Claim VIP Ticket Cooldown reduced to 1 day"
+              secondary="Perks: Claim VIP Ticket cooldown reduced to 1 day"
             />
             <ListItemSecondaryAction>
               {referredAccounts >= 10 && referredAccounts < 100 ? (
-                <Tooltip title="Progress">
-                  <CircularProgressWithLabel
-                    value={(referredAccounts / 100) * 100}
-                  />
-                </Tooltip>
+                <CircularProgressWithLabel
+                  value={(referredAccounts / 100) * 100}
+                  title="Progress"
+                />
               ) : referredAccounts < 100 ? (
                 <Tooltip title="Locked">
                   <LockIcon color="secondary" fontSize="large" />
@@ -265,15 +270,14 @@ const OverviewTable = ({ accessToken, referrerData, tickets, setReload }) => {
             </ListItemAvatar>
             <ListItemText
               primary="Legendary Referrer Badge - Refer at least 1000 accounts"
-              secondary="Perks: Claim VIP Ticket Cooldown reduced to 1 hour"
+              secondary="Perks: Claim VIP Ticket cooldown reduced to 1 hour"
             />
             <ListItemSecondaryAction>
               {referredAccounts >= 100 && referredAccounts < 1000 ? (
-                <Tooltip title="Progress">
-                  <CircularProgressWithLabel
-                    value={(referredAccounts / 1000) * 100}
-                  />
-                </Tooltip>
+                <CircularProgressWithLabel
+                  value={(referredAccounts / 1000) * 100}
+                  title="Progress"
+                />
               ) : referredAccounts < 1000 ? (
                 <Tooltip title="Locked">
                   <LockIcon color="secondary" fontSize="large" />
@@ -301,20 +305,12 @@ const OverviewTable = ({ accessToken, referrerData, tickets, setReload }) => {
           </Grid>
         </Grid>
       )}
-      {claimTicketSuccess && (
-        <Grid item xs={12}>
-          <Grid container alignItems="center" justify="center" direction="row">
-            <Alert
-              className={classes.alert}
-              severity="success"
-              onClose={() => setClaimTicketSuccess(null)}
-            >
-              <AlertTitle>VIP Ticket claimed successfully</AlertTitle>
-              Your VIP Ticket Code: <b>{claimTicketSuccess.ticket}</b>
-            </Alert>
-          </Grid>
-        </Grid>
-      )}
+      <TicketCard
+        profile={profile}
+        ticket={claimTicketSuccess ? claimTicketSuccess.ticket : ""}
+        setShowTicketCard={setClaimTicketSuccess}
+        open={claimTicketSuccess ? true : false}
+      />
     </Grid>
   );
 };

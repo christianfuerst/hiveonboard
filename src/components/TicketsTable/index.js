@@ -3,6 +3,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import MaterialTable from "material-table";
 
+import TicketCard from "../TicketCard";
+
 const useStyles = makeStyles((theme) => ({
   grid: {
     margin: 0,
@@ -10,8 +12,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const TicketsTable = ({ tickets }) => {
+const TicketsTable = ({ profile, tickets }) => {
   const classes = useStyles();
+  const [claimTicket, setClaimTicket] = React.useState(null);
 
   return (
     <Grid
@@ -47,6 +50,19 @@ const TicketsTable = ({ tickets }) => {
           options={{
             exportButton: true,
           }}
+          actions={[
+            {
+              icon: "confirmation_number",
+              tooltip: "Ticket Info",
+              onClick: (event, rowData) => setClaimTicket(rowData.ticket),
+            },
+          ]}
+        />
+        <TicketCard
+          profile={profile}
+          ticket={claimTicket ? claimTicket : ""}
+          setShowTicketCard={setClaimTicket}
+          open={claimTicket ? true : false}
         />
       </Grid>
     </Grid>
