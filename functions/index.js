@@ -1060,50 +1060,72 @@ app.post("/api/tickets", async (req, res) => {
       accessToken: [req.body.accessToken],
     });
 
-    hivesignerClient.me(async function (error, result) {
-      if (error) {
-        console.log(
-          "POST request to /api/tickets - Refused: Invalid auth accessToken. - Source: " +
-            req.ip
-        );
-        res.status(401).send("Invalid access token.");
-      } else {
-        let ref = db.collection("referralsCount").doc(result.user);
-        let doc = await ref.get();
+    let creatorInstance = _.find(config.creator_instances, {
+      apiKey: req.body.accessToken,
+    });
 
-        if (!doc.exists) {
+    if (creatorInstance) {
+      let ref = db.collection("referralsCount").doc(creatorInstance.creator);
+
+      let ticket = create_UUID();
+      let ticketRef = db.collection("tickets").doc(ticket);
+      let ticketObject = {
+        ticket: ticket,
+        referrer: creatorInstance.creator,
+        consumed: false,
+      };
+
+      await ticketRef.set(ticketObject);
+      await ref.set({ lastTicketRequest: new Date() }, { merge: true });
+
+      res.setHeader("Content-Type", "application/json");
+      res.json(ticketObject);
+    } else {
+      hivesignerClient.me(async function (error, result) {
+        if (error) {
           console.log(
-            "POST request to /api/tickets - Error: referralsCount doc not found. - Source: " +
+            "POST request to /api/tickets - Refused: Invalid auth accessToken. - Source: " +
               req.ip
           );
-          res.status(412).send("Referrer record not found.");
+          res.status(401).send("Invalid access token.");
         } else {
-          let referral = doc.data();
+          let ref = db.collection("referralsCount").doc(result.user);
+          let doc = await ref.get();
 
-          if (ticketClaimIsValid(referral)) {
-            let ticket = create_UUID();
-            let ticketRef = db.collection("tickets").doc(ticket);
-            let ticketObject = {
-              ticket: ticket,
-              referrer: result.user,
-              consumed: false,
-            };
-
-            await ticketRef.set(ticketObject);
-            await ref.set({ lastTicketRequest: new Date() }, { merge: true });
-
-            res.setHeader("Content-Type", "application/json");
-            res.json(ticketObject);
-          } else {
+          if (!doc.exists) {
             console.log(
-              "POST request to /api/tickets - Error: Condition not fulfilled. - Source: " +
+              "POST request to /api/tickets - Error: referralsCount doc not found. - Source: " +
                 req.ip
             );
-            res.status(412).send("Condition not fulfilled.");
+            res.status(412).send("Referrer record not found.");
+          } else {
+            let referral = doc.data();
+
+            if (ticketClaimIsValid(referral)) {
+              let ticket = create_UUID();
+              let ticketRef = db.collection("tickets").doc(ticket);
+              let ticketObject = {
+                ticket: ticket,
+                referrer: result.user,
+                consumed: false,
+              };
+
+              await ticketRef.set(ticketObject);
+              await ref.set({ lastTicketRequest: new Date() }, { merge: true });
+
+              res.setHeader("Content-Type", "application/json");
+              res.json(ticketObject);
+            } else {
+              console.log(
+                "POST request to /api/tickets - Error: Condition not fulfilled. - Source: " +
+                  req.ip
+              );
+              res.status(412).send("Condition not fulfilled.");
+            }
           }
         }
-      }
-    });
+      });
+    }
   } else {
     console.log(
       "POST request to /api/tickets - Refused: Invalid auth accessToken. - Source: " +
