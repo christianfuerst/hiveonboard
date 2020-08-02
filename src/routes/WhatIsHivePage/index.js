@@ -1,10 +1,9 @@
 import React from "react";
-import { Link as RouterLink } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
-import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
+import Accordion from "@material-ui/core/Accordion";
+import AccordionSummary from "@material-ui/core/AccordionSummary";
+import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Typography from "@material-ui/core/Typography";
 import Icon from "@material-ui/core/Icon";
 import Alert from "@material-ui/lab/Alert";
@@ -66,8 +65,8 @@ const WhatIsHivePage = ({ client }) => {
       alignItems="center"
     >
       <Grid item xs={12}>
-        <ExpansionPanel>
-          <ExpansionPanelSummary
+        <Accordion>
+          <AccordionSummary
             expandIcon={<Icon>expand_more</Icon>}
             aria-controls="panel1-content"
             id="panel1-header"
@@ -79,8 +78,8 @@ const WhatIsHivePage = ({ client }) => {
             <Typography className={classes.secondaryHeading}>
               Learn about the future of social media
             </Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
+          </AccordionSummary>
+          <AccordionDetails>
             <Typography>
               <img
                 className={classes.media}
@@ -88,10 +87,10 @@ const WhatIsHivePage = ({ client }) => {
                 alt="Quick Starter Guide"
               />
             </Typography>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-        <ExpansionPanel>
-          <ExpansionPanelSummary
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary
             expandIcon={<Icon>expand_more</Icon>}
             aria-controls="panel2-content"
             id="panel2-header"
@@ -103,8 +102,8 @@ const WhatIsHivePage = ({ client }) => {
             <Typography className={classes.secondaryHeading}>
               Why is HIVE more than just a Cryptocurrency?
             </Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
+          </AccordionSummary>
+          <AccordionDetails>
             <Typography>
               <img
                 className={classes.media}
@@ -112,10 +111,10 @@ const WhatIsHivePage = ({ client }) => {
                 alt="Advantages"
               />
             </Typography>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-        <ExpansionPanel>
-          <ExpansionPanelSummary
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary
             expandIcon={<Icon>expand_more</Icon>}
             aria-controls="panel3-content"
             id="panel3-header"
@@ -127,8 +126,8 @@ const WhatIsHivePage = ({ client }) => {
             <Typography className={classes.secondaryHeading}>
               What are keys and their roles?
             </Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
+          </AccordionSummary>
+          <AccordionDetails>
             <Typography>
               <img
                 className={classes.media}
@@ -136,10 +135,10 @@ const WhatIsHivePage = ({ client }) => {
                 alt="Keys and Roles"
               />
             </Typography>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-        <ExpansionPanel>
-          <ExpansionPanelSummary
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary
             expandIcon={<Icon>expand_more</Icon>}
             aria-controls="panel4-content"
             id="panel4-header"
@@ -151,8 +150,8 @@ const WhatIsHivePage = ({ client }) => {
             <Typography className={classes.secondaryHeading}>
               Onboard your friends an earn rewards
             </Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
+          </AccordionSummary>
+          <AccordionDetails>
             <Grid
               container
               direction="row"
@@ -165,7 +164,6 @@ const WhatIsHivePage = ({ client }) => {
                   Please use the
                   <Link
                     className={classes.link}
-                    component={RouterLink}
                     onClick={() => {
                       client.login({});
                     }}
@@ -192,8 +190,8 @@ const WhatIsHivePage = ({ client }) => {
                 </Typography>
               </Grid>
             </Grid>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
+          </AccordionDetails>
+        </Accordion>
       </Grid>
     </Grid>
   );

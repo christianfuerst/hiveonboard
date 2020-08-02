@@ -10,7 +10,6 @@ import Typography from "@material-ui/core/Typography";
 import Alert from "@material-ui/lab/Alert";
 import AlertTitle from "@material-ui/lab/AlertTitle";
 import Button from "@material-ui/core/Button";
-import Icon from "@material-ui/core/Icon";
 import Backdrop from "@material-ui/core/Backdrop";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Dialog from "@material-ui/core/Dialog";
@@ -24,9 +23,6 @@ import TextField from "@material-ui/core/TextField";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 
-import hivesigner from "../../assets/hivesigner.png";
-import keychain from "../../assets/keychain.png";
-
 const useStyles = makeStyles((theme) => ({
   button: {
     margin: theme.spacing(2),
@@ -39,16 +35,14 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 14,
     margin: theme.spacing(0, 1, 0, 1),
   },
+  textKeys: {
+    fontFamily: "Monospace",
+    fontSize: 10,
+    margin: theme.spacing(0, 1, 0, 1),
+  },
   paper: {
     margin: theme.spacing(2, 0, 2, 0),
     padding: theme.spacing(0.5),
-  },
-  imageIcon: {
-    height: "100%",
-    width: "100%",
-  },
-  iconRoot: {
-    textAlign: "center",
   },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
@@ -60,6 +54,13 @@ const useStyles = makeStyles((theme) => ({
   textField: {
     width: 300,
     marginBottom: theme.spacing(2),
+  },
+  table: {
+    minWidth: 650,
+  },
+  head: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white,
   },
 }));
 
@@ -154,84 +155,47 @@ const BackupKeys = ({
           Congratulations, your account is almost ready!
           <br />
           <br />
-          Your HIVE username and password:
+          Your HIVE username, password and keys:
         </Typography>
       </Grid>
       <Grid item>
-        <Paper className={classes.paper} elevation={3}>
-          <Grid
-            container
-            alignItems="center"
-            justify="center"
-            direction="column"
-          >
-            <Grid item>
+        <Grid container alignItems="center" justify="center" direction="column">
+          <Grid item>
+            <Paper className={classes.paper} elevation={3}>
               <Typography className={classes.text}>
                 <b>Username: {account.username}</b>
               </Typography>
               <Typography className={classes.text}>
                 <b>Password: {account.password}</b>
+                <br /> <br />
               </Typography>
-            </Grid>
-          </Grid>
-        </Paper>
-      </Grid>
-      <Grid item>
-        <Typography>
-          Recommended browser extensions to manage and secure your account:
-        </Typography>
-        <Grid container alignItems="center" justify="center" direction="row">
-          <Grid item>
-            <Button
-              onClick={() =>
-                analytics.logEvent("open_browser_extension", {
-                  extension: "keychain",
-                })
-              }
-              target="_blank"
-              href="https://chrome.google.com/webstore/detail/hive-keychain/jcacnejopjdphbnjgfaaobbfafkihpep"
-              variant="contained"
-              color="secondary"
-              size="large"
-              className={classes.button}
-              startIcon={
-                <Icon className={classes.iconRoot}>
-                  <img
-                    className={classes.imageIcon}
-                    src={keychain}
-                    alt="Keychain"
-                  />
-                </Icon>
-              }
-            >
-              Keychain
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              onClick={() =>
-                analytics.logEvent("open_browser_extension", {
-                  extension: "hivesigner",
-                })
-              }
-              target="_blank"
-              href="https://chrome.google.com/webstore/detail/hivesigner/ophihnhnfgcmhpbcennhppicomdeabip"
-              variant="contained"
-              color="secondary"
-              size="large"
-              className={classes.button}
-              startIcon={
-                <Icon className={classes.iconRoot}>
-                  <img
-                    className={classes.imageIcon}
-                    src={hivesigner}
-                    alt="Hivesigner"
-                  />
-                </Icon>
-              }
-            >
-              Hivesigner
-            </Button>
+              <Typography className={classes.textKeys}>
+                <b>
+                  ------------------------ PRIVATE KEYS ----------------------
+                </b>
+              </Typography>
+              <Typography className={classes.textKeys}>
+                <b>
+                  Owner:&nbsp;&nbsp;&nbsp;
+                  {account.privateKeys.owner}
+                </b>
+              </Typography>
+              <Typography className={classes.textKeys}>
+                <b>
+                  Active:&nbsp;&nbsp;
+                  {account.privateKeys.active}
+                </b>
+              </Typography>
+              <Typography className={classes.textKeys}>
+                <b>Posting: {account.privateKeys.posting}</b>
+              </Typography>
+              <Typography className={classes.textKeys}>
+                <b>
+                  Memo:&nbsp;&nbsp;&nbsp;&nbsp;
+                  {account.privateKeys.memo}
+                </b>
+              </Typography>
+            </Paper>
           </Grid>
         </Grid>
       </Grid>
