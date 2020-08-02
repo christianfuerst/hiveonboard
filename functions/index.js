@@ -181,15 +181,21 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
         });
       }
 
+      let postBody = {
+        name: data.username,
+        publicKeys: data.publicKeys,
+        metaData: {
+          beneficiaries: beneficiaries,
+        },
+      };
+
+      if (creator === data.creator) {
+        postBody.creator = creator;
+      }
+
       let postRequest = await axios.post(
         creatorCandidate.endpoint + "/createAccount",
-        {
-          name: data.username,
-          publicKeys: data.publicKeys,
-          metaData: {
-            beneficiaries: beneficiaries,
-          },
-        },
+        postBody,
         {
           headers: {
             authority: creatorCandidate.apiKey,
@@ -519,7 +525,10 @@ exports.postAccountCreationReport = functions.pubsub
           max_accepted_payout: "1000000.000 HBD",
           percent_steem_dollars: 10000,
           extensions: [
-            [0, { beneficiaries: [{ account: config.provider, weight: 10000 }] }],
+            [
+              0,
+              { beneficiaries: [{ account: config.provider, weight: 10000 }] },
+            ],
           ],
         },
         keyLog
@@ -965,7 +974,7 @@ app.get("/api/tickets", async (req, res) => {
 
         let referralRef = db.collection("referralsCount").doc(result.user);
         let referralDoc = await referralRef.get();
-        let ticketAvailable = false;
+        let isVip = false;
         let lastTicketRequest = 0;
 
         if (referralDoc.exists) {
@@ -973,14 +982,16 @@ app.get("/api/tickets", async (req, res) => {
           if (referral.lastTicketRequest) {
             lastTicketRequest = referral.lastTicketRequest.toMillis();
           }
-          ticketAvailable = true;
+          if (referral.isVip) {
+            isVip = referral.isVip;
+          }
         }
 
         res.json({
           items: items,
           size: size,
-          ticketAvailable: ticketAvailable,
           lastTicketRequest: lastTicketRequest,
+          isVip: isVip,
         });
       }
     });
@@ -1008,32 +1019,36 @@ app.post("/api/tickets", async (req, res) => {
   }
 
   function ticketClaimIsValid(referral) {
-    if (referral.referrerCount && referral.referrerCount >= 10) {
-      if (referral.lastTicketRequest) {
-        let cooldown = 7 * 24 * 60 * 60 * 1000;
+    if (referral.isVip) {
+      return true;
+    } else {
+      if (referral.referrerCount && referral.referrerCount >= 10) {
+        if (referral.lastTicketRequest) {
+          let cooldown = 7 * 24 * 60 * 60 * 1000;
 
-        if (referral.referrerCount >= 100 && referral.referrerCount < 1000) {
-          cooldown = cooldown / 7;
-        }
+          if (referral.referrerCount >= 100 && referral.referrerCount < 1000) {
+            cooldown = cooldown / 7;
+          }
 
-        if (referral.referrerCount >= 1000) {
-          cooldown = cooldown / 7 / 24;
-        }
+          if (referral.referrerCount >= 1000) {
+            cooldown = cooldown / 7 / 24;
+          }
 
-        let lastDate = referral.lastTicketRequest.toDate();
-        let minDate = new Date(lastDate.getTime() + cooldown);
-        let nowDate = new Date();
+          let lastDate = referral.lastTicketRequest.toDate();
+          let minDate = new Date(lastDate.getTime() + cooldown);
+          let nowDate = new Date();
 
-        if (minDate < nowDate) {
-          return true;
+          if (minDate < nowDate) {
+            return true;
+          } else {
+            return false;
+          }
         } else {
-          return false;
+          return true;
         }
       } else {
-        return true;
+        return false;
       }
-    } else {
-      return false;
     }
   }
 

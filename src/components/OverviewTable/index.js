@@ -96,7 +96,11 @@ const OverviewTable = ({
   }, [referrerData]);
 
   React.useEffect(() => {
-    if (referrerData && referrerData.hasOwnProperty("items")) {
+    if (tickets && tickets.isVip) {
+      setClaimInfo({
+        status: "available",
+      });
+    } else if (referrerData && referrerData.hasOwnProperty("items")) {
       if (referrerData.items.length >= 10) {
         let cooldown = 7 * 24 * 60 * 60 * 1000;
 
@@ -183,6 +187,7 @@ const OverviewTable = ({
                         })
                         .then(function (response) {
                           setClaimTicketSuccess(response.data);
+                          setClaimTicketLoading(false);
                           setReload(true);
                         })
                         .catch(function (error) {
