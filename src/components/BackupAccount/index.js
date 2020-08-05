@@ -248,7 +248,22 @@ const BackupKeys = ({
                       setSubmitting(false);
                     } else {
                       analytics.logEvent("create_account_success");
-                      setActiveStep(2);
+
+                      if (window.hive_keychain.requestAddAccount) {
+                        window.hive_keychain.requestAddAccount(
+                          account.username,
+                          {
+                            active: account.privateKeys.active,
+                            posting: account.privateKeys.posting,
+                            memo: account.privateKeys.memo,
+                          },
+                          function () {
+                            setActiveStep(2);
+                          }
+                        );
+                      } else {
+                        setActiveStep(2);
+                      }
                     }
                   });
                 } else {

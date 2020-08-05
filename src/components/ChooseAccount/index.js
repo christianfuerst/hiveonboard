@@ -1,5 +1,6 @@
 import React from "react";
 import { useAnalytics } from "reactfire";
+import { isChrome, isEdgeChromium, isFirefox } from "react-device-detect";
 import _ from "lodash";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -21,9 +22,14 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import Typography from "@material-ui/core/Typography";
 import Chip from "@material-ui/core/Chip";
 import Tooltip from "@material-ui/core/Tooltip";
+import Hidden from "@material-ui/core/Hidden";
+import Alert from "@material-ui/lab/Alert";
+import AlertTitle from "@material-ui/lab/AlertTitle";
+import Box from "@material-ui/core/Box";
 
 import { tos } from "../../config";
 import ProfileCard from "../ProfileCard";
+import keychain from "../../assets/keychain.png";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -37,6 +43,19 @@ const useStyles = makeStyles((theme) => ({
   },
   chip: {
     marginTop: theme.spacing(2),
+  },
+  alertInfo: {
+    marginBottom: theme.spacing(4),
+  },
+  button: {
+    margin: theme.spacing(1),
+  },
+  iconRoot: {
+    textAlign: "center",
+  },
+  imageIcon: {
+    height: "100%",
+    width: "100%",
   },
 }));
 
@@ -59,6 +78,7 @@ const ChooseAccount = ({
   const [showTermsOfService, setShowTermsOfService] = React.useState(false);
   const [showReferrerDialog, setShowReferrerDialog] = React.useState(false);
   const [showTicketDialog, setShowTicketDialog] = React.useState(false);
+  const [showKeychainAlert, setShowKeychainAlert] = React.useState(true);
 
   React.useEffect(() => {
     if (referrerAccount) {
@@ -411,6 +431,107 @@ const ChooseAccount = ({
   return (
     <form className={classes.form} onSubmit={formik.handleSubmit}>
       <div>
+        {window.hive_keychain &&
+        showKeychainAlert &&
+        (isChrome || isEdgeChromium || isFirefox) ? (
+          <Hidden xsDown>
+            <Grid item xs={12}>
+              <Alert
+                className={classes.alertInfo}
+                severity="success"
+                onClose={() => setShowKeychainAlert(false)}
+              >
+                <AlertTitle>
+                  <b>Hive Keychain Browser Extension detected</b>
+                </AlertTitle>
+                <Box display="flex" p={1}>
+                  <Box p={1}>
+                    <Typography>
+                      After signup you will be able to automatically import your
+                      account and keys into Keychain.
+                    </Typography>
+                  </Box>
+                </Box>
+              </Alert>
+            </Grid>
+          </Hidden>
+        ) : (
+          showKeychainAlert && (
+            <Hidden xsDown>
+              <Grid item xs={12}>
+                <Alert
+                  className={classes.alertInfo}
+                  severity="warning"
+                  onClose={() => setShowKeychainAlert(false)}
+                >
+                  <AlertTitle>
+                    <b>Use Hive Keychain Browser Extension</b>
+                  </AlertTitle>
+                  <Box display="flex" p={1}>
+                    <Box p={1} flexGrow={1}>
+                      <Typography>
+                        It's highly recommended to use the Hive Keychain Browser
+                        Extension which will act as your HIVE wallet and safe
+                        storage of your keys.
+                        <br />
+                        <br />
+                        If you download and install it <b>right now</b> we will
+                        automatically import your account and keys into Keychain
+                        at the end of signup.
+                      </Typography>
+                    </Box>
+                    <Box p={1}>
+                      <Typography align="center">
+                        <b>Install</b>
+                        <Button
+                          onClick={() =>
+                            analytics.logEvent("open_browser_extension", {
+                              extension: "keychain",
+                            })
+                          }
+                          target="_blank"
+                          href={
+                            isFirefox
+                              ? "https://addons.mozilla.org/en-GB/firefox/addon/hive-keychain/"
+                              : "https://chrome.google.com/webstore/detail/hive-keychain/jcacnejopjdphbnjgfaaobbfafkihpep"
+                          }
+                          variant="contained"
+                          color="secondary"
+                          size="large"
+                          className={classes.button}
+                          startIcon={
+                            <Icon className={classes.iconRoot}>
+                              <img
+                                className={classes.imageIcon}
+                                src={keychain}
+                                alt="Keychain"
+                              />
+                            </Icon>
+                          }
+                        >
+                          Keychain
+                        </Button>
+                        <b>then</b>
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        fullWidth
+                        onClick={() => {
+                          window.location.reload(false);
+                        }}
+                      >
+                        Reload Page
+                      </Button>
+                    </Box>
+                  </Box>
+                </Alert>
+              </Grid>
+            </Hidden>
+          )
+        )}
+      </div>
+      <div>
         <Grid container alignItems="center" justify="center" direction="row">
           <Grid item>
             <Button
@@ -442,10 +563,15 @@ const ChooseAccount = ({
       </div>
       {!_.isEmpty(referrerAccount) && (
         <div>
-          <Typography variant="overline" display="block" align="center">
-            <b>Your Referrer</b>
-          </Typography>
-          <ProfileCard profile={referrerProfile} />
+          <Grid container alignItems="center" justify="center" direction="row">
+            <Grid item>
+              {" "}
+              <Typography variant="overline" display="block" align="center">
+                <b>Your Referrer</b>
+              </Typography>
+              <ProfileCard profile={referrerProfile} />
+            </Grid>
+          </Grid>
         </div>
       )}
       {!_.isEmpty(ticket) && ticket !== "invalid" && (

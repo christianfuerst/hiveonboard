@@ -21,6 +21,7 @@
     "material-table": "^1.67.1",
     "react": "^16.13.1",
     "react-copy-to-clipboard": "^5.0.2",
+    "react-device-detect": "^1.13.1",
     "react-dom": "^16.13.1",
     "react-phone-input-2": "^2.13.7",
     "react-qr-code": "^1.0.2",
