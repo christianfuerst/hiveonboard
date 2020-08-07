@@ -432,6 +432,7 @@ const ChooseAccount = ({
     <form className={classes.form} onSubmit={formik.handleSubmit}>
       <div>
         {window.hive_keychain &&
+        window.hive_keychain.requestAddAccount &&
         showKeychainAlert &&
         (isChrome || isEdgeChromium || isFirefox) ? (
           <Hidden xsDown>
@@ -470,9 +471,9 @@ const ChooseAccount = ({
                   <Box display="flex" p={1}>
                     <Box p={1} flexGrow={1}>
                       <Typography>
-                        It's highly recommended to use the Hive Keychain Browser
-                        Extension which will act as your HIVE wallet and safe
-                        storage of your keys.
+                        It's highly recommended to use the latest version of
+                        Hive Keychain Browser Extension which will act as your
+                        wallet and safe storage of your keys.
                         <br />
                         <br />
                         If you download and install it <b>right now</b> we will

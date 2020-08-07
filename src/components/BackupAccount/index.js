@@ -82,6 +82,7 @@ const BackupKeys = ({
   const [error, setError] = React.useState(null);
   const [submitting, setSubmitting] = React.useState(false);
   const [showDialog, setShowDialog] = React.useState(false);
+  const [showKeychainDialog, setShowKeychainDialog] = React.useState(false);
 
   const [phoneNumber, setPhoneNumber] = React.useState("");
   const [codeRequested, setCodeRequested] = React.useState(false);
@@ -230,7 +231,25 @@ const BackupKeys = ({
             onClick={() => {
               if (confirmed) {
                 if (debugMode) {
-                  setActiveStep(2);
+                  if (
+                    window.hive_keychain &&
+                    window.hive_keychain.requestAddAccount
+                  ) {
+                    setShowKeychainDialog(true);
+                    window.hive_keychain.requestAddAccount(
+                      account.username,
+                      {
+                        active: account.privateKeys.active,
+                        posting: account.privateKeys.posting,
+                        memo: account.privateKeys.memo,
+                      },
+                      function () {
+                        setActiveStep(2);
+                      }
+                    );
+                  } else {
+                    setActiveStep(2);
+                  }
                 } else if (ticket && ticket !== "invalid") {
                   setSubmitting(true);
                   createAccount({
@@ -249,7 +268,11 @@ const BackupKeys = ({
                     } else {
                       analytics.logEvent("create_account_success");
 
-                      if (window.hive_keychain.requestAddAccount) {
+                      if (
+                        window.hive_keychain &&
+                        window.hive_keychain.requestAddAccount
+                      ) {
+                        setShowKeychainDialog(true);
                         window.hive_keychain.requestAddAccount(
                           account.username,
                           {
@@ -275,6 +298,28 @@ const BackupKeys = ({
           >
             Create HIVE Account
           </Button>
+          <Dialog
+            fullScreen={fullScreen}
+            maxWidth="xs"
+            open={showKeychainDialog}
+            aria-labelledby="alert-dialogKeychain-title"
+            aria-describedby="alert-dialogKeychain-description"
+            disableBackdropClick
+            disableEscapeKeyDown
+          >
+            <DialogTitle id="alert-dialogKeychain-title">
+              Add your account to Hive Keychain
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialogKeychain-description">
+                Your Hive account was successfully created.
+                <br />
+                <br />
+                Please take a look at your Hive Keychain Addon and import your
+                account. You will automatically forwarded.
+              </DialogContentText>
+            </DialogContent>
+          </Dialog>
           <Dialog
             fullScreen={fullScreen}
             maxWidth="xs"
