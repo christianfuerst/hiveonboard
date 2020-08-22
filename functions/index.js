@@ -31,6 +31,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   let phoneNumberHashObject = CryptoJS.SHA256("No Phone Number");
   let referrer = data.referrer;
   let creator = config.account;
+  let creatorRequested = false;
   let provider = config.provider;
   let beneficiaries = [];
 
@@ -120,12 +121,17 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
       element.available &&
       data.creator === element.account
     ) {
+      creatorRequested = true;
       creatorCandidate = element;
       let creatorConfig = _.find(config.creator_instances, {
         creator: element.account,
       });
       creatorCandidate = { ...creatorCandidate, ...creatorConfig };
-    } else if (element.accountTickets > 0 && element.available) {
+    } else if (
+      element.accountTickets > 0 &&
+      element.available &&
+      !creatorRequested
+    ) {
       if (creatorCandidate) {
         if (element.accountTickets > creatorCandidate.accountTickets) {
           creatorCandidate = element;
@@ -187,11 +193,9 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
         metaData: {
           beneficiaries: beneficiaries,
         },
+        creator: creator,
+        creatorRequested: creatorRequested,
       };
-
-      if (creator === data.creator) {
-        postBody.creator = creator;
-      }
 
       let postRequest = await axios.post(
         creatorCandidate.endpoint + "/createAccount",
