@@ -428,6 +428,7 @@ exports.claimAccounts = functions.pubsub
       let query = await accountsRef
         .where("delegation", "==", true)
         .where("timestamp", "<", oneWeekAgo)
+        .limit(10)
         .get();
 
       query.forEach((element) => {
