@@ -22,10 +22,6 @@ let client = new dhive.Client([
 let key = dhive.PrivateKey.fromString(config.activeKey);
 let keyLog = dhive.PrivateKey.fromString(config.activeKeyLog);
 
-const getRandomArbitrary = (min, max) => {
-  return Math.random() * (max - min) + min;
-};
-
 exports.createAccount = functions.https.onCall(async (data, context) => {
   let ticket = data.ticket;
   let phoneNumberHashObject = CryptoJS.SHA256("No Phone Number");
@@ -133,7 +129,10 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
       !creatorRequested
     ) {
       if (creatorCandidate) {
-        if (element.accountTickets > creatorCandidate.accountTickets) {
+        if (
+          element.accountTickets > creatorCandidate.accountTickets &&
+          creatorCandidate.fallback
+        ) {
           creatorCandidate = element;
           let creatorConfig = _.find(config.creator_instances, {
             creator: element.account,
@@ -320,29 +319,22 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
       .set({ consumed: true, consumedBy: data.username }, { merge: true });
   }
 
-  // HP delegation if no referrer was used
-  if (referrer) {
+  // HP delegation
+  try {
+    await client.broadcast.delegateVestingShares(
+      {
+        delegatee: data.username,
+        delegator: config.account,
+        vesting_shares: config.defaultDelegation,
+      },
+      key
+    );
+  } catch (error) {
     await db
       .collection("accounts")
       .doc(data.username)
       .set({ delegation: false }, { merge: true });
-  } else {
-    try {
-      await client.broadcast.delegateVestingShares(
-        {
-          delegatee: data.username,
-          delegator: config.account,
-          vesting_shares: config.defaultDelegation,
-        },
-        key
-      );
-    } catch (error) {
-      await db
-        .collection("accounts")
-        .doc(data.username)
-        .set({ delegation: false }, { merge: true });
-      console.log("Delegation for " + data.username + " failed.");
-    }
+    console.log("Delegation for " + data.username + " failed.");
   }
 
   console.log(JSON.stringify(accountData));
@@ -351,7 +343,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
 });
 
 exports.claimAccounts = functions.pubsub
-  .schedule("every 10 minutes")
+  .schedule("every 5 minutes")
   .timeZone("Europe/Berlin")
   .onRun(async (context) => {
     try {
@@ -435,28 +427,26 @@ exports.claimAccounts = functions.pubsub
       let query = await accountsRef
         .where("delegation", "==", true)
         .where("timestamp", "<", oneWeekAgo)
-        .limit(5)
+        .limit(3)
         .get();
 
       query.forEach((element) => {
         try {
-          _.delay(() => {
-            console.log("Removing Delegation: " + element.id);
-            client.broadcast
-              .delegateVestingShares(
-                {
-                  delegatee: element.id,
-                  delegator: config.account,
-                  vesting_shares: "0.000000 VESTS",
-                },
-                key
-              )
-              .then(() => {
-                accountsRef
-                  .doc(element.id)
-                  .set({ delegation: false }, { merge: true });
-              });
-          }, getRandomArbitrary(0, 10000));
+          console.log("Removing Delegation: " + element.id);
+          client.broadcast
+            .delegateVestingShares(
+              {
+                delegatee: element.id,
+                delegator: config.account,
+                vesting_shares: "0.000000 VESTS",
+              },
+              key
+            )
+            .then(() => {
+              accountsRef
+                .doc(element.id)
+                .set({ delegation: false }, { merge: true });
+            });
         } catch (error) {
           console.log("Removing delegation Error", error);
           throw new Error(error);
