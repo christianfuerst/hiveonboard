@@ -320,22 +320,29 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
       .set({ consumed: true, consumedBy: data.username }, { merge: true });
   }
 
-  // HP delegation
-  try {
-    await client.broadcast.delegateVestingShares(
-      {
-        delegatee: data.username,
-        delegator: config.account,
-        vesting_shares: config.defaultDelegation,
-      },
-      key
-    );
-  } catch (error) {
+  // HP delegation if no referrer was used
+  if (referrer) {
     await db
       .collection("accounts")
       .doc(data.username)
       .set({ delegation: false }, { merge: true });
-    console.log("Delegation for " + data.username + " failed.");
+  } else {
+    try {
+      await client.broadcast.delegateVestingShares(
+        {
+          delegatee: data.username,
+          delegator: config.account,
+          vesting_shares: config.defaultDelegation,
+        },
+        key
+      );
+    } catch (error) {
+      await db
+        .collection("accounts")
+        .doc(data.username)
+        .set({ delegation: false }, { merge: true });
+      console.log("Delegation for " + data.username + " failed.");
+    }
   }
 
   console.log(JSON.stringify(accountData));
@@ -428,7 +435,7 @@ exports.claimAccounts = functions.pubsub
       let query = await accountsRef
         .where("delegation", "==", true)
         .where("timestamp", "<", oneWeekAgo)
-        .limit(10)
+        .limit(5)
         .get();
 
       query.forEach((element) => {
@@ -449,7 +456,7 @@ exports.claimAccounts = functions.pubsub
                   .doc(element.id)
                   .set({ delegation: false }, { merge: true });
               });
-          }, getRandomArbitrary(0, 100000));
+          }, getRandomArbitrary(0, 10000));
         } catch (error) {
           console.log("Removing delegation Error", error);
           throw new Error(error);
