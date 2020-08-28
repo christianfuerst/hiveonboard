@@ -320,21 +320,28 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   }
 
   // HP delegation
-  try {
-    await client.broadcast.delegateVestingShares(
-      {
-        delegatee: data.username,
-        delegator: config.account,
-        vesting_shares: config.defaultDelegation,
-      },
-      key
-    );
-  } catch (error) {
+  if (creatorCandidate.fallback) {
     await db
       .collection("accounts")
       .doc(data.username)
       .set({ delegation: false }, { merge: true });
-    console.log("Delegation for " + data.username + " failed.");
+  } else {
+    try {
+      await client.broadcast.delegateVestingShares(
+        {
+          delegatee: data.username,
+          delegator: config.account,
+          vesting_shares: config.defaultDelegation,
+        },
+        key
+      );
+    } catch (error) {
+      await db
+        .collection("accounts")
+        .doc(data.username)
+        .set({ delegation: false }, { merge: true });
+      console.log("Delegation for " + data.username + " failed.");
+    }
   }
 
   console.log(JSON.stringify(accountData));
