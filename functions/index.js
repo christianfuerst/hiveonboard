@@ -129,10 +129,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
       !creatorRequested
     ) {
       if (creatorCandidate) {
-        if (
-          element.accountTickets > creatorCandidate.accountTickets &&
-          creatorCandidate.fallback
-        ) {
+        if (element.accountTickets > creatorCandidate.accountTickets) {
           creatorCandidate = element;
           let creatorConfig = _.find(config.creator_instances, {
             creator: element.account,
@@ -320,7 +317,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   }
 
   // HP delegation
-  if (creatorCandidate.fallback) {
+  if (referrer) {
     await db
       .collection("accounts")
       .doc(data.username)
@@ -1077,14 +1074,17 @@ app.post("/api/tickets", async (req, res) => {
       let ref = db.collection("referralsCount").doc(creatorInstance.creator);
 
       let ticket = create_UUID();
-      let ticketRef = db.collection("tickets").doc(ticket);
       let ticketObject = {
         ticket: ticket,
         referrer: creatorInstance.creator,
         consumed: false,
       };
 
-      await ticketRef.set(ticketObject);
+      if (!creatorInstance.disabled) {
+        let ticketRef = db.collection("tickets").doc(ticket);
+        await ticketRef.set(ticketObject);
+      }
+
       await ref.set({ lastTicketRequest: new Date() }, { merge: true });
 
       res.setHeader("Content-Type", "application/json");
