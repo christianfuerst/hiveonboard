@@ -24,6 +24,8 @@ import ChooseDApp from "../../components/ChooseDApp";
 const useStyles = makeStyles((theme) => ({
   card: {
     margin: 10,
+    overflow: "initial",
+    "min-height": "calc(100vh - 160px)"
   },
   subHeader: {
     fontSize: 14,

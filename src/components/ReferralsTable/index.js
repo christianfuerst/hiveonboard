@@ -26,6 +26,7 @@ import MaterialTable from "material-table";
 const useStyles = makeStyles((theme) => ({
   grid: {
     margin: 0,
+    "min-height": "calc(100vh - 208px)"
   },
   button: {
     margin: theme.spacing(1),

@@ -18,6 +18,7 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(0, 0.5, 2, 0.5),
     borderRadius: 12,
     padding: 12,
+    overflow: "initial"
   },
   media: {
     height: 0,

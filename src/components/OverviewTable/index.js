@@ -29,6 +29,7 @@ const useStyles = makeStyles((theme) => ({
   grid: {
     margin: 0,
     padding: theme.spacing(1),
+    "min-height": "calc(100vh - 208px)"
   },
   paper: {
     margin: theme.spacing(2, 0, 2, 0),

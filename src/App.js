@@ -38,9 +38,15 @@ import DashboardPage from "./routes/DashboardPage";
 const useStyles = makeStyles((theme) => ({
   container: {
     padding: 0,
+    margin: 0,
+    "min-height": "100%",
+    display: "flex",
+    "flex-flow": "column"
   },
   appBar: {
     background: "#212429",
+    padding: "10px 40px",
+    "box-shadow": "none"
   },
   imageLogo: {
     height: 40,
@@ -53,9 +59,13 @@ const useStyles = makeStyles((theme) => ({
   },
   box: {
     backgroundColor: "#e31337",
+    padding: "10px 50px"
   },
   button: {
     color: "#ffffff",
+  },
+  buttonBox: {
+    padding: "5px 25px"
   },
   avatarImg: {
     width: 25,
@@ -141,7 +151,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container className={classes.container} maxWidth="md">
+      <Container className={classes.container} maxWidth="100%">
         <CssBaseline />
         <AppBar className={classes.appBar} position="static">
           <Toolbar>
@@ -182,18 +192,7 @@ function App() {
         >
           <Box>
             <Button
-              className={classes.button}
-              color="secondary"
-              component={RouterLink}
-              to={"/what-is-hive" + location.search}
-              disabled={location.pathname === "/what-is-hive" ? true : false}
-            >
-              Learn
-            </Button>
-          </Box>
-          <Box>
-            <Button
-              className={classes.button}
+              className={[classes.button, classes.buttonBox]}
               color="secondary"
               component={RouterLink}
               to={"/create-account" + location.search}
@@ -202,9 +201,21 @@ function App() {
               Create Account
             </Button>
           </Box>
+          <Box>
+            <Button
+              className={[classes.button, classes.buttonBox]}
+              color="secondary"
+              component={RouterLink}
+              to={"/what-is-hive" + location.search}
+              disabled={location.pathname === "/what-is-hive" ? true : false}
+            >
+              Learn More
+            </Button>
+          </Box>
+          
           <Box flexGrow={1}>
             <Button
-              className={classes.button}
+              className={[classes.button, classes.buttonBox]}
               component={RouterLink}
               to={"/discover-dapps" + location.search}
               disabled={location.pathname === "/discover-dapps" ? true : false}
@@ -215,7 +226,7 @@ function App() {
           {!auth ? (
             <Box>
               <Button
-                className={classes.button}
+                className={[classes.button, classes.buttonBox]}
                 size="large"
                 onClick={() => {
                   client.login({});

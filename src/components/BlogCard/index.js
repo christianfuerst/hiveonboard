@@ -25,6 +25,7 @@ const useStyles = makeStyles(({ spacing }) => ({
     flexDirection: "column",
     alignItems: "center",
     paddingBottom: spacing(2),
+    minHeight: 385
   },
   media: {
     width: "46%",

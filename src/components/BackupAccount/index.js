@@ -43,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     margin: theme.spacing(2, 0, 2, 0),
     padding: theme.spacing(0.5),
+    overflow: "initial",
   },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
@@ -230,7 +231,7 @@ const BackupKeys = ({
             id="create-account"
             onClick={() => {
               if (confirmed) {
-                if (debugMode) {
+                if (debugMode || process.env.NODE_ENV === 'development') {
                   if (
                     window.hive_keychain &&
                     window.hive_keychain.requestAddAccount

@@ -34,6 +34,7 @@ import keychain from "../../assets/keychain.png";
 const useStyles = makeStyles((theme) => ({
   form: {
     width: "100%",
+    overflow: "initial"
   },
   submit: {
     margin: theme.spacing(2),

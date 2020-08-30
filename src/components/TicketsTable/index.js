@@ -8,6 +8,7 @@ import TicketCard from "../TicketCard";
 const useStyles = makeStyles((theme) => ({
   grid: {
     margin: 0,
+    "min-height": "calc(100vh - 208px)"
   },
 }));
 

@@ -1,7 +1,7 @@
 export const muiThemeConfig = {
   palette: {
     background: {
-      default: "#e7e7f1",
+      default: "#f0f0f8",
     },
     primary: {
       light: "#e8425f",
@@ -27,20 +27,20 @@ export const tos = [
 
 export const landingContent = [
   {
-    image: "images/social_hive_lets-talk-community.png",
-    overline: "What is HIVE?",
-    heading: "Learn",
-    text:
-      "Learn everything you need to know about HIVE, it's benefits and why it's the future of social media.",
-    to: "/what-is-hive",
-  },
-  {
     image: "images/social_hive_lets-talk-onboarding.png",
     overline: "Get Onboard",
     heading: "Create Account",
     text:
       "Create a HIVE account, start today and get engaged. The community is waiting for you!",
     to: "/create-account",
+  },
+  {
+    image: "images/social_hive_lets-talk-community.png",
+    overline: "What is HIVE?",
+    heading: "Learn",
+    text:
+      "Learn everything you need to know about HIVE, it's benefits and why it's the future of social media.",
+    to: "/what-is-hive",
   },
   {
     image: "images/social_hive_lets-talk-dapps.png",

@@ -8,8 +8,13 @@ import LandingCard from "../../components/LandingCard";
 
 const useStyles = makeStyles((theme) => ({
   grid: {
-    margin: 0,
+    margin: '0 auto',
     padding: theme.spacing(1),
+    minHeight: "calc(100vh - 208px)",
+    maxWidth: 1200,
+    display: 'flex',
+    alignItems: 'space-between',
+    justifyContent: 'center'
   },
 }));
 
