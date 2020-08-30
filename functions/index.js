@@ -112,11 +112,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
 
   // Look up a creator with the most tickets available, prefer a creator if passed in
   creators.forEach((element) => {
-    if (
-      element.accountTickets > 0 &&
-      element.available &&
-      data.creator === element.account
-    ) {
+    if (element.accountTickets > 0 && data.creator === element.account) {
       creatorRequested = true;
       creatorCandidate = element;
       let creatorConfig = _.find(config.creator_instances, {
@@ -153,6 +149,15 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   } catch (error) {
     endpointCheck = false;
     console.log("Remote creator instance is offline.");
+  }
+
+  if (creatorRequested && !endpointCheck) {
+    // Delete user including phone number
+    if (context.hasOwnProperty("auth")) {
+      await admin.auth().deleteUser(context.auth.uid);
+    }
+    console.log("Account creation on remote creator instance failed.");
+    return { error: "Account creation on remote creator instance failed." };
   }
 
   if (creatorCandidate && endpointCheck) {
