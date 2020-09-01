@@ -938,6 +938,48 @@ app.get("/api/creator/:account", async (req, res) => {
   res.json({ items: items, limit: limit, offset: offset, size: size });
 });
 
+app.get("/api/leaderboard", async (req, res) => {
+  let transactions = await client.database.getAccountHistory(
+    "hivepeople",
+    -1,
+    10000
+  );
+
+  let validAccounts = [];
+  transactions.forEach((transaction) => {
+    if (
+      transaction[1].op[0] === "vote" &&
+      transaction[1].op[1].voter === "hivepeople"
+    ) {
+      validAccounts.push(transaction[1].op[1].author);
+    }
+  });
+
+  let start = admin.firestore.Timestamp.fromDate(
+    new Date(Date.now() - 604800000)
+  );
+
+  let ref = db.collection("accounts");
+  let query = await ref
+    .where("timestamp", ">", start)
+    .get();
+
+  let accountsArray = [];
+  query.forEach((doc) => {
+    let data = doc.data();
+    if (data.referrer) {
+      if (validAccounts.includes(data.accountName) || 1 === 1) {
+        accountsArray.push({
+          account: data.accountName,
+          referrer: data.referrer,
+        });
+      }
+    }
+  });
+
+  res.json(accountsArray);
+});
+
 app.get("/api/tickets/:ticket", async (req, res) => {
   let ref = db.collection("tickets").doc(req.params.ticket);
   let doc = await ref.get();
