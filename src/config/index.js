@@ -103,11 +103,25 @@ export const dApps = [
     url: "https://d.buzz",
   },
   {
+    icon: "leofinance.png",
+    name: "LeoFinance",
+    subtitle: "Crypto & Finance",
+    text: "Social media community for Crypto & Finance content creators",
+    url: "https://leofinance.io",
+  },
+  {
     icon: "stemsocial.png",
     name: "STEMsocial",
     subtitle: "Curating content",
     text:
       "Curation project around science, technology, engineering & mathematics",
+    url: "https://stem.openhive.network",
+  },
+  {
+    icon: "stemgeeks.png",
+    name: "STEMGeeks",
+    subtitle: "Science Technology Engineering Math",
+    text: "Technology & science-focused community",
     url: "https://stem.openhive.network",
   },
 ];

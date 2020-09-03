@@ -955,25 +955,20 @@ app.get("/api/leaderboard", async (req, res) => {
     }
   });
 
-  let start = admin.firestore.Timestamp.fromDate(
-    new Date(Date.now() - 604800000)
-  );
+  let start = admin.firestore.Timestamp.fromDate(new Date(1598918400000));
 
   let ref = db.collection("accounts");
-  let query = await ref
-    .where("timestamp", ">", start)
-    .get();
+  let query = await ref.where("timestamp", ">", start).get();
 
   let accountsArray = [];
   query.forEach((doc) => {
     let data = doc.data();
     if (data.referrer) {
-      if (validAccounts.includes(data.accountName) || 1 === 1) {
-        accountsArray.push({
-          account: data.accountName,
-          referrer: data.referrer,
-        });
-      }
+      accountsArray.push({
+        account: data.accountName,
+        referrer: data.referrer,
+        verified: validAccounts.includes(data.accountName) ? true : false,
+      });
     }
   });
 

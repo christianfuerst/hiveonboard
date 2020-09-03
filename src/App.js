@@ -34,6 +34,7 @@ import WhatIsHivePage from "./routes/WhatIsHivePage";
 import CreateAccountPage from "./routes/CreateAccountPage";
 import DAppsPage from "./routes/DAppsPage";
 import DashboardPage from "./routes/DashboardPage";
+import LeaderboardPage from "./routes/LeaderboardPage"
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -277,6 +278,7 @@ function App() {
               />
             )}
           />
+          <Route path="/leaderboard" exact component={LeaderboardPage} />
         </Switch>
         <AppBar className={classes.appBar} position="static">
           <Toolbar variant="dense">
