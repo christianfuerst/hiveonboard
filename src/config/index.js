@@ -122,6 +122,6 @@ export const dApps = [
     name: "STEMGeeks",
     subtitle: "Science Technology Engineering Math",
     text: "Technology & science-focused community",
-    url: "https://stem.openhive.network",
+    url: "https://stemgeeks.net",
   },
 ];
