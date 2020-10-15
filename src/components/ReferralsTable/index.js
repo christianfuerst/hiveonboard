@@ -215,12 +215,12 @@ const ReferralsTable = ({ profile, referrerData }) => {
                       parseInt(data[index].data.vesting_shares) +
                         parseInt(data[index].data.received_vesting_shares),
                       dynamicGlobalProperties.total_vesting_shares,
-                      dynamicGlobalProperties.total_vesting_fund_steem
+                      dynamicGlobalProperties.total_vesting_fund_hive
                     );
                     data[index].hpDelegated = hive.formatter.vestToHive(
                       parseInt(data[index].data.received_vesting_shares),
                       dynamicGlobalProperties.total_vesting_shares,
-                      dynamicGlobalProperties.total_vesting_fund_steem
+                      dynamicGlobalProperties.total_vesting_fund_hive
                     );
                     data[index].hpSelf =
                       data[index].hp - data[index].hpDelegated;
@@ -230,7 +230,7 @@ const ReferralsTable = ({ profile, referrerData }) => {
                           dynamicGlobalProperties.total_vesting_shares
                         )) /
                         parseFloat(
-                          dynamicGlobalProperties.total_vesting_fund_steem
+                          dynamicGlobalProperties.total_vesting_fund_hive
                         ) -
                       parseFloat(data[index].data.vesting_shares);
                   });

@@ -534,7 +534,7 @@ exports.postAccountCreationReport = functions.pubsub
           allow_votes: true,
           allow_curation_rewards: true,
           max_accepted_payout: "1000000.000 HBD",
-          percent_steem_dollars: 10000,
+          percent_hive_dollars: 10000,
           extensions: [
             [
               0,

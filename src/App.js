@@ -34,7 +34,6 @@ import WhatIsHivePage from "./routes/WhatIsHivePage";
 import CreateAccountPage from "./routes/CreateAccountPage";
 import DAppsPage from "./routes/DAppsPage";
 import DashboardPage from "./routes/DashboardPage";
-import LeaderboardPage from "./routes/LeaderboardPage"
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -79,8 +78,8 @@ function App() {
 
   const client = new hivesigner.Client({
     app: "hiveonboard",
-    callbackURL: "http://hiveonboard.com/dashboard",
-    //callbackURL: "http://localhost:3000/dashboard",
+    //callbackURL: "http://hiveonboard.com/dashboard",
+    callbackURL: "http://localhost:3000/dashboard",
     scope: ["login"],
     accessToken: [accessToken],
   });
@@ -278,7 +277,6 @@ function App() {
               />
             )}
           />
-          <Route path="/leaderboard" exact component={LeaderboardPage} />
         </Switch>
         <AppBar className={classes.appBar} position="static">
           <Toolbar variant="dense">
