@@ -322,7 +322,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   }
 
   // HP delegation
-  if (referrer) {
+  if (referrer && config.defaultDelegation !== "0 VESTS") {
     await db
       .collection("accounts")
       .doc(data.username)
@@ -534,7 +534,7 @@ exports.postAccountCreationReport = functions.pubsub
           allow_votes: true,
           allow_curation_rewards: true,
           max_accepted_payout: "1000000.000 HBD",
-          percent_hive_dollars: 10000,
+          percent_hbd: 10000,
           extensions: [
             [
               0,
