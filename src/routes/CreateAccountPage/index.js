@@ -89,19 +89,31 @@ const CreateAccountPage = () => {
 
   React.useEffect(() => {
     if (typeof publicData !== "undefined") {
+      const query = new URLSearchParams(location.search);
       var tickets = publicData.accountTickets;
 
       if (publicData.creators) {
-        publicData.creators.forEach((element) => {
-          if (element.available) {
-            tickets = tickets + element.accountTickets;
-          }
-        });
+        if (!_.isNil(query.get("creator"))) {
+          tickets = 0;
+          publicData.creators.forEach((element) => {
+            if (element.available) {
+              if (element.account === query.get("creator")) {
+                tickets = element.accountTickets;
+              }
+            }
+          });
+        } else {
+          publicData.creators.forEach((element) => {
+            if (element.available) {
+              tickets = tickets + element.accountTickets;
+            }
+          });
+        }
       }
 
       setAccountTickets(tickets);
     }
-  }, [publicData]);
+  }, [publicData, location.search]);
 
   React.useEffect(() => {
     if (ticket) {
@@ -196,8 +208,10 @@ const CreateAccountPage = () => {
               {accountTickets === 0 ? (
                 <Alert className={classes.alert} severity="info">
                   <AlertTitle>Service Unvailable</AlertTitle>
-                  We are currently out of account creation tickets. Check back
-                  later or use{" "}
+                  {creator
+                    ? creator + " is currently not available. "
+                    : "We are currently out of account creation tickets. "}
+                  Check back later or use{" "}
                   <Link href="https://signup.hive.io" target="_blank">
                     signup.hive.io
                   </Link>{" "}
