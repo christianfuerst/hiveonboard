@@ -10,7 +10,7 @@
       "creator": "NAME-OF-WHALE-ACCOUNT",
       "endpoint": "ENDPOINT-URI",
       "apiKey": "YOUR-API-KEY",
-      "disabled": true
+      "disabled": false
     }
   ],
   "fee": {

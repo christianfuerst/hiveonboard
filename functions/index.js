@@ -357,7 +357,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
 });
 
 exports.claimAccounts = functions.pubsub
-  .schedule("every 5 minutes")
+  .schedule("every 10 minutes")
   .timeZone("Europe/Berlin")
   .onRun(async (context) => {
     try {
@@ -400,11 +400,15 @@ exports.claimAccounts = functions.pubsub
 
         await Promise.all(
           config.creator_instances.map(async (object) => {
-            try {
-              await axios.get(object.endpoint);
-              instances[object.creator] = true;
-            } catch (error) {
+            if (object.disabled) {
               instances[object.creator] = false;
+            } else {
+              try {
+                await axios.get(object.endpoint);
+                instances[object.creator] = true;
+              } catch (error) {
+                instances[object.creator] = false;
+              }
             }
           })
         );
