@@ -327,7 +327,7 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
   }
 
   // HP delegation
-  if (referrer && config.defaultDelegation !== "0 VESTS") {
+  if (referrer || config.defaultDelegation === "0 VESTS") {
     await db
       .collection("accounts")
       .doc(data.username)
