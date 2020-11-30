@@ -404,7 +404,7 @@ exports.claimAccounts = functions.pubsub
               instances[object.creator] = false;
             } else {
               try {
-                await axios.get(object.endpoint);
+                await axios.get(object.endpoint, { timeout: 2000 });
                 instances[object.creator] = true;
               } catch (error) {
                 instances[object.creator] = false;
