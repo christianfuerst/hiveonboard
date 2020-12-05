@@ -97,7 +97,7 @@ export const dApps = [
   },
   {
     icon: "dbuzz.jpg",
-    name: "dbuzz.io",
+    name: "D.Buzz",
     subtitle: "Micro blogging",
     text: "If you like twitter, you'll love dbuzz",
     url: "https://d.buzz",
