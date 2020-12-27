@@ -76,13 +76,17 @@ function App() {
   const [auth, setAuth] = React.useState(null);
   const [userProfile, setUserProfile] = React.useState({});
 
-  const client = new hivesigner.Client({
-    app: "hiveonboard",
-    callbackURL: "http://hiveonboard.com/dashboard",
-    //callbackURL: "http://localhost:3000/dashboard",
-    scope: ["login"],
-    accessToken: [accessToken],
-  });
+  const client = React.useMemo(
+    () =>
+      new hivesigner.Client({
+        app: "hiveonboard",
+        callbackURL: "http://hiveonboard.com/dashboard",
+        //callbackURL: "http://localhost:3000/dashboard",
+        scope: ["login"],
+        accessToken: [accessToken],
+      }),
+    [accessToken]
+  );
 
   React.useEffect(() => {
     const query = new URLSearchParams(location.search);

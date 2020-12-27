@@ -1,6 +1,9 @@
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
+import "firebase/auth";
+import "firebase/firestore";
+import "firebase/analytics";
 import { FirebaseAppProvider } from "reactfire";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";

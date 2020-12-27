@@ -1,5 +1,5 @@
 import React from "react";
-import * as firebase from "firebase/app";
+import firebase from "firebase/app";
 import "firebase/auth";
 import { useAuth, useFunctions, useAnalytics } from "reactfire";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
