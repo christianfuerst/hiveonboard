@@ -9,16 +9,16 @@
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "10"
+    "node": "12"
   },
   "dependencies": {
     "@hiveio/dhive": "^0.14.12",
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "cors": "^2.8.5",
     "crypto-js": "^4.0.0",
     "express": "^4.17.1",
-    "firebase-admin": "^9.4.1",
-    "firebase-functions": "^3.11.0",
+    "firebase-admin": "^9.4.2",
+    "firebase-functions": "^3.13.0",
     "hivesigner": "^3.2.1",
     "lodash": "^4.17.20"
   },
