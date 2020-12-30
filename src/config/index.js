@@ -124,4 +124,11 @@ export const dApps = [
     text: "Technology & science-focused community",
     url: "https://stemgeeks.net",
   },
+  {
+    icon: "NaturalMedicineLogo.png",
+    name: "NaturalMedicine",
+    subtitle: "Natural Health & WellBeing",
+    text: "Social Media for Health Of Body, Mind, Soul & Earth",
+    url: "https://naturalmedicine.io",
+  }
 ];
