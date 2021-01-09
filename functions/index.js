@@ -131,18 +131,22 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
     ) {
       if (creatorCandidate) {
         if (element.accountTickets > creatorCandidate.accountTickets) {
-          creatorCandidate = element;
           let creatorConfig = _.find(config.creator_instances, {
             creator: element.account,
           });
-          creatorCandidate = { ...creatorCandidate, ...creatorConfig };
+          if (creatorConfig.isPublic) {
+            creatorCandidate = element;
+            creatorCandidate = { ...creatorCandidate, ...creatorConfig };
+          }
         }
       } else {
-        creatorCandidate = element;
         let creatorConfig = _.find(config.creator_instances, {
           creator: element.account,
         });
-        creatorCandidate = { ...creatorCandidate, ...creatorConfig };
+        if (creatorConfig.isPublic) {
+          creatorCandidate = element;
+          creatorCandidate = { ...creatorCandidate, ...creatorConfig };
+        }
       }
     }
   });
