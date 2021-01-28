@@ -12,17 +12,12 @@ const config = require("./config.json");
 admin.initializeApp();
 let db = admin.firestore();
 
-let client = new dhive.Client(
-  [
-    "https://api.hive.blog",
-    "https://api.hivekings.com",
-    "https://anyx.io",
-    "https://api.openhive.network",
-  ],
-  {
-    rebrandedApi: true,
-  }
-);
+let client = new dhive.Client([
+  "https://hived.privex.io",
+  "https://api.hive.blog",
+  "https://anyx.io",
+  "https://api.openhive.network",
+]);
 
 let key = dhive.PrivateKey.fromString(config.activeKey);
 let keyLog = dhive.PrivateKey.fromString(config.activeKeyLog);

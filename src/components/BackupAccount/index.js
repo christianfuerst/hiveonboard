@@ -486,6 +486,18 @@ const BackupKeys = ({
             >
               <AlertTitle>Account could not be created</AlertTitle>
               {error}
+              <br />
+              <br />
+              <b>
+                Please consider other Sign-up options at{" "}
+                <a
+                  target="_blank"
+                  href="https://signup.hive.io/"
+                  rel="noreferrer"
+                >
+                  http://signup.hive.io/
+                </a>
+              </b>
             </Alert>
           </Grid>
         )}
