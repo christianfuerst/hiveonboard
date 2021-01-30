@@ -1,6 +1,12 @@
 import React from "react";
 import { useAnalytics } from "reactfire";
-import { isChrome, isEdgeChromium, isFirefox } from "react-device-detect";
+import {
+  isChrome,
+  isEdgeChromium,
+  isFirefox,
+  isIOS,
+  isSafari,
+} from "react-device-detect";
 import _ from "lodash";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -78,7 +84,17 @@ const ChooseAccount = ({
   const [showTermsOfService, setShowTermsOfService] = React.useState(false);
   const [showReferrerDialog, setShowReferrerDialog] = React.useState(false);
   const [showTicketDialog, setShowTicketDialog] = React.useState(false);
+  const [
+    showUnsupportedBrowserAlert,
+    setShowUnsupportedBrowserAlert,
+  ] = React.useState(false);
   const [showKeychainAlert, setShowKeychainAlert] = React.useState(true);
+
+  React.useEffect(() => {
+    if (isIOS && !isSafari) {
+      setShowUnsupportedBrowserAlert(true);
+    }
+  }, []);
 
   React.useEffect(() => {
     if (referrerAccount) {
@@ -431,6 +447,29 @@ const ChooseAccount = ({
   return (
     <form className={classes.form} onSubmit={formik.handleSubmit}>
       <div>
+        {showUnsupportedBrowserAlert && (
+          <Grid item xs={12}>
+            <Alert
+              className={classes.alertInfo}
+              severity="warning"
+              onClose={() => setShowKeychainAlert(false)}
+            >
+              <AlertTitle>
+                <b>Your iOS browser is not supported</b>
+              </AlertTitle>
+              <Box display="flex" p={1}>
+                <Box p={1} flexGrow={1}>
+                  <Typography>
+                    Because of restrictions by Apple to download files (Wallet
+                    Backup) on 3rd party browsers on iOS devices, your browser
+                    isn't supported.
+                    <b> Please use Safari browser in order to continue.</b>
+                  </Typography>
+                </Box>
+              </Box>
+            </Alert>
+          </Grid>
+        )}
         {window.hive_keychain &&
         window.hive_keychain.requestAddAccount &&
         showKeychainAlert &&
@@ -704,7 +743,11 @@ const ChooseAccount = ({
         <Grid container alignItems="center" justify="center" direction="row">
           <Button
             type="submit"
-            disabled={formik.isSubmitting || !confirmed ? true : false}
+            disabled={
+              formik.isSubmitting || !confirmed || showUnsupportedBrowserAlert
+                ? true
+                : false
+            }
             variant="contained"
             color="primary"
             className={classes.submit}

@@ -22,6 +22,7 @@ import TextField from "@material-ui/core/TextField";
 
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import { saveAs } from "file-saver";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -131,12 +132,8 @@ const BackupKeys = ({
     `Be very careful directly using your keys on any other website or application.`;
 
   const downloadBackupFile = () => {
-    const element = document.createElement("a");
-    const file = new Blob([accountString], { type: "text/plain" });
-    element.href = URL.createObjectURL(file);
-    element.download = "HIVE-ACOUNT-" + account.username + "-BACKUP.txt";
-    document.body.appendChild(element);
-    element.click();
+    var blob = new Blob([accountString], { type: "text/plain;charset=utf-8" });
+    saveAs(blob, "HIVE-ACOUNT-" + account.username + "-BACKUP.txt");
   };
 
   const closeDialog = () => {
