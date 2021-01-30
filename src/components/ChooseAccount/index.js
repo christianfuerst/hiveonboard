@@ -460,8 +460,8 @@ const ChooseAccount = ({
               <Box display="flex" p={1}>
                 <Box p={1} flexGrow={1}>
                   <Typography>
-                    Because of restrictions by Apple to download files (Wallet
-                    Backup) on 3rd party browsers on iOS devices, your browser
+                    Because of restrictions from Apple to download files (Wallet
+                    Backup) using 3rd party browsers on iOS devices, your browser
                     isn't supported.
                     <b> Please use Safari browser in order to continue.</b>
                   </Typography>

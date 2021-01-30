@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   },
   textKeys: {
     fontFamily: "Monospace",
-    fontSize: 10,
+    fontSize: 9,
     margin: theme.spacing(0, 1, 0, 1),
   },
   paper: {
