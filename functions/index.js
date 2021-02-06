@@ -946,41 +946,40 @@ app.get("/api/creator/:account", async (req, res) => {
   res.json({ items: items, limit: limit, offset: offset, size: size });
 });
 
-app.get("/api/leaderboard", async (req, res) => {
-  let transactions = await client.database.getAccountHistory(
-    "hivepeople",
-    -1,
-    10000
-  );
+app.get("/api/accounts/recentlyCreated", async (req, res) => {
+  let items = [];
+  let ref = db.collection("referrals");
 
-  let validAccounts = [];
-  transactions.forEach((transaction) => {
-    if (
-      transaction[1].op[0] === "vote" &&
-      transaction[1].op[1].voter === "hivepeople"
-    ) {
-      validAccounts.push(transaction[1].op[1].author);
+  let offset = 0;
+  let limit = 20;
+  let size = 0;
+
+  if (req.query.hasOwnProperty("limit")) {
+    if (Number.isInteger(parseInt(req.query.limit))) {
+      limit = parseInt(req.query.limit);
+
+      if (limit > 1000) {
+        limit = 1000;
+      }
+    } else {
+      res.status(400).json({ error: "Invalid limit parameter" });
     }
-  });
+  }
 
-  let start = admin.firestore.Timestamp.fromDate(new Date(1598918400000));
+  let query = await ref.orderBy("creator.timestamp", "desc").limit(limit).get();
 
-  let ref = db.collection("accounts");
-  let query = await ref.where("timestamp", ">", start).get();
-
-  let accountsArray = [];
   query.forEach((doc) => {
     let data = doc.data();
-    if (data.referrer) {
-      accountsArray.push({
-        account: data.accountName,
-        referrer: data.referrer,
-        verified: validAccounts.includes(data.accountName) ? true : false,
-      });
-    }
+    items.push({
+      account: doc.id,
+      timestamp: data.creator.timestamp._seconds * 1000,
+      creator: data.creator ? data.creator.name : "",
+      provider: data.provider ? data.provider.name : "",
+      referrer: data.referrer ? data.referrer.name : "",
+    });
   });
 
-  res.json(accountsArray);
+  res.json({ items: items, limit: limit });
 });
 
 app.get("/api/tickets/:ticket", async (req, res) => {
