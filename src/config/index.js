@@ -130,5 +130,12 @@ export const dApps = [
     subtitle: "Natural Health & WellBeing",
     text: "Social Media for Health Of Body, Mind, Soul & Earth",
     url: "https://naturalmedicine.io",
+  },
+  {
+    icon: "HypnoChain.png",
+    name: "HypnoChain",
+    subtitle: "Hypnosis & ASMR",
+    text: "Your hub for all hypnosis related content",
+    url: "https://hypnochain.com/?referral=hiveonboard",
   }
 ];
