@@ -137,5 +137,12 @@ export const dApps = [
     subtitle: "Hypnosis & ASMR",
     text: "Your hub for all hypnosis related content",
     url: "https://hypnochain.com/?referral=hiveonboard",
+  },
+  {
+    icon: "NFTShowroom.jpg",
+    name: "NFT Showroom",
+    subtitle: "Proof of Art",
+    text: "NFT Showroom is a digital art marketplace",
+    url: "https://nftshowroom.com/?r=hiveonboard",
   }
 ];
