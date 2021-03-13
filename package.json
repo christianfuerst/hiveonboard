@@ -29,15 +29,14 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",
     "reactfire": "^3.0.0-rc.0",
+    "source-map-explorer": "^2.5.2",
     "use-persisted-state": "^0.3.3",
     "yup": "^0.32.8"
   },
-  "resolutions": {
-    "material-table/jspdf": "^2.1.0"
-  },
   "scripts": {
-    "start": "react-scripts --max_old_space_size=4096 start",
-    "build": "react-scripts --max_old_space_size=4096 build",
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

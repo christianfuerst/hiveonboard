@@ -19,6 +19,9 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Box from "@material-ui/core/Box";
 import TextField from "@material-ui/core/TextField";
+import FormGroup from "@material-ui/core/FormGroup";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
 
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -80,6 +83,7 @@ const BackupKeys = ({
   const functions = useFunctions();
   const analytics = useAnalytics();
   const [confirmed, setConfirmed] = React.useState(false);
+  const [backupConfirmed, setBackupConfirmed] = React.useState(false);
   const [error, setError] = React.useState(null);
   const [submitting, setSubmitting] = React.useState(false);
   const [showDialog, setShowDialog] = React.useState(false);
@@ -136,6 +140,15 @@ const BackupKeys = ({
     saveAs(blob, "HIVE-ACOUNT-" + account.username + "-BACKUP.txt");
   };
 
+  const copyToClipboard = (text) => {
+    var textField = document.createElement("textarea");
+    textField.innerHTML = text;
+    document.body.appendChild(textField);
+    textField.select();
+    document.execCommand("copy");
+    textField.remove();
+  };
+
   const closeDialog = () => {
     setShowDialog(false);
     setPhoneNumber("");
@@ -148,18 +161,21 @@ const BackupKeys = ({
   return (
     <Grid container alignItems="center" justify="center" direction="column">
       <Grid item>
-        <Typography variant="h6">Welcome to HIVE!</Typography>
+        <Typography variant="h6">ALMOST THERE!</Typography>
         <Typography>
-          Congratulations, your account is almost ready!
+          This is your proposed account information.
           <br />
-          <br />
-          Your HIVE username, password and keys:
+          After you save this info your account will be created.
         </Typography>
       </Grid>
       <Grid item>
         <Grid container alignItems="center" justify="center" direction="column">
           <Grid item>
-            <Paper className={classes.paper} elevation={3}>
+            <Paper
+              className={classes.paper}
+              elevation={3}
+              onClick={() => copyToClipboard(accountString)}
+            >
               <Typography className={classes.text}>
                 <b>Username: {account.username}</b>
               </Typography>
@@ -198,19 +214,10 @@ const BackupKeys = ({
         </Grid>
       </Grid>
       <Grid item>
-        <Alert className={classes.alert} severity="warning">
-          <AlertTitle>Please backup your account password and keys!</AlertTitle>
-          You can change your password later, but for now you have to keep it
-          safe. We don't offer account recovery yet, so be aware of the fact if
-          you lose your password, your account cannot be recovered.
-        </Alert>
-      </Grid>
-      <Grid item>
         <Grid container alignItems="center" justify="center" direction="row">
           <Button
             variant="contained"
             color="primary"
-            disabled={confirmed ? true : false}
             onClick={() => {
               analytics.logEvent("download_backup_file");
               downloadBackupFile();
@@ -220,80 +227,17 @@ const BackupKeys = ({
           >
             Download Backup
           </Button>
+          <Box>OR</Box>
           <Button
-            disabled={!confirmed ? true : false}
             variant="contained"
             color="primary"
-            id="create-account"
             onClick={() => {
-              if (confirmed) {
-                if (debugMode) {
-                  if (
-                    window.hive_keychain &&
-                    window.hive_keychain.requestAddAccount
-                  ) {
-                    setShowKeychainDialog(true);
-                    window.hive_keychain.requestAddAccount(
-                      account.username,
-                      {
-                        active: account.privateKeys.active,
-                        posting: account.privateKeys.posting,
-                        memo: account.privateKeys.memo,
-                      },
-                      function () {
-                        setActiveStep(2);
-                      }
-                    );
-                  } else {
-                    setActiveStep(2);
-                  }
-                } else if (ticket && ticket !== "invalid") {
-                  setSubmitting(true);
-                  createAccount({
-                    username: account.username,
-                    publicKeys: account.publicKeys,
-                    referrer: referrer,
-                    creator: creator,
-                    ticket: ticket,
-                  }).then(function (result) {
-                    if (result.data.hasOwnProperty("error")) {
-                      analytics.logEvent("create_account_error", {
-                        error: result.data.error,
-                      });
-                      setError(result.data.error);
-                      setSubmitting(false);
-                    } else {
-                      analytics.logEvent("create_account_success");
-
-                      if (
-                        window.hive_keychain &&
-                        window.hive_keychain.requestAddAccount
-                      ) {
-                        setShowKeychainDialog(true);
-                        window.hive_keychain.requestAddAccount(
-                          account.username,
-                          {
-                            active: account.privateKeys.active,
-                            posting: account.privateKeys.posting,
-                            memo: account.privateKeys.memo,
-                          },
-                          function () {
-                            setActiveStep(2);
-                          }
-                        );
-                      } else {
-                        setActiveStep(2);
-                      }
-                    }
-                  });
-                } else {
-                  setShowDialog(true);
-                }
-              }
+              copyToClipboard(accountString);
+              setConfirmed(true);
             }}
             className={classes.button}
           >
-            Create HIVE Account
+            Copy to Clipboard
           </Button>
           <Dialog
             fullScreen={fullScreen}
@@ -473,6 +417,128 @@ const BackupKeys = ({
               )}
             </DialogActions>
           </Dialog>
+        </Grid>
+        <Grid container alignItems="center" justify="center" direction="row">
+          <Alert className={classes.alert} severity="warning">
+            <AlertTitle>
+              <b>WHY DO I HAVE TO SAVE THIS INFO? </b>
+            </AlertTitle>
+            - Because no one can recover your account if you don't have this
+            info.
+            <br />
+            - If you loose these keys you will loose your account and any
+            currency in the account.
+            <br />
+            - These keys are how you will be able to sign in and use sites.
+            <br />
+            <br />
+            <b>SIGNING IN</b>
+            <br />
+            After this you are likely going to sign into a website using a login
+            software <br />
+            - The POSTING KEY can be used for login software like PeakLock and
+            the Hive Keychain browser extension <br />
+            - The ACTIVE KEY will help you login using HiveSigner software
+            <br />
+            <br />
+            You can change your password later, but for now you have to keep it
+            safe. We don't offer account recovery yet, so be aware of the fact
+            if you lose your password, your account cannot be recovered.
+          </Alert>
+          <FormGroup row>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="confirm_backup"
+                  checked={backupConfirmed}
+                  disabled={!confirmed}
+                  onClick={() => setBackupConfirmed(true)}
+                />
+              }
+              label={
+                "I (the soon to be owner of @" +
+                account.username +
+                ") declare that I understand the requirement of safely securing these private keys. I understand that neither HiveOnboard nor any other entity on this planet is capable of restoring or changing these keys if lost. Meaning I really did save these keys in a safe location that I will be able to find later."
+              }
+            />
+          </FormGroup>
+        </Grid>
+        <Grid container alignItems="center" justify="center" direction="row">
+          <Button
+            disabled={!backupConfirmed ? true : false}
+            variant="contained"
+            color="primary"
+            id="create-account"
+            onClick={() => {
+              if (confirmed) {
+                if (debugMode) {
+                  if (
+                    window.hive_keychain &&
+                    window.hive_keychain.requestAddAccount
+                  ) {
+                    setShowKeychainDialog(true);
+                    window.hive_keychain.requestAddAccount(
+                      account.username,
+                      {
+                        active: account.privateKeys.active,
+                        posting: account.privateKeys.posting,
+                        memo: account.privateKeys.memo,
+                      },
+                      function () {
+                        setActiveStep(2);
+                      }
+                    );
+                  } else {
+                    setActiveStep(2);
+                  }
+                } else if (ticket && ticket !== "invalid") {
+                  setSubmitting(true);
+                  createAccount({
+                    username: account.username,
+                    publicKeys: account.publicKeys,
+                    referrer: referrer,
+                    creator: creator,
+                    ticket: ticket,
+                  }).then(function (result) {
+                    if (result.data.hasOwnProperty("error")) {
+                      analytics.logEvent("create_account_error", {
+                        error: result.data.error,
+                      });
+                      setError(result.data.error);
+                      setSubmitting(false);
+                    } else {
+                      analytics.logEvent("create_account_success");
+
+                      if (
+                        window.hive_keychain &&
+                        window.hive_keychain.requestAddAccount
+                      ) {
+                        setShowKeychainDialog(true);
+                        window.hive_keychain.requestAddAccount(
+                          account.username,
+                          {
+                            active: account.privateKeys.active,
+                            posting: account.privateKeys.posting,
+                            memo: account.privateKeys.memo,
+                          },
+                          function () {
+                            setActiveStep(2);
+                          }
+                        );
+                      } else {
+                        setActiveStep(2);
+                      }
+                    }
+                  });
+                } else {
+                  setShowDialog(true);
+                }
+              }
+            }}
+            className={classes.button}
+          >
+            Create HIVE Account
+          </Button>
         </Grid>
         {error && (
           <Grid container alignItems="center" justify="center" direction="row">
