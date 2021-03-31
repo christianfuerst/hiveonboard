@@ -21,7 +21,7 @@ import Battery60Icon from "@material-ui/icons/Battery60";
 import Battery50Icon from "@material-ui/icons/Battery50";
 import Battery30Icon from "@material-ui/icons/Battery30";
 import Battery20Icon from "@material-ui/icons/Battery20";
-import MaterialTable from "material-table";
+import MaterialTable from "@material-table/core";
 
 const useStyles = makeStyles((theme) => ({
   grid: {
