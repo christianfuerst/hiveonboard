@@ -144,5 +144,19 @@ export const dApps = [
     subtitle: "Proof of Art",
     text: "NFT Showroom is a digital art marketplace",
     url: "https://nftshowroom.com/?r=hiveonboard",
+  },
+  {
+    icon:"waivio_icon_jpg.jpg",
+    name: "Waivio",
+    subtitle: "Platform for Business 3.0",
+    text: "Empower users to trade their attention and knowledge on their own terms",
+    url: "https://www.waivio.com"
+  },
+  {
+    icon:"dining-gifts-logo.png",
+    name: "Dining.Gifts",
+    subtitle: "Share and get rewarded",
+    text: "Try new dishes, share your experiences and collect tangible rewards",
+    url: "https://www.dining.gifts"
   }
 ];
