@@ -89,6 +89,13 @@ export const dApps = [
     url: "https://dapplr.in",
   },
   {
+    icon: "travelfeed.png",
+    name: "TravelFeed",
+    subtitle: "Travel Blogging",
+    text: "Start your own travel blog and earn Hive",
+    url: "https://travelfeed.io/?utm_source=hiveonboard",
+  },
+  {
     icon: "quello.png",
     name: "quello.io",
     subtitle: "Questions & Answers",
