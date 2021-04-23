@@ -96,6 +96,13 @@ export const dApps = [
     url: "https://travelfeed.io/?utm_source=hiveonboard",
   },
   {
+    icon: "truvvl.svg",
+    name: "truvvl",
+    subtitle: "Stories App",
+    text: "Create and discover (travel) stories on your smartphone",
+    url: "https://truvvl.com/?utm_source=hiveonboard",
+  },
+  {
     icon: "quello.png",
     name: "quello.io",
     subtitle: "Questions & Answers",
