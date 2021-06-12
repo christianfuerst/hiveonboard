@@ -327,7 +327,7 @@ function App() {
                 <Link
                   className={classes.link}
                   target="_blank"
-                  href="https://app.swaggerhub.com/apis-docs/christianfuerst/hiveonboard.com/1.0.0"
+                  href="https://app.swaggerhub.com/apis-docs/christianfuerst/hiveonboard.com/1.0.1"
                 >
                   API
                 </Link>
