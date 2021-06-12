@@ -32,6 +32,8 @@ import Hidden from "@material-ui/core/Hidden";
 import Alert from "@material-ui/lab/Alert";
 import AlertTitle from "@material-ui/lab/AlertTitle";
 import Box from "@material-ui/core/Box";
+import IconButton from "@material-ui/core/IconButton";
+import HelpIcon from "@material-ui/icons/Help";
 
 import { tos } from "../../config";
 import ProfileCard from "../ProfileCard";
@@ -84,10 +86,8 @@ const ChooseAccount = ({
   const [showTermsOfService, setShowTermsOfService] = React.useState(false);
   const [showReferrerDialog, setShowReferrerDialog] = React.useState(false);
   const [showTicketDialog, setShowTicketDialog] = React.useState(false);
-  const [
-    showUnsupportedBrowserAlert,
-    setShowUnsupportedBrowserAlert,
-  ] = React.useState(false);
+  const [showUnsupportedBrowserAlert, setShowUnsupportedBrowserAlert] =
+    React.useState(false);
   const [showKeychainAlert, setShowKeychainAlert] = React.useState(true);
 
   React.useEffect(() => {
@@ -101,8 +101,9 @@ const ChooseAccount = ({
       let referrerProfileCandidate = {};
 
       try {
-        const profileJSON = JSON.parse(referrerAccount.posting_json_metadata)
-          .profile;
+        const profileJSON = JSON.parse(
+          referrerAccount.posting_json_metadata
+        ).profile;
 
         referrerProfileCandidate.account = referrer;
 
@@ -461,8 +462,8 @@ const ChooseAccount = ({
                 <Box p={1} flexGrow={1}>
                   <Typography>
                     Because of restrictions from Apple to download files (Wallet
-                    Backup) using 3rd party browsers on iOS devices, your browser
-                    isn't supported.
+                    Backup) using 3rd party browsers on iOS devices, your
+                    browser isn't supported.
                     <b> Please use Safari browser in order to continue.</b>
                   </Typography>
                 </Box>
@@ -608,6 +609,14 @@ const ChooseAccount = ({
               {" "}
               <Typography variant="overline" display="block" align="center">
                 <b>Your Referrer</b>
+                <Tooltip
+                  title="Your referrer will share 3% of your HIVE rewards by default. This can be changed or disabled anytime on HIVE interfaces, which support the referral system."
+                  placement="right"
+                >
+                  <IconButton>
+                    <HelpIcon />
+                  </IconButton>
+                </Tooltip>
               </Typography>
               <ProfileCard profile={referrerProfile} />
             </Grid>
