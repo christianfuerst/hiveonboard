@@ -139,6 +139,90 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "referrals",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "referrer.name",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "referrer.timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "referrals",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "referrer.name",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "referrer.weight",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "referrals",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provider.name",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "provider.timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "referrals",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provider.name",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "provider.weight",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "referrals",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "creator.name",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "creator.timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "referrals",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "creator.name",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "creator.weight",
+          "order": "DESCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []

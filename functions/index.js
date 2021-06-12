@@ -745,6 +745,7 @@ app.get("/api/referrer/:account", async (req, res) => {
   let limit = 20;
   let size = 0;
   let orderBy = admin.firestore.FieldPath.documentId();
+  let sortDirection = "asc";
 
   if (req.query.hasOwnProperty("orderBy")) {
     switch (req.query.orderBy) {
@@ -759,6 +760,14 @@ app.get("/api/referrer/:account", async (req, res) => {
         break;
       default:
         res.status(400).json({ error: "Invalid orderBy parameter" });
+    }
+  }
+
+  if (req.query.hasOwnProperty("sortDirection")) {
+    if (req.query.sortDirection === "asc" || req.query.sortDirection === "desc") {
+      sortDirection = req.query.sortDirection;
+    } else {
+      res.status(400).json({ error: "Invalid sortDirection parameter" });
     }
   }
 
@@ -789,7 +798,7 @@ app.get("/api/referrer/:account", async (req, res) => {
 
   let query = await ref
     .where("referrer.name", "==", req.params.account)
-    .orderBy(orderBy)
+    .orderBy(orderBy, sortDirection)
     .limit(limit)
     .offset(offset)
     .get();
@@ -815,6 +824,7 @@ app.get("/api/provider/:account", async (req, res) => {
   let limit = 20;
   let size = 0;
   let orderBy = admin.firestore.FieldPath.documentId();
+  let sortDirection = "asc";
 
   if (req.query.hasOwnProperty("orderBy")) {
     switch (req.query.orderBy) {
@@ -829,6 +839,14 @@ app.get("/api/provider/:account", async (req, res) => {
         break;
       default:
         res.status(400).json({ error: "Invalid orderBy parameter" });
+    }
+  }
+
+  if (req.query.hasOwnProperty("sortDirection")) {
+    if (req.query.sortDirection === "asc" || req.query.sortDirection === "desc") {
+      sortDirection = req.query.sortDirection;
+    } else {
+      res.status(400).json({ error: "Invalid sortDirection parameter" });
     }
   }
 
@@ -859,7 +877,7 @@ app.get("/api/provider/:account", async (req, res) => {
 
   let query = await ref
     .where("provider.name", "==", req.params.account)
-    .orderBy(orderBy)
+    .orderBy(orderBy, sortDirection)
     .limit(limit)
     .offset(offset)
     .get();
@@ -885,6 +903,7 @@ app.get("/api/creator/:account", async (req, res) => {
   let limit = 20;
   let size = 0;
   let orderBy = admin.firestore.FieldPath.documentId();
+  let sortDirection = "asc";
 
   if (req.query.hasOwnProperty("orderBy")) {
     switch (req.query.orderBy) {
@@ -899,6 +918,14 @@ app.get("/api/creator/:account", async (req, res) => {
         break;
       default:
         res.status(400).json({ error: "Invalid orderBy parameter" });
+    }
+  }
+
+  if (req.query.hasOwnProperty("sortDirection")) {
+    if (req.query.sortDirection === "asc" || req.query.sortDirection === "desc") {
+      sortDirection = req.query.sortDirection;
+    } else {
+      res.status(400).json({ error: "Invalid sortDirection parameter" });
     }
   }
 
@@ -929,7 +956,7 @@ app.get("/api/creator/:account", async (req, res) => {
 
   let query = await ref
     .where("creator.name", "==", req.params.account)
-    .orderBy(orderBy)
+    .orderBy(orderBy, sortDirection)
     .limit(limit)
     .offset(offset)
     .get();
@@ -950,9 +977,7 @@ app.get("/api/accounts/recentlyCreated", async (req, res) => {
   let items = [];
   let ref = db.collection("referrals");
 
-  let offset = 0;
   let limit = 20;
-  let size = 0;
 
   if (req.query.hasOwnProperty("limit")) {
     if (Number.isInteger(parseInt(req.query.limit))) {
