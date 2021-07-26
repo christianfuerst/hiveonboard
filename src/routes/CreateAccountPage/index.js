@@ -20,6 +20,7 @@ import Link from "@material-ui/core/Link";
 import ChooseAccount from "../../components/ChooseAccount";
 import BackupAccount from "../../components/BackupAccount";
 import ChooseDApp from "../../components/ChooseDApp";
+import { ticketThreshold } from "../../config";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -43,7 +44,7 @@ const CreateAccountPage = () => {
   const classes = useStyles();
   const location = useLocation();
   const firestore = useFirestore();
-  const publicData = useFirestoreDocData(firestore.doc("public/data"));
+  const publicData = useFirestoreDocData(firestore.doc("public/data")).data;
 
   const [accountTickets, setAccountTickets] = React.useState(0);
   const [referrer, setReferrer] = React.useState(null);
@@ -104,16 +105,20 @@ const CreateAccountPage = () => {
           });
         } else {
           publicData.creators.forEach((element) => {
-            if (element.available) {
+            if (element.available && element.isPublic) {
               tickets = tickets + element.accountTickets;
             }
           });
         }
       }
 
+      if (tickets < ticketThreshold && (!ticket || ticket === "invalid")) {
+        tickets = 0;
+      }
+
       setAccountTickets(tickets);
     }
-  }, [publicData, location.search]);
+  }, [publicData, ticket, location.search]);
 
   React.useEffect(() => {
     if (ticket) {

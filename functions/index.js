@@ -396,6 +396,7 @@ exports.claimAccounts = functions.pubsub
       if (config.creator_instances.length > 0) {
         let accounts = [];
         let instances = {};
+        let instancesPublic = {};
 
         await Promise.all(
           config.creator_instances.map(async (object) => {
@@ -408,6 +409,12 @@ exports.claimAccounts = functions.pubsub
               } catch (error) {
                 instances[object.creator] = false;
               }
+            }
+
+            if (object.isPublic) {
+              instancesPublic[object.creator] = true;
+            } else {
+              instancesPublic[object.creator] = false;
             }
           })
         );
@@ -425,6 +432,7 @@ exports.claimAccounts = functions.pubsub
               account: element.name,
               accountTickets: element.pending_claimed_accounts,
               available: instances[element.name],
+              isPublic: instancesPublic[element.name],
             });
           }
         });
