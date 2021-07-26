@@ -573,7 +573,7 @@ const ChooseAccount = ({
         )}
       </div>
       <div>
-        <Grid container alignItems="center" justify="center" direction="row">
+        <Grid container alignItems="center" justifyContent="center" direction="row">
           <Grid item>
             <Button
               onClick={() => {
@@ -604,7 +604,7 @@ const ChooseAccount = ({
       </div>
       {!_.isEmpty(referrerAccount) && (
         <div>
-          <Grid container alignItems="center" justify="center" direction="row">
+          <Grid container alignItems="center" justifyContent="center" direction="row">
             <Grid item>
               {" "}
               <Typography variant="overline" display="block" align="center">
@@ -625,7 +625,7 @@ const ChooseAccount = ({
       )}
       {!_.isEmpty(ticket) && ticket !== "invalid" && (
         <div>
-          <Grid container alignItems="center" justify="center" direction="row">
+          <Grid container alignItems="center" justifyContent="center" direction="row">
             <Tooltip
               title="This VIP Ticket allows you to bypass our verification process."
               placement="top"
@@ -642,7 +642,7 @@ const ChooseAccount = ({
       )}
       {!_.isEmpty(ticket) && ticket === "invalid" && (
         <div>
-          <Grid container alignItems="center" justify="center" direction="row">
+          <Grid container alignItems="center" justifyContent="center" direction="row">
             <Chip
               className={classes.chip}
               icon={<Icon>confirmation_number</Icon>}
@@ -653,7 +653,7 @@ const ChooseAccount = ({
         </div>
       )}
       <div>
-        <Grid container alignItems="center" justify="center" direction="row">
+        <Grid container alignItems="center" justifyContent="center" direction="row">
           <TextField
             className={classes.textField}
             color={formik.errors.username ? "primary" : "secondary"}
@@ -693,7 +693,7 @@ const ChooseAccount = ({
             }}
           />
         </Grid>
-        <Grid container alignItems="center" justify="center" direction="row">
+        <Grid container alignItems="center" justifyContent="center" direction="row">
           <Button onClick={() => setShowTermsOfService(true)}>
             Terms of Service
           </Button>
@@ -726,7 +726,7 @@ const ChooseAccount = ({
             </Button>
           </DialogActions>
         </Dialog>
-        <Grid container alignItems="center" justify="center" direction="row">
+        <Grid container alignItems="center" justifyContent="center" direction="row">
           <FormGroup row>
             <FormControlLabel
               control={
@@ -749,7 +749,7 @@ const ChooseAccount = ({
         </Grid>
       </div>
       <div>
-        <Grid container alignItems="center" justify="center" direction="row">
+        <Grid container alignItems="center" justifyContent="center" direction="row">
           <Button
             type="submit"
             disabled={

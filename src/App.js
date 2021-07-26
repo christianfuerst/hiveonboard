@@ -10,7 +10,7 @@ import {
 import hivesigner from "hivesigner";
 import {
   makeStyles,
-  createMuiTheme,
+  createTheme,
   ThemeProvider,
   responsiveFontSizes,
 } from "@material-ui/core/styles";
@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const theme = responsiveFontSizes(createMuiTheme(muiThemeConfig));
+const theme = responsiveFontSizes(createTheme(muiThemeConfig));
 const useAccessTokenState = createPersistedState("accessToken");
 const useUsernameState = createPersistedState("username");
 
@@ -115,8 +115,9 @@ function App() {
           userProfileCandidate.reputation = res.account.reputation;
 
           try {
-            const profileJSON = JSON.parse(res.account.posting_json_metadata)
-              .profile;
+            const profileJSON = JSON.parse(
+              res.account.posting_json_metadata
+            ).profile;
 
             if (profileJSON.hasOwnProperty("name")) {
               userProfileCandidate.name = profileJSON.name;
@@ -152,7 +153,7 @@ function App() {
             <Grid
               container
               direction="row"
-              justify="space-between"
+              justifyContent="space-between"
               alignItems="center"
             >
               <Grid item>
@@ -287,7 +288,7 @@ function App() {
             <Grid
               container
               direction="row"
-              justify="center"
+              justifyContent="center"
               alignItems="center"
             >
               <Grid item>

@@ -61,7 +61,7 @@ const WhatIsHivePage = ({ client }) => {
       className={classes.grid}
       container
       direction="row"
-      justify="center"
+      justifyContent="center"
       alignItems="center"
     >
       <Grid item xs={12}>
@@ -155,7 +155,7 @@ const WhatIsHivePage = ({ client }) => {
             <Grid
               container
               direction="row"
-              justify="center"
+              justifyContent="center"
               alignItems="center"
             >
               <Grid item xs={12}>

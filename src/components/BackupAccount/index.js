@@ -159,7 +159,7 @@ const BackupKeys = ({
   };
 
   return (
-    <Grid container alignItems="center" justify="center" direction="column">
+    <Grid container alignItems="center" justifyContent="center" direction="column">
       <Grid item>
         <Typography variant="h6">ALMOST THERE!</Typography>
         <Typography>
@@ -169,7 +169,7 @@ const BackupKeys = ({
         </Typography>
       </Grid>
       <Grid item>
-        <Grid container alignItems="center" justify="center" direction="column">
+        <Grid container alignItems="center" justifyContent="center" direction="column">
           <Grid item>
             <Paper
               className={classes.paper}
@@ -214,7 +214,7 @@ const BackupKeys = ({
         </Grid>
       </Grid>
       <Grid item>
-        <Grid container alignItems="center" justify="center" direction="row">
+        <Grid container alignItems="center" justifyContent="center" direction="row">
           <Button
             variant="contained"
             color="primary"
@@ -418,7 +418,7 @@ const BackupKeys = ({
             </DialogActions>
           </Dialog>
         </Grid>
-        <Grid container alignItems="center" justify="center" direction="row">
+        <Grid container alignItems="center" justifyContent="center" direction="row">
           <Alert className={classes.alert} severity="warning">
             <AlertTitle>
               <b>WHY DO I HAVE TO SAVE THIS INFO? </b>
@@ -463,7 +463,7 @@ const BackupKeys = ({
             />
           </FormGroup>
         </Grid>
-        <Grid container alignItems="center" justify="center" direction="row">
+        <Grid container alignItems="center" justifyContent="center" direction="row">
           <Button
             disabled={!backupConfirmed ? true : false}
             variant="contained"
@@ -541,7 +541,7 @@ const BackupKeys = ({
           </Button>
         </Grid>
         {error && (
-          <Grid container alignItems="center" justify="center" direction="row">
+          <Grid container alignItems="center" justifyContent="center" direction="row">
             <Alert
               className={classes.alert}
               severity="error"

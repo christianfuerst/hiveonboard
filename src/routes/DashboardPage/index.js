@@ -118,7 +118,7 @@ const DashboardPage = ({ accessToken, userProfile }) => {
                 container
                 spacing={2}
                 direction="row"
-                justify="space-between"
+                justifyContent="space-between"
                 alignItems="flex-start"
               >
                 <Grid item>

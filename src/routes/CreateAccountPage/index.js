@@ -184,7 +184,7 @@ const CreateAccountPage = () => {
           <Grid
             container
             direction="column"
-            justify="center"
+            justifyContent="center"
             alignItems="center"
             spacing={2}
           >

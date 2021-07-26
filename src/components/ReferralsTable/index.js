@@ -253,7 +253,7 @@ const ReferralsTable = ({ profile, referrerData }) => {
       className={classes.grid}
       container
       direction="row"
-      justify="center"
+      justifyContent="center"
       alignItems="center"
     >
       <Grid item xs={12}>
@@ -263,6 +263,7 @@ const ReferralsTable = ({ profile, referrerData }) => {
             {
               title: "Account",
               field: "account",
+              width: 300,
               render: (rowData) => {
                 let imageUrl = "";
                 if (rowData.posting_json_metadata.hasOwnProperty("profile")) {
@@ -291,13 +292,14 @@ const ReferralsTable = ({ profile, referrerData }) => {
             {
               title: "Created",
               field: "dateTime",
+              width: 200,
               defaultSort: "desc",
               render: (rowData) => {
                 return (
                   <Grid
                     container
                     direction="row"
-                    justify="flex-start"
+                    justifyContent="flex-start"
                     alignItems="center"
                   >
                     <Grid item>
@@ -311,6 +313,7 @@ const ReferralsTable = ({ profile, referrerData }) => {
             {
               title: "Activity",
               field: "data.post_count",
+              width: 100,
               render: (rowData) => {
                 if (rowData.data.post_count > 0) {
                   return (
@@ -346,14 +349,14 @@ const ReferralsTable = ({ profile, referrerData }) => {
             {
               title: "Resources",
               field: "hp",
-              width: 300,
+              width: 200,
               render: (rowData) => {
                 if (rowData.hp >= 5) {
                   return (
                     <Grid
                       container
                       direction="row"
-                      justify="flex-start"
+                      justifyContent="flex-start"
                       alignItems="center"
                     >
                       <Grid item>
@@ -379,7 +382,7 @@ const ReferralsTable = ({ profile, referrerData }) => {
                     <Grid
                       container
                       direction="row"
-                      justify="flex-start"
+                      justifyContent="flex-start"
                       alignItems="center"
                     >
                       <Grid item>
@@ -426,7 +429,7 @@ const ReferralsTable = ({ profile, referrerData }) => {
                     <Grid
                       container
                       direction="row"
-                      justify="flex-start"
+                      justifyContent="flex-start"
                       alignItems="center"
                     >
                       <Grid item>

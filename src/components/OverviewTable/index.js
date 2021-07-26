@@ -142,7 +142,7 @@ const OverviewTable = ({
       className={classes.grid}
       container
       direction="row"
-      justify="center"
+      justifyContent="center"
       alignItems="center"
     >
       <Grid item xs={12}>
@@ -298,7 +298,7 @@ const OverviewTable = ({
       </Grid>
       {claimTicketError && (
         <Grid item xs={12}>
-          <Grid container alignItems="center" justify="center" direction="row">
+          <Grid container alignItems="center" justifyContent="center" direction="row">
             <Alert
               className={classes.alert}
               severity="error"

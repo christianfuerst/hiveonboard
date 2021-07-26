@@ -21,7 +21,7 @@ const LandingPage = ({ location }) => {
       className={classes.grid}
       container
       direction="row"
-      justify="center"
+      justifyContent="center"
       alignItems="center"
     >
       {landingContent.map((element, index) => {
