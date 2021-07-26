@@ -764,7 +764,10 @@ app.get("/api/referrer/:account", async (req, res) => {
   }
 
   if (req.query.hasOwnProperty("sortDirection")) {
-    if (req.query.sortDirection === "asc" || req.query.sortDirection === "desc") {
+    if (
+      req.query.sortDirection === "asc" ||
+      req.query.sortDirection === "desc"
+    ) {
       sortDirection = req.query.sortDirection;
     } else {
       res.status(400).json({ error: "Invalid sortDirection parameter" });
@@ -843,7 +846,10 @@ app.get("/api/provider/:account", async (req, res) => {
   }
 
   if (req.query.hasOwnProperty("sortDirection")) {
-    if (req.query.sortDirection === "asc" || req.query.sortDirection === "desc") {
+    if (
+      req.query.sortDirection === "asc" ||
+      req.query.sortDirection === "desc"
+    ) {
       sortDirection = req.query.sortDirection;
     } else {
       res.status(400).json({ error: "Invalid sortDirection parameter" });
@@ -922,7 +928,10 @@ app.get("/api/creator/:account", async (req, res) => {
   }
 
   if (req.query.hasOwnProperty("sortDirection")) {
-    if (req.query.sortDirection === "asc" || req.query.sortDirection === "desc") {
+    if (
+      req.query.sortDirection === "asc" ||
+      req.query.sortDirection === "desc"
+    ) {
       sortDirection = req.query.sortDirection;
     } else {
       res.status(400).json({ error: "Invalid sortDirection parameter" });
@@ -1013,10 +1022,11 @@ app.get("/api/tickets/:ticket", async (req, res) => {
 
   if (doc.exists) {
     let ticket = doc.data();
+
     if (ticket.consumed) {
-      res.json({ valid: false });
+      res.json({ valid: false, data: ticket });
     } else {
-      res.json({ valid: true });
+      res.json({ valid: true, data: ticket });
     }
   } else {
     res.json({ valid: false });
@@ -1032,49 +1042,93 @@ app.get("/api/tickets", async (req, res) => {
       accessToken: [req.query.accessToken],
     });
 
-    hivesignerClient.me(async function (error, result) {
-      if (error) {
-        console.log(
-          "GET request to /api/tickets - Refused: Invalid auth accessToken. - Source: " +
-            req.ip
-        );
-        res.status(401).send("Invalid access token.");
-      } else {
-        let items = [];
-        let size = 0;
-
-        let ref = db.collection("tickets");
-        let query = await ref.where("referrer", "==", result.user).get();
-
-        query.forEach((doc) => {
-          let data = doc.data();
-          items.push(data);
-          size += 1;
-        });
-
-        let referralRef = db.collection("referralsCount").doc(result.user);
-        let referralDoc = await referralRef.get();
-        let isVip = false;
-        let lastTicketRequest = 0;
-
-        if (referralDoc.exists) {
-          let referral = referralDoc.data();
-          if (referral.lastTicketRequest) {
-            lastTicketRequest = referral.lastTicketRequest.toMillis();
-          }
-          if (referral.isVip) {
-            isVip = referral.isVip;
-          }
-        }
-
-        res.json({
-          items: items,
-          size: size,
-          lastTicketRequest: lastTicketRequest,
-          isVip: isVip,
-        });
-      }
+    let creatorInstance = _.find(config.creator_instances, {
+      apiKey: req.query.accessToken,
     });
+
+    if (creatorInstance) {
+      let items = [];
+      let size = 0;
+
+      let ref = db.collection("tickets");
+      let query = await ref
+        .where("referrer", "==", creatorInstance.creator)
+        .get();
+
+      query.forEach((doc) => {
+        let data = doc.data();
+        items.push(data);
+        size += 1;
+      });
+
+      let referralRef = db
+        .collection("referralsCount")
+        .doc(creatorInstance.creator);
+      let referralDoc = await referralRef.get();
+      let isVip = false;
+      let lastTicketRequest = 0;
+
+      if (referralDoc.exists) {
+        let referral = referralDoc.data();
+        if (referral.lastTicketRequest) {
+          lastTicketRequest = referral.lastTicketRequest.toMillis();
+        }
+        if (referral.isVip) {
+          isVip = referral.isVip;
+        }
+      }
+
+      res.json({
+        items: items,
+        size: size,
+        lastTicketRequest: lastTicketRequest,
+        isVip: isVip,
+      });
+    } else {
+      hivesignerClient.me(async function (error, result) {
+        if (error) {
+          console.log(
+            "GET request to /api/tickets - Refused: Invalid auth accessToken. - Source: " +
+              req.ip
+          );
+          res.status(401).send("Invalid access token.");
+        } else {
+          let items = [];
+          let size = 0;
+
+          let ref = db.collection("tickets");
+          let query = await ref.where("referrer", "==", result.user).get();
+
+          query.forEach((doc) => {
+            let data = doc.data();
+            items.push(data);
+            size += 1;
+          });
+
+          let referralRef = db.collection("referralsCount").doc(result.user);
+          let referralDoc = await referralRef.get();
+          let isVip = false;
+          let lastTicketRequest = 0;
+
+          if (referralDoc.exists) {
+            let referral = referralDoc.data();
+            if (referral.lastTicketRequest) {
+              lastTicketRequest = referral.lastTicketRequest.toMillis();
+            }
+            if (referral.isVip) {
+              isVip = referral.isVip;
+            }
+          }
+
+          res.json({
+            items: items,
+            size: size,
+            lastTicketRequest: lastTicketRequest,
+            isVip: isVip,
+          });
+        }
+      });
+    }
   } else {
     console.log(
       "GET request to /api/tickets - Refused: Invalid auth accessToken. - Source: " +

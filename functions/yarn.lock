@@ -147,10 +147,10 @@
     protobufjs "^6.10.0"
     yargs "^16.1.1"
 
-"@hiveio/dhive@^0.14.12":
-  version "0.14.12"
-  resolved "https://registry.yarnpkg.com/@hiveio/dhive/-/dhive-0.14.12.tgz#1e0eddc7ad7c0e169fe8349fb302d108683cf251"
-  integrity sha512-jYbLrRX2Citax+IzVrM1f1RoyYEjwCnAPr9ZT+aMjrtYvYOjsxg46eGfO6m/tTB1PkhABRGyAbb1yBodNogjyw==
+"@hiveio/dhive@^0.14.16":
+  version "0.14.16"
+  resolved "https://registry.yarnpkg.com/@hiveio/dhive/-/dhive-0.14.16.tgz#03602cda2960e511b328fbea7f82aa3e99ce35b7"
+  integrity sha512-HTNwzfJHGLaAEXsLP82OG7U2s57wXwRgfL6QXhgGpLfkBKIEwgsDchB088X4vS0GfmL5RrMyLDXGrWyzwgSCNw==
   dependencies:
     bs58 "^4.0.1"
     bytebuffer "^5.0.1"
@@ -600,10 +600,10 @@ cross-fetch@^3.0.4, cross-fetch@^3.0.6:
   dependencies:
     node-fetch "2.6.1"
 
-crypto-js@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.0.0.tgz#2904ab2677a9d042856a2ea2ef80de92e4a36dcc"
-  integrity sha512-bzHZN8Pn+gS7DQA6n+iUmBfl0hO5DJq++QP3U6uTucDtk/0iGpXd/Gg7CGR0p8tJhofJyaKoWBuJI4eAO00BBg==
+crypto-js@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.1.1.tgz#9e485bcf03521041bd85844786b83fb7619736cf"
+  integrity sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==
 
 crypto-random-string@^2.0.0:
   version "2.0.0"
@@ -828,10 +828,10 @@ finalhandler@~1.1.2:
     statuses "~1.5.0"
     unpipe "~1.0.0"
 
-firebase-admin@^9.9.0:
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/firebase-admin/-/firebase-admin-9.9.0.tgz#40442704b5ac0fddfdcdf4255601f8acb1e6fab3"
-  integrity sha512-04HT7JAAqcJYty95qf15IBD9CXf+vr7S8zNU6Zt1ayC1J05DLaCsUd19/sCNAjZ614KHexAYUtyLgZoJwu2wOQ==
+firebase-admin@^9.11.0:
+  version "9.11.0"
+  resolved "https://registry.yarnpkg.com/firebase-admin/-/firebase-admin-9.11.0.tgz#c0c72e4480b836fb4cd15e6d834ddfbfb9cc54ba"
+  integrity sha512-68fXdwcKF99LkWBE33M5hnLwjvGpbCRznIOtZVsiBqZdM9iwxlTfNEpAckh++o3GdJcSLRUWmIN+MKqPUsxoCA==
   dependencies:
     "@firebase/database" "^0.10.0"
     "@firebase/database-types" "^0.7.2"
