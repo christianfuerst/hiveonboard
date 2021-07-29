@@ -171,4 +171,4 @@ export const dApps = [
   },
 ];
 
-export const ticketThreshold = 2500;
+export const ticketThreshold = 2000;
