@@ -22,110 +22,125 @@ let client = new dhive.Client([
 let key = dhive.PrivateKey.fromString(config.activeKey);
 let keyLog = dhive.PrivateKey.fromString(config.activeKeyLog);
 
-exports.createAccount = functions.https.onCall(async (data, context) => {
-  let ticket = data.ticket;
-  let phoneNumberHashObject = CryptoJS.SHA256("No Phone Number");
-  let referrer = data.referrer;
-  let creator = config.account;
-  let creatorRequested = false;
-  let provider = config.provider;
-  let beneficiaries = [];
+const runtimeOpts = {
+  timeoutSeconds: 300,
+};
 
-  if (ticket) {
-    let ticketRef = db.collection("tickets").doc(ticket);
-    let ticketDoc = await ticketRef.get();
+exports.createAccount = functions
+  .runWith(runtimeOpts)
+  .https.onCall(async (data, context) => {
+    let ticket = data.ticket;
+    let phoneNumberHashObject = CryptoJS.SHA256("No Phone Number");
+    let referrer = data.referrer;
+    let creator = config.account;
+    let creatorRequested = false;
+    let provider = config.provider;
+    let beneficiaries = [];
 
-    if (ticketDoc.exists) {
-      let ticketData = ticketDoc.data();
-      if (ticketData.consumed) {
-        console.log("Ticket already consumed.");
+    if (ticket) {
+      let ticketRef = db.collection("tickets").doc(ticket);
+      let ticketDoc = await ticketRef.get();
+
+      if (ticketDoc.exists) {
+        let ticketData = ticketDoc.data();
+        if (ticketData.consumed) {
+          console.log("Ticket already consumed.");
+          return {
+            error: "Ticket already consumed.",
+          };
+        }
+      } else {
+        console.log("Ticket is invalid.");
         return {
-          error: "Ticket already consumed.",
+          error: "Ticket is invalid.",
         };
       }
     } else {
-      console.log("Ticket is invalid.");
-      return {
-        error: "Ticket is invalid.",
-      };
-    }
-  } else {
-    ticket = "NO TICKET";
-    let oneWeekAgo = admin.firestore.Timestamp.fromDate(
-      new Date(Date.now() - 604800000)
-    );
-
-    if (!context.auth.hasOwnProperty("uid")) {
-      console.log("Verficiation failed.");
-      return {
-        error: "Verficiation failed.",
-      };
-    }
-
-    let accountsRef = db.collection("accounts");
-    let query = await accountsRef
-      .where("ipAddress", "==", context.rawRequest.ip)
-      .where("timestamp", ">", oneWeekAgo)
-      .get();
-
-    if (!query.empty) {
-      // Delete user including phone number
-      if (context.hasOwnProperty("auth")) {
-        await admin.auth().deleteUser(context.auth.uid);
-      }
-      console.log("IP was recently used for account creation.");
-      return {
-        error: "Your IP was recently used for account creation.",
-      };
-    }
-
-    phoneNumberHashObject = CryptoJS.SHA256(context.auth.token.phone_number);
-
-    let queryUser = await accountsRef
-      .where(
-        "phoneNumberHash",
-        "==",
-        phoneNumberHashObject.toString(CryptoJS.enc.Hex)
-      )
-      .get();
-
-    if (!queryUser.empty) {
-      // Delete user including phone number
-      if (context.hasOwnProperty("auth")) {
-        await admin.auth().deleteUser(context.auth.uid);
-      }
-      console.log(
-        "Phone number (" +
-          phoneNumberHashObject.toString(CryptoJS.enc.Hex) +
-          ") was already used for account creation."
+      ticket = "NO TICKET";
+      let oneWeekAgo = admin.firestore.Timestamp.fromDate(
+        new Date(Date.now() - 604800000)
       );
-      return {
-        error: "Your phone number was already used for account creation.",
-      };
+
+      if (!context.auth.hasOwnProperty("uid")) {
+        console.log("Verficiation failed.");
+        return {
+          error: "Verficiation failed.",
+        };
+      }
+
+      let accountsRef = db.collection("accounts");
+      let query = await accountsRef
+        .where("ipAddress", "==", context.rawRequest.ip)
+        .where("timestamp", ">", oneWeekAgo)
+        .get();
+
+      if (!query.empty) {
+        // Delete user including phone number
+        if (context.hasOwnProperty("auth")) {
+          await admin.auth().deleteUser(context.auth.uid);
+        }
+        console.log("IP was recently used for account creation.");
+        return {
+          error: "Your IP was recently used for account creation.",
+        };
+      }
+
+      phoneNumberHashObject = CryptoJS.SHA256(context.auth.token.phone_number);
+
+      let queryUser = await accountsRef
+        .where(
+          "phoneNumberHash",
+          "==",
+          phoneNumberHashObject.toString(CryptoJS.enc.Hex)
+        )
+        .get();
+
+      if (!queryUser.empty) {
+        // Delete user including phone number
+        if (context.hasOwnProperty("auth")) {
+          await admin.auth().deleteUser(context.auth.uid);
+        }
+        console.log(
+          "Phone number (" +
+            phoneNumberHashObject.toString(CryptoJS.enc.Hex) +
+            ") was already used for account creation."
+        );
+        return {
+          error: "Your phone number was already used for account creation.",
+        };
+      }
     }
-  }
 
-  let publicRef = db.collection("public");
-  let queryCreators = await publicRef.doc("data").get();
-  let creators = queryCreators.data().creators;
-  let creatorCandidate = null;
+    let publicRef = db.collection("public");
+    let queryCreators = await publicRef.doc("data").get();
+    let creators = queryCreators.data().creators;
+    let creatorCandidate = null;
 
-  // Look up a creator with the most tickets available, prefer a creator if passed in
-  creators.forEach((element) => {
-    if (element.accountTickets > 0 && data.creator === element.account) {
-      creatorRequested = true;
-      creatorCandidate = element;
-      let creatorConfig = _.find(config.creator_instances, {
-        creator: element.account,
-      });
-      creatorCandidate = { ...creatorCandidate, ...creatorConfig };
-    } else if (
-      element.accountTickets > 0 &&
-      element.available &&
-      !creatorRequested
-    ) {
-      if (creatorCandidate) {
-        if (element.accountTickets > creatorCandidate.accountTickets) {
+    // Look up a creator with the most tickets available, prefer a creator if passed in
+    creators.forEach((element) => {
+      if (element.accountTickets > 0 && data.creator === element.account) {
+        creatorRequested = true;
+        creatorCandidate = element;
+        let creatorConfig = _.find(config.creator_instances, {
+          creator: element.account,
+        });
+        creatorCandidate = { ...creatorCandidate, ...creatorConfig };
+      } else if (
+        element.accountTickets > 0 &&
+        element.available &&
+        !creatorRequested
+      ) {
+        if (creatorCandidate) {
+          if (element.accountTickets > creatorCandidate.accountTickets) {
+            let creatorConfig = _.find(config.creator_instances, {
+              creator: element.account,
+            });
+            if (creatorConfig.isPublic) {
+              creatorCandidate = element;
+              creatorCandidate = { ...creatorCandidate, ...creatorConfig };
+            }
+          }
+        } else {
           let creatorConfig = _.find(config.creator_instances, {
             creator: element.account,
           });
@@ -134,40 +149,110 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
             creatorCandidate = { ...creatorCandidate, ...creatorConfig };
           }
         }
-      } else {
-        let creatorConfig = _.find(config.creator_instances, {
-          creator: element.account,
-        });
-        if (creatorConfig.isPublic) {
-          creatorCandidate = element;
-          creatorCandidate = { ...creatorCandidate, ...creatorConfig };
-        }
       }
-    }
-  });
+    });
 
-  // Double-Check if the remote instance is up and running
-  let endpointCheck;
-  try {
-    endpointCheck = await axios.get(creatorCandidate.endpoint);
-  } catch (error) {
-    endpointCheck = false;
-    console.log("Remote creator instance is offline.");
-  }
-
-  if (creatorRequested && !endpointCheck) {
-    // Delete user including phone number
-    if (context.hasOwnProperty("auth")) {
-      await admin.auth().deleteUser(context.auth.uid);
-    }
-    console.log("Account creation on remote creator instance failed.");
-    return { error: "Account creation on remote creator instance failed." };
-  }
-
-  if (creatorCandidate && endpointCheck) {
-    // Creator instance available
+    // Double-Check if the remote instance is up and running
+    let endpointCheck;
     try {
-      creator = creatorCandidate.account;
+      endpointCheck = await axios.get(creatorCandidate.endpoint);
+    } catch (error) {
+      endpointCheck = false;
+      console.log("Remote creator instance is offline.");
+    }
+
+    if (creatorRequested && !endpointCheck) {
+      // Delete user including phone number
+      if (context.hasOwnProperty("auth")) {
+        await admin.auth().deleteUser(context.auth.uid);
+      }
+      console.log("Account creation on remote creator instance failed.");
+      return { error: "Account creation on remote creator instance failed." };
+    }
+
+    if (creatorCandidate && endpointCheck) {
+      // Creator instance available
+      try {
+        creator = creatorCandidate.account;
+
+        // Build the custom_json beneficiaries array
+        if (referrer) {
+          beneficiaries.push({
+            name: referrer,
+            weight: config.fee.referrer,
+            label: "referrer",
+          });
+        }
+        if (creator) {
+          beneficiaries.push({
+            name: creator,
+            weight: config.fee.creator,
+            label: "creator",
+          });
+        }
+        if (provider) {
+          beneficiaries.push({
+            name: provider,
+            weight: config.fee.provider,
+            label: "provider",
+          });
+        }
+
+        let postBody = {
+          name: data.username,
+          publicKeys: data.publicKeys,
+          metaData: {
+            beneficiaries: beneficiaries,
+          },
+          creator: creator,
+          creatorRequested: creatorRequested,
+        };
+
+        let postRequest = await axios.post(
+          creatorCandidate.endpoint + "/createAccount",
+          postBody,
+          {
+            headers: {
+              authority: creatorCandidate.apiKey,
+            },
+          }
+        );
+
+        if (postRequest.created === false) {
+          // Delete user including phone number
+          if (context.hasOwnProperty("auth")) {
+            await admin.auth().deleteUser(context.auth.uid);
+          }
+          console.log("Account creation on remote creator instance failed.");
+          return {
+            error: "Account creation on remote creator instance failed.",
+          };
+        }
+      } catch (error) {
+        // Delete user including phone number
+        if (context.hasOwnProperty("auth")) {
+          await admin.auth().deleteUser(context.auth.uid);
+        }
+        console.log("Remote creator instance is offline.");
+        return { error: "Remote creator instance is offline." };
+      }
+    } else {
+      // No creator instance available, we have to create ourself
+      const ownerAuth = {
+        weight_threshold: 1,
+        account_auths: [],
+        key_auths: [[data.publicKeys.owner, 1]],
+      };
+      const activeAuth = {
+        weight_threshold: 1,
+        account_auths: [],
+        key_auths: [[data.publicKeys.active, 1]],
+      };
+      const postingAuth = {
+        weight_threshold: 1,
+        account_auths: [],
+        key_auths: [[data.publicKeys.posting, 1]],
+      };
 
       // Build the custom_json beneficiaries array
       if (referrer) {
@@ -192,168 +277,91 @@ exports.createAccount = functions.https.onCall(async (data, context) => {
         });
       }
 
-      let postBody = {
-        name: data.username,
-        publicKeys: data.publicKeys,
-        metaData: {
-          beneficiaries: beneficiaries,
-        },
-        creator: creator,
-        creatorRequested: creatorRequested,
-      };
-
-      let postRequest = await axios.post(
-        creatorCandidate.endpoint + "/createAccount",
-        postBody,
+      const op = [
+        "create_claimed_account",
         {
-          headers: {
-            authority: creatorCandidate.apiKey,
-          },
-        }
-      );
+          creator: config.account,
+          new_account_name: data.username,
+          owner: ownerAuth,
+          active: activeAuth,
+          posting: postingAuth,
+          memo_key: data.publicKeys.memo,
+          json_metadata: JSON.stringify({
+            beneficiaries: beneficiaries,
+          }),
+          extensions: [],
+        },
+      ];
 
-      if (postRequest.created === false) {
+      try {
+        await client.broadcast.sendOperations([op], key);
+      } catch (error) {
         // Delete user including phone number
         if (context.hasOwnProperty("auth")) {
           await admin.auth().deleteUser(context.auth.uid);
         }
-        console.log("Account creation on remote creator instance failed.");
-        return { error: "Account creation on remote creator instance failed." };
+        console.log("Account creation on backup instance failed.");
+        return { error: "Account creation on backup instance failed." };
       }
-    } catch (error) {
-      // Delete user including phone number
-      if (context.hasOwnProperty("auth")) {
-        await admin.auth().deleteUser(context.auth.uid);
-      }
-      console.log("Remote creator instance is offline.");
-      return { error: "Remote creator instance is offline." };
     }
-  } else {
-    // No creator instance available, we have to create ourself
-    const ownerAuth = {
-      weight_threshold: 1,
-      account_auths: [],
-      key_auths: [[data.publicKeys.owner, 1]],
-    };
-    const activeAuth = {
-      weight_threshold: 1,
-      account_auths: [],
-      key_auths: [[data.publicKeys.active, 1]],
-    };
-    const postingAuth = {
-      weight_threshold: 1,
-      account_auths: [],
-      key_auths: [[data.publicKeys.posting, 1]],
+
+    let accountData = {
+      accountName: data.username,
+      ipAddress: context.rawRequest.ip,
+      phoneNumberHash: phoneNumberHashObject.toString(CryptoJS.enc.Hex),
+      timestamp: new Date(),
+      posted: false,
+      referrer: referrer,
+      creator: creator,
+      provider: provider,
+      delegation: true,
+      ticket: ticket,
     };
 
-    // Build the custom_json beneficiaries array
-    if (referrer) {
-      beneficiaries.push({
-        name: referrer,
-        weight: config.fee.referrer,
-        label: "referrer",
-      });
-    }
-    if (creator) {
-      beneficiaries.push({
-        name: creator,
-        weight: config.fee.creator,
-        label: "creator",
-      });
-    }
-    if (provider) {
-      beneficiaries.push({
-        name: provider,
-        weight: config.fee.provider,
-        label: "provider",
-      });
+    await db.collection("accounts").doc(data.username).set(accountData);
+
+    // Delete user including phone number
+    if (context.hasOwnProperty("auth")) {
+      await admin.auth().deleteUser(context.auth.uid);
     }
 
-    const op = [
-      "create_claimed_account",
-      {
-        creator: config.account,
-        new_account_name: data.username,
-        owner: ownerAuth,
-        active: activeAuth,
-        posting: postingAuth,
-        memo_key: data.publicKeys.memo,
-        json_metadata: JSON.stringify({
-          beneficiaries: beneficiaries,
-        }),
-        extensions: [],
-      },
-    ];
-
-    try {
-      await client.broadcast.sendOperations([op], key);
-    } catch (error) {
-      // Delete user including phone number
-      if (context.hasOwnProperty("auth")) {
-        await admin.auth().deleteUser(context.auth.uid);
-      }
-      console.log("Account creation on backup instance failed.");
-      return { error: "Account creation on backup instance failed." };
+    // Set ticket to consumed
+    if (ticket) {
+      await db
+        .collection("tickets")
+        .doc(ticket)
+        .set({ consumed: true, consumedBy: data.username }, { merge: true });
     }
-  }
 
-  let accountData = {
-    accountName: data.username,
-    ipAddress: context.rawRequest.ip,
-    phoneNumberHash: phoneNumberHashObject.toString(CryptoJS.enc.Hex),
-    timestamp: new Date(),
-    posted: false,
-    referrer: referrer,
-    creator: creator,
-    provider: provider,
-    delegation: true,
-    ticket: ticket,
-  };
-
-  await db.collection("accounts").doc(data.username).set(accountData);
-
-  // Delete user including phone number
-  if (context.hasOwnProperty("auth")) {
-    await admin.auth().deleteUser(context.auth.uid);
-  }
-
-  // Set ticket to consumed
-  if (ticket) {
-    await db
-      .collection("tickets")
-      .doc(ticket)
-      .set({ consumed: true, consumedBy: data.username }, { merge: true });
-  }
-
-  // HP delegation
-  if (referrer || config.defaultDelegation === "0 VESTS") {
-    await db
-      .collection("accounts")
-      .doc(data.username)
-      .set({ delegation: false }, { merge: true });
-  } else {
-    try {
-      await client.broadcast.delegateVestingShares(
-        {
-          delegatee: data.username,
-          delegator: config.account,
-          vesting_shares: config.defaultDelegation,
-        },
-        key
-      );
-    } catch (error) {
+    // HP delegation
+    if (referrer || config.defaultDelegation === "0 VESTS") {
       await db
         .collection("accounts")
         .doc(data.username)
         .set({ delegation: false }, { merge: true });
-      console.log("Delegation for " + data.username + " failed.");
+    } else {
+      try {
+        await client.broadcast.delegateVestingShares(
+          {
+            delegatee: data.username,
+            delegator: config.account,
+            vesting_shares: config.defaultDelegation,
+          },
+          key
+        );
+      } catch (error) {
+        await db
+          .collection("accounts")
+          .doc(data.username)
+          .set({ delegation: false }, { merge: true });
+        console.log("Delegation for " + data.username + " failed.");
+      }
     }
-  }
 
-  console.log(JSON.stringify(accountData));
+    console.log(JSON.stringify(accountData));
 
-  return data;
-});
+    return data;
+  });
 
 exports.claimAccounts = functions.pubsub
   .schedule("every 10 minutes")
