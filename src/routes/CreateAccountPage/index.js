@@ -3,7 +3,7 @@ import axios from "axios";
 import _ from "lodash";
 import hive from "@hiveio/hive-js";
 import { useLocation } from "react-router-dom";
-import { useFirestore, useFirestoreDocData } from "reactfire";
+import { useFirestore, useFirestoreDocDataOnce } from "reactfire";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Stepper from "@material-ui/core/Stepper";
@@ -20,7 +20,7 @@ import Link from "@material-ui/core/Link";
 import ChooseAccount from "../../components/ChooseAccount";
 import BackupAccount from "../../components/BackupAccount";
 import ChooseDApp from "../../components/ChooseDApp";
-import { ticketThreshold } from "../../config";
+import { ticketThreshold, rateLimitInSeconds } from "../../config";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -44,7 +44,7 @@ const CreateAccountPage = () => {
   const classes = useStyles();
   const location = useLocation();
   const firestore = useFirestore();
-  const publicData = useFirestoreDocData(firestore.doc("public/data")).data;
+  const publicData = useFirestoreDocDataOnce(firestore.doc("public/data")).data;
 
   const [accountTickets, setAccountTickets] = React.useState(0);
   const [referrer, setReferrer] = React.useState(null);
@@ -113,6 +113,15 @@ const CreateAccountPage = () => {
       }
 
       if (tickets < ticketThreshold && (!ticket || ticket === "invalid")) {
+        tickets = 0;
+      }
+
+      const startDate = publicData.lastAccountCreated.toDate();
+      const endDate = new Date();
+      const timeDiff = endDate.getTime() - startDate.getTime();
+      const diffInMin = Math.round(timeDiff / 1000);
+
+      if (diffInMin < rateLimitInSeconds && (!ticket || ticket === "invalid")) {
         tickets = 0;
       }
 
