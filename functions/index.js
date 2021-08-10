@@ -358,6 +358,15 @@ exports.createAccount = functions
       }
     }
 
+    try {
+      await db
+        .collection("public")
+        .doc("data")
+        .set({ lastAccountCreated: new Date() }, { merge: true });
+    } catch (error) {
+      console.log(error);
+    }
+
     console.log(JSON.stringify(accountData));
 
     return data;
