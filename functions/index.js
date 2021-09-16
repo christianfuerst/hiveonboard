@@ -390,33 +390,47 @@ exports.checkReputation = functions.https.onCall(async (data, context) => {
   let result;
 
   try {
+    let oneWeekAgo = admin.firestore.Timestamp.fromDate(
+      new Date(Date.now() - 604800000)
+    );
+
+    let accountsRef = db.collection("accounts");
+    let query = await accountsRef
+      .where("ipAddress", "==", context.rawRequest.ip)
+      .where("timestamp", ">", oneWeekAgo)
+      .get();
+
+    if (!query.empty) {
+      console.log("IP address already used for account creation.");
+      return { ticket: "BADREPUTATION" };
+    }
+
+    let ticketsRef = db.collection("tickets");
+    let queryTickets = await ticketsRef
+      .where("ipAddress", "==", context.rawRequest.ip)
+      .get();
+
+    if (!queryTickets.empty) {
+      console.log("Ticket for specific IP address found.");
+      return { ticket: query.docs[0].get("ticket") };
+    }
+
+    let { "user-agent": userAgent } = context.rawRequest.headers;
+
     result = await axios.get(
-      `https://ipqualityscore.com/api/json/ip/${config.ipQualityScorePrivateKey}/${requestIp}?strictness=1&allow_public_access_points=true`
+      `https://ipqualityscore.com/api/json/ip/${config.ipQualityScorePrivateKey}/${requestIp}?strictness=1&allow_public_access_points=true&user_agent=${userAgent}`
     );
 
     const score = result.data.fraud_score;
     console.log(JSON.stringify(result.data));
 
     if (score >= 0 && score < 30) {
-      let oneWeekAgo = admin.firestore.Timestamp.fromDate(
-        new Date(Date.now() - 604800000)
-      );
-
-      let accountsRef = db.collection("accounts");
-      let query = await accountsRef
-        .where("ipAddress", "==", context.rawRequest.ip)
-        .where("timestamp", ">", oneWeekAgo)
-        .get();
-
-      if (!query.empty) {
-        return { ticket: "BADREPUTATION" };
-      }
-
       let ticket = create_UUID();
       let ticketObject = {
         ticket: ticket,
         referrer: config.provider,
         consumed: false,
+        ipAddress: context.rawRequest.ip,
       };
 
       let ticketRef = db.collection("tickets").doc(ticket);

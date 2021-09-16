@@ -220,6 +220,18 @@ const CreateAccountPage = () => {
                 })}
               </Stepper>
             </Grid>
+            {suspended && (
+              <Grid item xs={12}>
+                <iframe
+                  title="rickrolled"
+                  width="420"
+                  height="345"
+                  src="http://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&autopause=0"
+                  frameborder="0"
+                  allowfullscreen
+                ></iframe>
+              </Grid>
+            )}
             <Grid item xs={12}>
               {accountTickets === 0 || suspended ? (
                 <Alert className={classes.alert} severity="info">
