@@ -172,4 +172,4 @@ export const dApps = [
 ];
 
 export const ticketThreshold = 2000;
-export const rateLimitInSeconds = 300;
+export const rateLimitInSeconds = 0;

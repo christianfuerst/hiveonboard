@@ -1,5 +1,5 @@
 import React from "react";
-import { useAnalytics } from "reactfire";
+import { useAnalytics, useFunctions } from "reactfire";
 import {
   isChrome,
   isEdgeChromium,
@@ -15,6 +15,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import Backdrop from "@material-ui/core/Backdrop";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Icon from "@material-ui/core/Icon";
 import FormGroup from "@material-ui/core/FormGroup";
@@ -65,6 +67,10 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
     width: "100%",
   },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: "#ffffff",
+  },
 }));
 
 const ChooseAccount = ({
@@ -77,9 +83,13 @@ const ChooseAccount = ({
   setReferrer,
   ticket,
   setTicket,
+  setSuspended,
 }) => {
   const classes = useStyles();
   const analytics = useAnalytics();
+  const functions = useFunctions();
+
+  const checkReputation = functions.httpsCallable("checkReputation");
 
   const [referrerProfile, setReferrerProfile] = React.useState({});
   const [confirmed, setConfirmed] = React.useState(false);
@@ -190,8 +200,22 @@ const ChooseAccount = ({
           ]),
         });
 
+        if (ticket) {
+          setActiveStep(1);
+        } else {
+          checkReputation().then((result) => {
+            if (result.data.ticket && result.data.ticket !== "") {
+              if (result.data.ticket === "BADREPUTATION") {
+                setSuspended(true);
+              } else {
+                setTicket(result.data.ticket);
+              }
+            }
+            setActiveStep(1);
+          });
+        }
+
         analytics.logEvent("confirm_account_name");
-        setActiveStep(1);
       }
     },
   });
@@ -573,7 +597,12 @@ const ChooseAccount = ({
         )}
       </div>
       <div>
-        <Grid container alignItems="center" justifyContent="center" direction="row">
+        <Grid
+          container
+          alignItems="center"
+          justifyContent="center"
+          direction="row"
+        >
           <Grid item>
             <Button
               onClick={() => {
@@ -604,7 +633,12 @@ const ChooseAccount = ({
       </div>
       {!_.isEmpty(referrerAccount) && (
         <div>
-          <Grid container alignItems="center" justifyContent="center" direction="row">
+          <Grid
+            container
+            alignItems="center"
+            justifyContent="center"
+            direction="row"
+          >
             <Grid item>
               {" "}
               <Typography variant="overline" display="block" align="center">
@@ -625,7 +659,12 @@ const ChooseAccount = ({
       )}
       {!_.isEmpty(ticket) && ticket !== "invalid" && (
         <div>
-          <Grid container alignItems="center" justifyContent="center" direction="row">
+          <Grid
+            container
+            alignItems="center"
+            justifyContent="center"
+            direction="row"
+          >
             <Tooltip
               title="This VIP Ticket allows you to bypass our verification process."
               placement="top"
@@ -642,7 +681,12 @@ const ChooseAccount = ({
       )}
       {!_.isEmpty(ticket) && ticket === "invalid" && (
         <div>
-          <Grid container alignItems="center" justifyContent="center" direction="row">
+          <Grid
+            container
+            alignItems="center"
+            justifyContent="center"
+            direction="row"
+          >
             <Chip
               className={classes.chip}
               icon={<Icon>confirmation_number</Icon>}
@@ -653,7 +697,12 @@ const ChooseAccount = ({
         </div>
       )}
       <div>
-        <Grid container alignItems="center" justifyContent="center" direction="row">
+        <Grid
+          container
+          alignItems="center"
+          justifyContent="center"
+          direction="row"
+        >
           <TextField
             className={classes.textField}
             color={formik.errors.username ? "primary" : "secondary"}
@@ -693,7 +742,12 @@ const ChooseAccount = ({
             }}
           />
         </Grid>
-        <Grid container alignItems="center" justifyContent="center" direction="row">
+        <Grid
+          container
+          alignItems="center"
+          justifyContent="center"
+          direction="row"
+        >
           <Button onClick={() => setShowTermsOfService(true)}>
             Terms of Service
           </Button>
@@ -726,7 +780,12 @@ const ChooseAccount = ({
             </Button>
           </DialogActions>
         </Dialog>
-        <Grid container alignItems="center" justifyContent="center" direction="row">
+        <Grid
+          container
+          alignItems="center"
+          justifyContent="center"
+          direction="row"
+        >
           <FormGroup row>
             <FormControlLabel
               control={
@@ -749,7 +808,12 @@ const ChooseAccount = ({
         </Grid>
       </div>
       <div>
-        <Grid container alignItems="center" justifyContent="center" direction="row">
+        <Grid
+          container
+          alignItems="center"
+          justifyContent="center"
+          direction="row"
+        >
           <Button
             type="submit"
             disabled={
@@ -764,6 +828,9 @@ const ChooseAccount = ({
             Continue
           </Button>
         </Grid>
+        <Backdrop className={classes.backdrop} open={formik.isSubmitting}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
       </div>
     </form>
   );

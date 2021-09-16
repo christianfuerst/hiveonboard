@@ -233,7 +233,7 @@ exports.createAccount = functions
         if (context.hasOwnProperty("auth")) {
           await admin.auth().deleteUser(context.auth.uid);
         }
-        console.log("Remote creator instance is offline.");
+        console.log(error);
         return { error: "Remote creator instance is offline." };
       }
     } else {
@@ -371,6 +371,68 @@ exports.createAccount = functions
 
     return data;
   });
+
+exports.checkReputation = functions.https.onCall(async (data, context) => {
+  function create_UUID() {
+    var dt = new Date().getTime();
+    var uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        var r = (dt + Math.random() * 16) % 16 | 0;
+        dt = Math.floor(dt / 16);
+        return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+      }
+    );
+    return uuid;
+  }
+
+  let requestIp = context.rawRequest.ip;
+  let result;
+
+  try {
+    result = await axios.get(
+      `https://ipqualityscore.com/api/json/ip/${config.ipQualityScorePrivateKey}/${requestIp}?strictness=1&allow_public_access_points=true`
+    );
+
+    const score = result.data.fraud_score;
+    console.log(JSON.stringify(result.data));
+
+    if (score >= 0 && score < 30) {
+      let oneWeekAgo = admin.firestore.Timestamp.fromDate(
+        new Date(Date.now() - 604800000)
+      );
+
+      let accountsRef = db.collection("accounts");
+      let query = await accountsRef
+        .where("ipAddress", "==", context.rawRequest.ip)
+        .where("timestamp", ">", oneWeekAgo)
+        .get();
+
+      if (!query.empty) {
+        return { ticket: "BADREPUTATION" };
+      }
+
+      let ticket = create_UUID();
+      let ticketObject = {
+        ticket: ticket,
+        referrer: config.provider,
+        consumed: false,
+      };
+
+      let ticketRef = db.collection("tickets").doc(ticket);
+      await ticketRef.set(ticketObject);
+
+      return { ticket: ticketObject.ticket };
+    } else if (score >= 75) {
+      return { ticket: "BADREPUTATION" };
+    } else {
+      return { ticket: "" };
+    }
+  } catch (error) {
+    console.log("Error requesting ipqualityscore.com service.");
+    return { ticket: "" };
+  }
+});
 
 exports.claimAccounts = functions.pubsub
   .schedule("every 10 minutes")

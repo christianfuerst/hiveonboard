@@ -47,6 +47,7 @@ const CreateAccountPage = () => {
   const publicData = useFirestoreDocDataOnce(firestore.doc("public/data")).data;
 
   const [accountTickets, setAccountTickets] = React.useState(0);
+  const [suspended, setSuspended] = React.useState(false);
   const [referrer, setReferrer] = React.useState(null);
   const [referrerAccount, setReferrerAccount] = React.useState(null);
   const [creator, setCreator] = React.useState(null);
@@ -159,6 +160,7 @@ const CreateAccountPage = () => {
             setReferrer={setReferrer}
             ticket={ticket}
             setTicket={setTicket}
+            setSuspended={setSuspended}
           />
         );
       case 1:
@@ -219,7 +221,7 @@ const CreateAccountPage = () => {
               </Stepper>
             </Grid>
             <Grid item xs={12}>
-              {accountTickets === 0 ? (
+              {accountTickets === 0 || suspended ? (
                 <Alert className={classes.alert} severity="info">
                   <AlertTitle>Service Unvailable</AlertTitle>
                   {creator
