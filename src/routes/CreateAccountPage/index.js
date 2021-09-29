@@ -3,6 +3,7 @@ import axios from "axios";
 import _ from "lodash";
 import hive from "@hiveio/hive-js";
 import { useLocation } from "react-router-dom";
+import { doc } from "firebase/firestore";
 import { useFirestore, useFirestoreDocDataOnce } from "reactfire";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
@@ -44,7 +45,9 @@ const CreateAccountPage = () => {
   const classes = useStyles();
   const location = useLocation();
   const firestore = useFirestore();
-  const publicData = useFirestoreDocDataOnce(firestore.doc("public/data")).data;
+  const publicData = useFirestoreDocDataOnce(
+    doc(firestore, "public", "data")
+  ).data;
 
   const [accountTickets, setAccountTickets] = React.useState(0);
   const [suspended, setSuspended] = React.useState(false);

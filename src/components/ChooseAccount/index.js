@@ -1,4 +1,6 @@
 import React from "react";
+import { httpsCallable } from "firebase/functions";
+import { logEvent } from "firebase/analytics";
 import { useAnalytics, useFunctions } from "reactfire";
 import {
   isChrome,
@@ -89,7 +91,7 @@ const ChooseAccount = ({
   const analytics = useAnalytics();
   const functions = useFunctions();
 
-  const checkReputation = functions.httpsCallable("checkReputation");
+  const checkReputation = httpsCallable(functions, "checkReputation");
 
   const [referrerProfile, setReferrerProfile] = React.useState({});
   const [confirmed, setConfirmed] = React.useState(false);
@@ -215,7 +217,7 @@ const ChooseAccount = ({
           });
         }
 
-        analytics.logEvent("confirm_account_name");
+        logEvent(analytics, "confirm_account_name");
       }
     },
   });
@@ -550,7 +552,7 @@ const ChooseAccount = ({
                         <b>Install</b>
                         <Button
                           onClick={() =>
-                            analytics.logEvent("open_browser_extension", {
+                            logEvent(analytics, "open_browser_extension", {
                               extension: "keychain",
                             })
                           }

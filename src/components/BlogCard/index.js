@@ -1,4 +1,5 @@
 import React from "react";
+import { logEvent } from "firebase/analytics";
 import cx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
@@ -62,10 +63,8 @@ const useStyles = makeStyles(({ spacing }) => ({
 
 const AppCard = ({ app, analytics }) => {
   const styles = useStyles();
-  const {
-    button: buttonStyles,
-    ...contentStyles
-  } = useBlogTextInfoContentStyles();
+  const { button: buttonStyles, ...contentStyles } =
+    useBlogTextInfoContentStyles();
   const shadowStyles = useOverShadowStyles();
   return (
     <Card className={cx(styles.root, shadowStyles.root)}>
@@ -80,9 +79,11 @@ const AppCard = ({ app, analytics }) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => analytics.logEvent("open_dapp", {
-            dapp: app.name,
-          })}
+          onClick={() =>
+            logEvent(analytics, "open_dapp", {
+              dapp: app.name,
+            })
+          }
           target="_blank"
           href={app.url}
         >

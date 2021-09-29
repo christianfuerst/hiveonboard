@@ -1,6 +1,7 @@
 import React from "react";
-import firebase from "firebase/app";
-import "firebase/auth";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { httpsCallable } from "firebase/functions";
+import { logEvent } from "firebase/analytics";
 import { useAuth, useFunctions, useAnalytics } from "reactfire";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
@@ -94,25 +95,27 @@ const BackupKeys = ({
   const [confirmationResult, setConfirmationResult] = React.useState(null);
   const [confirmationCode, setConfirmationCode] = React.useState("");
 
-  const createAccount = functions.httpsCallable("createAccount");
-
-  React.useEffect(() => {
-    initializeRecaptcha();
-  }, []);
+  const createAccount = httpsCallable(functions, "createAccount");
 
   const initializeRecaptcha = () => {
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+    window.recaptchaVerifier = new RecaptchaVerifier(
       "create-account",
       {
         size: "invisible",
         callback: function (response) {},
-      }
+      },
+      auth
     );
 
     window.recaptchaVerifier.render().then(function (widgetId) {
       window.recaptchaWidgetId = widgetId;
     });
   };
+
+  React.useEffect(() => {
+    initializeRecaptcha();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const accountString =
     `--------------- YOUR ACCOUNT -------------\n` +
@@ -159,7 +162,12 @@ const BackupKeys = ({
   };
 
   return (
-    <Grid container alignItems="center" justifyContent="center" direction="column">
+    <Grid
+      container
+      alignItems="center"
+      justifyContent="center"
+      direction="column"
+    >
       <Grid item>
         <Typography variant="h6">ALMOST THERE!</Typography>
         <Typography>
@@ -169,7 +177,12 @@ const BackupKeys = ({
         </Typography>
       </Grid>
       <Grid item>
-        <Grid container alignItems="center" justifyContent="center" direction="column">
+        <Grid
+          container
+          alignItems="center"
+          justifyContent="center"
+          direction="column"
+        >
           <Grid item>
             <Paper
               className={classes.paper}
@@ -214,12 +227,17 @@ const BackupKeys = ({
         </Grid>
       </Grid>
       <Grid item>
-        <Grid container alignItems="center" justifyContent="center" direction="row">
+        <Grid
+          container
+          alignItems="center"
+          justifyContent="center"
+          direction="row"
+        >
           <Button
             variant="contained"
             color="primary"
             onClick={() => {
-              analytics.logEvent("download_backup_file");
+              logEvent(analytics, "download_backup_file");
               downloadBackupFile();
               setConfirmed(true);
             }}
@@ -355,8 +373,7 @@ const BackupKeys = ({
                     setSubmitting(true);
                     let appVerifier = window.recaptchaVerifier;
 
-                    auth
-                      .signInWithPhoneNumber("+" + phoneNumber, appVerifier)
+                    signInWithPhoneNumber(auth, "+" + phoneNumber, appVerifier)
                       .then(function (result) {
                         // SMS sent. Prompt user to type the code from the message, then sign the
                         // user in with confirmationResult.confirm(code).
@@ -393,13 +410,13 @@ const BackupKeys = ({
                           creator: creator,
                         }).then(function (result) {
                           if (result.data.hasOwnProperty("error")) {
-                            analytics.logEvent("create_account_error", {
+                            logEvent(analytics, "create_account_error", {
                               error: result.data.error,
                             });
                             setError(result.data.error);
                             closeDialog();
                           } else {
-                            analytics.logEvent("create_account_success");
+                            logEvent(analytics, "create_account_success");
                             setActiveStep(2);
                           }
                         });
@@ -418,7 +435,12 @@ const BackupKeys = ({
             </DialogActions>
           </Dialog>
         </Grid>
-        <Grid container alignItems="center" justifyContent="center" direction="row">
+        <Grid
+          container
+          alignItems="center"
+          justifyContent="center"
+          direction="row"
+        >
           <Alert className={classes.alert} severity="warning">
             <AlertTitle>
               <b>WHY DO I HAVE TO SAVE THIS INFO? </b>
@@ -463,7 +485,12 @@ const BackupKeys = ({
             />
           </FormGroup>
         </Grid>
-        <Grid container alignItems="center" justifyContent="center" direction="row">
+        <Grid
+          container
+          alignItems="center"
+          justifyContent="center"
+          direction="row"
+        >
           <Button
             disabled={!backupConfirmed ? true : false}
             variant="contained"
@@ -501,13 +528,13 @@ const BackupKeys = ({
                     ticket: ticket,
                   }).then(function (result) {
                     if (result.data.hasOwnProperty("error")) {
-                      analytics.logEvent("create_account_error", {
+                      logEvent(analytics, "create_account_error", {
                         error: result.data.error,
                       });
                       setError(result.data.error);
                       setSubmitting(false);
                     } else {
-                      analytics.logEvent("create_account_success");
+                      logEvent(analytics, "create_account_success");
 
                       if (
                         window.hive_keychain &&
@@ -541,7 +568,12 @@ const BackupKeys = ({
           </Button>
         </Grid>
         {error && (
-          <Grid container alignItems="center" justifyContent="center" direction="row">
+          <Grid
+            container
+            alignItems="center"
+            justifyContent="center"
+            direction="row"
+          >
             <Alert
               className={classes.alert}
               severity="error"

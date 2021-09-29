@@ -7,6 +7,17 @@ import {
   Link as RouterLink,
   useLocation,
 } from "react-router-dom";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getFunctions } from "firebase/functions";
+import { getAnalytics } from "firebase/analytics";
+import {
+  FirestoreProvider,
+  AuthProvider,
+  FunctionsProvider,
+  AnalyticsProvider,
+  useFirebaseApp,
+} from "reactfire";
 import hivesigner from "hivesigner";
 import {
   makeStyles,
@@ -70,6 +81,12 @@ const useUsernameState = createPersistedState("username");
 function App() {
   const classes = useStyles();
   const location = useLocation();
+
+  const app = useFirebaseApp();
+  const authProvider = getAuth(app);
+  const firestoreProvider = getFirestore(app);
+  const functionsProvider = getFunctions(app);
+  const analyticsProvider = getAnalytics(app);
 
   const [accessToken, setAccessToken] = useAccessTokenState(null);
   const [username, setUsername] = useUsernameState(null);
@@ -146,197 +163,219 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container className={classes.container} maxWidth="md">
-        <CssBaseline />
-        <AppBar className={classes.appBar} position="static">
-          <Toolbar>
-            <Grid
-              container
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Grid item>
-                <Button
-                  component={RouterLink}
-                  to={"/" + location.search}
-                  disabled={location.pathname === "/" ? true : false}
+      <FirestoreProvider sdk={firestoreProvider}>
+        <AuthProvider sdk={authProvider}>
+          <FunctionsProvider sdk={functionsProvider}>
+            <AnalyticsProvider sdk={analyticsProvider}>
+              <Container className={classes.container} maxWidth="md">
+                <CssBaseline />
+                <AppBar className={classes.appBar} position="static">
+                  <Toolbar>
+                    <Grid
+                      container
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      <Grid item>
+                        <Button
+                          component={RouterLink}
+                          to={"/" + location.search}
+                          disabled={location.pathname === "/" ? true : false}
+                        >
+                          <img
+                            className={classes.imageLogo}
+                            src={HiveLogo}
+                            alt="HIVE Logo"
+                          />
+                        </Button>
+                      </Grid>
+                      <Grid item>
+                        <img
+                          className={classes.imageClaim}
+                          src={HiveClaim}
+                          alt="HIVE Claim"
+                        />
+                      </Grid>
+                    </Grid>
+                  </Toolbar>
+                </AppBar>
+                <Box
+                  className={classes.box}
+                  display="flex"
+                  flexWrap="wrap"
+                  alignItems="center"
                 >
-                  <img
-                    className={classes.imageLogo}
-                    src={HiveLogo}
-                    alt="HIVE Logo"
+                  <Box>
+                    <Button
+                      className={classes.button}
+                      color="secondary"
+                      component={RouterLink}
+                      to={"/what-is-hive" + location.search}
+                      disabled={
+                        location.pathname === "/what-is-hive" ? true : false
+                      }
+                    >
+                      Learn
+                    </Button>
+                  </Box>
+                  <Box>
+                    <Button
+                      className={classes.button}
+                      color="secondary"
+                      component={RouterLink}
+                      to={"/create-account" + location.search}
+                      disabled={
+                        location.pathname === "/create-account" ? true : false
+                      }
+                    >
+                      Create Account
+                    </Button>
+                  </Box>
+                  <Box flexGrow={1}>
+                    <Button
+                      className={classes.button}
+                      component={RouterLink}
+                      to={"/discover-dapps" + location.search}
+                      disabled={
+                        location.pathname === "/discover-dapps" ? true : false
+                      }
+                    >
+                      Explore
+                    </Button>
+                  </Box>
+                  {!auth ? (
+                    <Box>
+                      <Button
+                        className={classes.button}
+                        size="large"
+                        onClick={() => {
+                          client.login({});
+                        }}
+                      >
+                        Referral Login
+                      </Button>
+                    </Box>
+                  ) : (
+                    <React.Fragment>
+                      <Box>
+                        <Button
+                          className={classes.button}
+                          component={RouterLink}
+                          to={"/dashboard" + location.search}
+                          disabled={
+                            location.pathname === "/dashboard" ? true : false
+                          }
+                        >
+                          My Dashboard
+                        </Button>
+                      </Box>
+                      <Box>
+                        <Tooltip title="Logout">
+                          <IconButton
+                            size="small"
+                            className={classes.button}
+                            component={RouterLink}
+                            onClick={() => {
+                              client.revokeToken();
+                              setAccessToken(null);
+                              setAuth(null);
+                              setUserProfile({});
+                            }}
+                            to={"/"}
+                          >
+                            <Icon>exit_to_app</Icon>{" "}
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    </React.Fragment>
+                  )}
+                </Box>
+                <Switch>
+                  <Route path="/" exact component={LandingPage} />
+                  <Route
+                    path="/what-is-hive"
+                    exact
+                    render={(props) => (
+                      <WhatIsHivePage {...props} client={client} />
+                    )}
                   />
-                </Button>
-              </Grid>
-              <Grid item>
-                <img
-                  className={classes.imageClaim}
-                  src={HiveClaim}
-                  alt="HIVE Claim"
-                />
-              </Grid>
-            </Grid>
-          </Toolbar>
-        </AppBar>
-        <Box
-          className={classes.box}
-          display="flex"
-          flexWrap="wrap"
-          alignItems="center"
-        >
-          <Box>
-            <Button
-              className={classes.button}
-              color="secondary"
-              component={RouterLink}
-              to={"/what-is-hive" + location.search}
-              disabled={location.pathname === "/what-is-hive" ? true : false}
-            >
-              Learn
-            </Button>
-          </Box>
-          <Box>
-            <Button
-              className={classes.button}
-              color="secondary"
-              component={RouterLink}
-              to={"/create-account" + location.search}
-              disabled={location.pathname === "/create-account" ? true : false}
-            >
-              Create Account
-            </Button>
-          </Box>
-          <Box flexGrow={1}>
-            <Button
-              className={classes.button}
-              component={RouterLink}
-              to={"/discover-dapps" + location.search}
-              disabled={location.pathname === "/discover-dapps" ? true : false}
-            >
-              Explore
-            </Button>
-          </Box>
-          {!auth ? (
-            <Box>
-              <Button
-                className={classes.button}
-                size="large"
-                onClick={() => {
-                  client.login({});
-                }}
-              >
-                Referral Login
-              </Button>
-            </Box>
-          ) : (
-            <React.Fragment>
-              <Box>
-                <Button
-                  className={classes.button}
-                  component={RouterLink}
-                  to={"/dashboard" + location.search}
-                  disabled={location.pathname === "/dashboard" ? true : false}
-                >
-                  My Dashboard
-                </Button>
-              </Box>
-              <Box>
-                <Tooltip title="Logout">
-                  <IconButton
-                    size="small"
-                    className={classes.button}
-                    component={RouterLink}
-                    onClick={() => {
-                      client.revokeToken();
-                      setAccessToken(null);
-                      setAuth(null);
-                      setUserProfile({});
-                    }}
-                    to={"/"}
-                  >
-                    <Icon>exit_to_app</Icon>{" "}
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            </React.Fragment>
-          )}
-        </Box>
-        <Switch>
-          <Route path="/" exact component={LandingPage} />
-          <Route
-            path="/what-is-hive"
-            exact
-            render={(props) => <WhatIsHivePage {...props} client={client} />}
-          />
-          <Route path="/create-account" exact component={CreateAccountPage} />
-          <Route path="/discover-dapps" exact component={DAppsPage} />
-          <Route
-            path="/dashboard"
-            exact
-            render={(props) => (
-              <DashboardPage
-                {...props}
-                accessToken={accessToken}
-                userProfile={userProfile}
-              />
-            )}
-          />
-        </Switch>
-        <AppBar className={classes.appBar} position="static">
-          <Toolbar variant="dense">
-            <Grid
-              container
-              direction="row"
-              justifyContent="center"
-              alignItems="center"
-            >
-              <Grid item>
-                hiveonboard.com -
-                <Link
-                  className={classes.link}
-                  target="_blank"
-                  href="https://peakd.com/@hiveonboard"
-                >
-                  @hiveonboard
-                </Link>
-                - created by
-                <Link
-                  className={classes.link}
-                  target="_blank"
-                  href="https://peakd.com/@roomservice"
-                >
-                  @roomservice
-                </Link>
-                -
-                <Link
-                  className={classes.link}
-                  target="_blank"
-                  href="https://hivesigner.com/sign/account-witness-vote?witness=roomservice&approve=1"
-                >
-                  Vote for Witness
-                </Link>
-                -
-                <Link
-                  className={classes.link}
-                  target="_blank"
-                  href="https://github.com/christianfuerst/hiveonboard"
-                >
-                  GitHub
-                </Link>
-                -
-                <Link
-                  className={classes.link}
-                  target="_blank"
-                  href="https://app.swaggerhub.com/apis-docs/christianfuerst/hiveonboard.com/1.0.1"
-                >
-                  API
-                </Link>
-              </Grid>
-            </Grid>
-          </Toolbar>
-        </AppBar>
-      </Container>
+                  <Route
+                    path="/create-account"
+                    exact
+                    component={CreateAccountPage}
+                  />
+                  <Route path="/discover-dapps" exact component={DAppsPage} />
+                  <Route
+                    path="/dashboard"
+                    exact
+                    render={(props) => (
+                      <DashboardPage
+                        {...props}
+                        accessToken={accessToken}
+                        userProfile={userProfile}
+                      />
+                    )}
+                  />
+                </Switch>
+                <AppBar className={classes.appBar} position="static">
+                  <Toolbar variant="dense">
+                    <Grid
+                      container
+                      direction="row"
+                      justifyContent="center"
+                      alignItems="center"
+                    >
+                      <Grid item>
+                        hiveonboard.com -
+                        <Link
+                          className={classes.link}
+                          target="_blank"
+                          href="https://peakd.com/@hiveonboard"
+                        >
+                          @hiveonboard
+                        </Link>
+                        - created by
+                        <Link
+                          className={classes.link}
+                          target="_blank"
+                          href="https://peakd.com/@roomservice"
+                        >
+                          @roomservice
+                        </Link>
+                        -
+                        <Link
+                          className={classes.link}
+                          target="_blank"
+                          href="https://hivesigner.com/sign/account-witness-vote?witness=roomservice&approve=1"
+                        >
+                          Vote for Witness
+                        </Link>
+                        -
+                        <Link
+                          className={classes.link}
+                          target="_blank"
+                          href="https://github.com/christianfuerst/hiveonboard"
+                        >
+                          GitHub
+                        </Link>
+                        -
+                        <Link
+                          className={classes.link}
+                          target="_blank"
+                          href="https://app.swaggerhub.com/apis-docs/christianfuerst/hiveonboard.com/1.0.1"
+                        >
+                          API
+                        </Link>
+                      </Grid>
+                    </Grid>
+                  </Toolbar>
+                </AppBar>
+              </Container>
+            </AnalyticsProvider>
+          </FunctionsProvider>
+        </AuthProvider>
+      </FirestoreProvider>
     </ThemeProvider>
   );
 }
