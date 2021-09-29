@@ -13,7 +13,6 @@ admin.initializeApp();
 let db = admin.firestore();
 
 let client = new dhive.Client([
-  "https://hived.privex.io",
   "https://api.hive.blog",
   "https://anyx.io",
   "https://api.openhive.network",
@@ -412,17 +411,22 @@ exports.checkReputation = functions.https.onCall(async (data, context) => {
 
     if (!queryTickets.empty) {
       console.log("Ticket for specific IP address found.");
-      return { ticket: query.docs[0].get("ticket") };
+      return { ticket: queryTickets.docs[0].get("ticket") };
     }
 
     let { "user-agent": userAgent } = context.rawRequest.headers;
 
     result = await axios.get(
-      `https://ipqualityscore.com/api/json/ip/${config.ipQualityScorePrivateKey}/${requestIp}?strictness=1&allow_public_access_points=true&user_agent=${userAgent}`
+      `https://api.esteem.app/api/signup/quality?creator=${config.ipQualityScorePrivateKey}&request_ip=${requestIp}&user_agent=${userAgent}`
     );
 
-    const score = result.data.fraud_score;
     console.log(JSON.stringify(result.data));
+
+    if (result.data.success === false) {
+      return { ticket: "" };
+    }
+
+    const score = result.data.fraud_score;
 
     if (score >= 0 && score < 30) {
       let ticket = create_UUID();
