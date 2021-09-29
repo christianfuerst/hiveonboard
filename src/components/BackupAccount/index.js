@@ -590,7 +590,7 @@ const BackupKeys = ({
                   href="https://signup.hive.io/"
                   rel="noreferrer"
                 >
-                  http://signup.hive.io/
+                  https://signup.hive.io/
                 </a>
               </b>
             </Alert>

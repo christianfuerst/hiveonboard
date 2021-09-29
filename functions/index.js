@@ -1142,7 +1142,7 @@ app.get("/api/tickets", async (req, res) => {
   if (req.query.hasOwnProperty("accessToken")) {
     let hivesignerClient = new hivesigner.Client({
       app: "hiveonboard",
-      callbackURL: "http://hiveonboard.com/dashboard",
+      callbackURL: "https://hiveonboard.com/dashboard",
       scope: ["login"],
       accessToken: [req.query.accessToken],
     });
@@ -1294,7 +1294,7 @@ app.post("/api/tickets", async (req, res) => {
   if (req.body.accessToken) {
     let hivesignerClient = new hivesigner.Client({
       app: "hiveonboard",
-      callbackURL: "http://hiveonboard.com/dashboard",
+      callbackURL: "https://hiveonboard.com/dashboard",
       scope: ["login"],
       accessToken: [req.body.accessToken],
     });
