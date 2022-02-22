@@ -428,7 +428,12 @@ exports.checkReputation = functions.https.onCall(async (data, context) => {
 
     const score = result.data.fraud_score;
 
-    if (score >= 0 && score < 30) {
+    if (
+      score >= 0 &&
+      score < 10 &&
+      result.data.mobile === false &&
+      result.data.country_code !== "PH"
+    ) {
       let ticket = create_UUID();
       let ticketObject = {
         ticket: ticket,
