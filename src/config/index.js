@@ -169,6 +169,13 @@ export const dApps = [
     text: "Try new dishes, share your experiences and collect tangible rewards",
     url: "https://www.dining.gifts",
   },
+  {
+    icon: "rabona.png",
+    name: "Rabona",
+    subtitle: "Online Football Manager",
+    text: "Football manager with cryptocurrency. Lead your club and become the champion!",
+    url: "https://rabona.io"
+  }
 ];
 
 export const ticketThreshold = 2000;
