@@ -217,7 +217,7 @@ exports.createAccount = functions
           }
         );
 
-        if (postRequest.created === false) {
+        if (postRequest.data.created !== true) {
           // Delete user including phone number
           if (context.hasOwnProperty("auth")) {
             await admin.auth().deleteUser(context.auth.uid);
