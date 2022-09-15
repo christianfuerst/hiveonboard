@@ -18,11 +18,11 @@ export const muiThemeConfig = {
 
 export const tos = [
   "You have to agree to this terms of service:",
-  "- In order to prevent abuse & spam a verification of your phone number is required. Your data won't be used for any other purpose than that.",
+  "- In order to prevent abuse & spam some verification of identity may be required. Your data won't be used for any other purpose than that.",
   "- In the process of account creation a meta-information will be put into your account, which will suggest default beneficiaries when creating a post. It's up to dApps to support this feature.",
   "- The default beneficiaries meta-information proposes sharing a total of 5% of your rewards with accounts which referred you, funded the operation and provided this service.",
   "- The default beneficiaries meta-information can be changed or removed entirely on a blockchain level at any time.",
-  "- Please beware of the fact, that removing this meta-information could result in loosing delegated HIVE POWER to your account from beneficiaries. It is recommended to obtain HIVE on your own and powering your account in this case.",
+  "- Please beware of the fact, that removing this meta-information could result in losing delegated HIVE POWER to your account from beneficiaries. It is recommended to obtain HIVE on your own and powering your account in this case.",
 ];
 
 export const landingContent = [
@@ -174,8 +174,8 @@ export const dApps = [
     name: "Rabona",
     subtitle: "Online Football Manager",
     text: "Football manager with cryptocurrency. Lead your club and become the champion!",
-    url: "https://rabona.io"
-  }
+    url: "https://rabona.io",
+  },
 ];
 
 export const ticketThreshold = 2000;
