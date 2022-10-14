@@ -332,19 +332,27 @@ exports.createAccount = functions
         .set({ consumed: true, consumedBy: data.username }, { merge: true });
     }
 
-    // HP delegation
-    if (referrer || config.defaultDelegation === "0 VESTS") {
+    // RC delegation
+    if (config.rcDelegation === 0) {
       await db
         .collection("accounts")
         .doc(data.username)
         .set({ delegation: false }, { merge: true });
     } else {
       try {
-        await client.broadcast.delegateVestingShares(
+        await client.broadcast.json(
           {
-            delegatee: data.username,
-            delegator: config.account,
-            vesting_shares: config.defaultDelegation,
+            required_auths: [],
+            required_posting_auths: [config.account],
+            id: "rc",
+            json: JSON.stringify([
+              "delegate_rc",
+              {
+                from: config.account,
+                delegatees: [data.username],
+                max_rc: config.rcDelegation,
+              },
+            ]),
           },
           key
         );
@@ -560,12 +568,21 @@ exports.claimAccounts = functions.pubsub
       query.forEach((element) => {
         try {
           console.log("Removing Delegation: " + element.id);
+
           client.broadcast
-            .delegateVestingShares(
+            .json(
               {
-                delegatee: element.id,
-                delegator: config.account,
-                vesting_shares: "0.000000 VESTS",
+                required_auths: [],
+                required_posting_auths: [config.account],
+                id: "rc",
+                json: JSON.stringify([
+                  "delegate_rc",
+                  {
+                    from: config.account,
+                    delegatees: [element.id],
+                    max_rc: 0,
+                  },
+                ]),
               },
               key
             )
