@@ -93,6 +93,13 @@ export const dApps = [
     url: "https://travelfeed.io/?utm_source=hiveonboard",
   },
   {
+    icon: "skatehive.png",
+    name: "Skatehive",
+    subtitle: "Skateboard on Chain",
+    text: "The portal to web3 for skateboarding",
+    url: "https://skatehive.app",
+  },
+  {
     icon: "truvvl.svg",
     name: "truvvl",
     subtitle: "Stories App",
@@ -175,7 +182,7 @@ export const dApps = [
     subtitle: "Online Football Manager",
     text: "Football manager with cryptocurrency. Lead your club and become the champion!",
     url: "https://rabona.io",
-  },
+  }
 ];
 
 export const ticketThreshold = 2000;
