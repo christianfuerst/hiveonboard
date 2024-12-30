@@ -1,5 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const { FirebaseFunctionsRateLimiter } = require("firebase-functions-rate-limiter");
 const axios = require("axios").default;
 const dhive = require("@hiveio/dhive");
 const hivesigner = require("hivesigner");
@@ -12,6 +13,15 @@ const config = require("./config.json");
 admin.initializeApp();
 let db = admin.firestore();
 
+const limiter = FirebaseFunctionsRateLimiter.withFirestoreBackend(
+  {
+    name: "rate_limiter_collection",
+    maxCalls: 1,
+    periodSeconds: 60,
+  },
+  db,
+);
+
 let client = new dhive.Client([
   "https://api.hive.blog",
   "https://anyx.io",
@@ -21,12 +31,7 @@ let client = new dhive.Client([
 let key = dhive.PrivateKey.fromString(config.activeKey);
 let keyLog = dhive.PrivateKey.fromString(config.activeKeyLog);
 
-const runtimeOpts = {
-  timeoutSeconds: 300,
-};
-
 exports.createAccount = functions
-  .runWith(runtimeOpts)
   .https.onCall(async (data, context) => {
     let ticket = data.ticket;
     let phoneNumberHashObject = CryptoJS.SHA256("No Phone Number");
@@ -35,6 +40,14 @@ exports.createAccount = functions
     let creatorRequested = false;
     let provider = config.provider;
     let beneficiaries = [];
+
+    const isQuotaExceeded = await limiter.isQuotaExceededOrRecordUsage();
+    if (isQuotaExceeded) {
+      console.log("Rate limit exceeded.");
+      return {
+        error: "Rate limit exceeded.",
+      };
+    }
 
     if (ticket) {
       let ticketRef = db.collection("tickets").doc(ticket);
@@ -101,8 +114,8 @@ exports.createAccount = functions
         }
         console.log(
           "Phone number (" +
-            phoneNumberHashObject.toString(CryptoJS.enc.Hex) +
-            ") was already used for account creation."
+          phoneNumberHashObject.toString(CryptoJS.enc.Hex) +
+          ") was already used for account creation."
         );
         return {
           error: "Your phone number was already used for account creation.",
@@ -437,6 +450,7 @@ exports.checkReputation = functions.https.onCall(async (data, context) => {
     const score = result.data.fraud_score;
 
     if (
+      score &&
       score >= 0 &&
       score < 10 &&
       result.data.mobile === false &&
@@ -454,7 +468,7 @@ exports.checkReputation = functions.https.onCall(async (data, context) => {
       await ticketRef.set(ticketObject);
 
       return { ticket: ticketObject.ticket };
-    } else if (score >= 75) {
+    } else if (score && score >= 75) {
       return { ticket: "BADREPUTATION" };
     } else {
       return { ticket: "" };
@@ -562,39 +576,38 @@ exports.claimAccounts = functions.pubsub
       let query = await accountsRef
         .where("delegation", "==", true)
         .where("timestamp", "<", oneWeekAgo)
-        .limit(3)
+        .limit(30)
         .get();
 
       query.forEach((element) => {
-        try {
-          console.log("Removing Delegation: " + element.id);
+        console.log("Removing Delegation: " + element.id);
 
-          client.broadcast
-            .json(
-              {
-                required_auths: [],
-                required_posting_auths: [config.account],
-                id: "rc",
-                json: JSON.stringify([
-                  "delegate_rc",
-                  {
-                    from: config.account,
-                    delegatees: [element.id],
-                    max_rc: 0,
-                  },
-                ]),
-              },
-              key
-            )
-            .then(() => {
-              accountsRef
-                .doc(element.id)
-                .set({ delegation: false }, { merge: true });
-            });
-        } catch (error) {
-          console.log("Removing delegation Error", error);
-          throw new Error(error);
-        }
+        client.broadcast
+          .json(
+            {
+              required_auths: [],
+              required_posting_auths: [config.account],
+              id: "rc",
+              json: JSON.stringify([
+                "delegate_rc",
+                {
+                  from: config.account,
+                  delegatees: [element.id],
+                  max_rc: 0,
+                },
+              ]),
+            },
+            key
+          )
+          .then(() => {
+            accountsRef
+              .doc(element.id)
+              .set({ delegation: false }, { merge: true });
+          })
+          .catch((error) => {
+            console.log("Removing delegation Error", error);
+            throw new Error(error);
+          });
       });
     } catch (error) {
       console.log(error);
@@ -1216,7 +1229,7 @@ app.get("/api/tickets", async (req, res) => {
         if (error) {
           console.log(
             "GET request to /api/tickets - Refused: Invalid auth accessToken. - Source: " +
-              req.ip
+            req.ip
           );
           res.status(401).send("Invalid access token.");
         } else {
@@ -1259,7 +1272,7 @@ app.get("/api/tickets", async (req, res) => {
   } else {
     console.log(
       "GET request to /api/tickets - Refused: Invalid auth accessToken. - Source: " +
-        req.ip
+      req.ip
     );
     res.status(401).send("Invalid access token.");
   }
@@ -1349,7 +1362,7 @@ app.post("/api/tickets", async (req, res) => {
         if (error) {
           console.log(
             "POST request to /api/tickets - Refused: Invalid auth accessToken. - Source: " +
-              req.ip
+            req.ip
           );
           res.status(401).send("Invalid access token.");
         } else {
@@ -1359,7 +1372,7 @@ app.post("/api/tickets", async (req, res) => {
           if (!doc.exists) {
             console.log(
               "POST request to /api/tickets - Error: referralsCount doc not found. - Source: " +
-                req.ip
+              req.ip
             );
             res.status(412).send("Referrer record not found.");
           } else {
@@ -1382,7 +1395,7 @@ app.post("/api/tickets", async (req, res) => {
             } else {
               console.log(
                 "POST request to /api/tickets - Error: Condition not fulfilled. - Source: " +
-                  req.ip
+                req.ip
               );
               res.status(412).send("Condition not fulfilled.");
             }
@@ -1393,7 +1406,7 @@ app.post("/api/tickets", async (req, res) => {
   } else {
     console.log(
       "POST request to /api/tickets - Refused: Invalid auth accessToken. - Source: " +
-        req.ip
+      req.ip
     );
     res.status(401).send("Invalid access token.");
   }
